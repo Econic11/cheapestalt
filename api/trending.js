@@ -85,7 +85,7 @@ function buildIndex(articles) {
     '.ftr-in{max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:13px;color:#64748B;align-items:center}' +
     '.ftr-in a{color:#64748B;text-decoration:none}.ftr-in a:hover{color:#fff}' +
     '.ftr-links{display:flex;gap:16px;flex-wrap:wrap}' +
-    '@media(max-width:600px){.hero h1{font-size:24px}.grid{grid-template-columns:1fr}.nav a{font-size:11px;padding:4px 8px;margin-left:6px}.ftr-in{flex-direction:column;align-items:center;text-align:center}.ftr-links{justify-content:center}}';
+    '@media(max-width:600px){.hdr{flex-direction:column;height:auto;padding:12px 16px;gap:8px;align-items:center}.nav{display:flex;justify-content:center;flex-wrap:wrap;gap:6px}.nav a{margin-left:0;font-size:12px;padding:5px 10px}.hero h1{font-size:24px}.grid{grid-template-columns:1fr}.ftr-in{flex-direction:column;align-items:center;text-align:center}.ftr-links{justify-content:center}}';
 
   return '<!DOCTYPE html><html lang="en"><head>' +
     '<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>' +
