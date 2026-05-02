@@ -202,10 +202,13 @@ async function getTrendingKeywords() {
     "trends:", trendsKws.length, "seed:", rotated.length,
     "total unique:", unique.length);
 
-  // Return 1 keyword for this run (rotate by hour so each run gets a different one)
+  // Return 3 keywords per run, rotating by hour so each run gets a fresh batch
   const hourSlot = d.getUTCHours();
-  const idx = hourSlot % unique.length;
-  return [unique[idx]];
+  return [
+    unique[hourSlot % unique.length],
+    unique[(hourSlot + 1) % unique.length],
+    unique[(hourSlot + 2) % unique.length],
+  ];
 }
 
 // ── STEP 2: Article angle variations ─────────────────────────────────────────
