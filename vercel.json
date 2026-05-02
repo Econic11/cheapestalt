@@ -1,0 +1,130 @@
+{
+  "functions": {
+    "api/search.js": {
+      "maxDuration": 30
+    },
+    "api/compare.js": {
+      "maxDuration": 30
+    },
+    "api/find.js": {
+      "maxDuration": 30
+    },
+    "api/pages.js": {
+      "maxDuration": 10
+    },
+    "api/stories.js": {
+      "maxDuration": 15
+    },
+    "api/run-daily-stories.js": {
+      "maxDuration": 60
+    },
+    "api/sitemap.js": {
+      "maxDuration": 10
+    },
+    "api/admin.js": {
+      "maxDuration": 60
+    },
+    "api/trending.js": {
+      "maxDuration": 15
+    },
+    "api/run-trending.js": {
+      "maxDuration": 60
+    },
+    "api/run-all.js": {
+      "maxDuration": 60
+    }
+  },
+  "crons": [
+    {
+      "path": "/api/run-all",
+      "schedule": "0 8 * * *"
+    },
+    {
+      "path": "/api/run-all",
+      "schedule": "0 20 * * *"
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/pages/:page",
+      "destination": "/api/pages?page=:page"
+    },
+    {
+      "source": "/alternatives/:slug",
+      "destination": "/api/find?slug=:slug-alternatives"
+    },
+    {
+      "source": "/find",
+      "destination": "/api/find"
+    },
+    {
+      "source": "/stories",
+      "destination": "/api/stories"
+    },
+    {
+      "source": "/stories/:slug",
+      "destination": "/api/stories"
+    },
+    {
+      "source": "/sitemap-stories.xml",
+      "destination": "/api/sitemap"
+    },
+    {
+      "source": "/sitemap-trending.xml",
+      "destination": "/api/sitemap"
+    },
+    {
+      "source": "/admin",
+      "destination": "/api/admin"
+    },
+    {
+      "source": "/admin/:path*",
+      "destination": "/api/admin"
+    },
+    {
+      "source": "/trending",
+      "destination": "/api/trending"
+    },
+    {
+      "source": "/trending/:slug",
+      "destination": "/api/trending"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "POST, GET, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type"
+        }
+      ]
+    },
+    {
+      "source": "/sitemap-stories.xml",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/xml; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/sitemap-trending.xml",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/xml; charset=utf-8"
+        }
+      ]
+    }
+  ]
+}

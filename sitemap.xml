@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <url><loc>https://www.cheapestalt.com/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>
+  <url><loc>https://www.cheapestalt.com/dataset</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.cheapestalt.com/api/pages?page=about</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://www.cheapestalt.com/api/pages?page=how-it-works</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.cheapestalt.com/api/pages?page=affiliate-disclosure</loc><changefreq>monthly</changefreq><priority>0.4</priority></url>
+  <url><loc>https://www.cheapestalt.com/api/pages?page=privacy-policy</loc><changefreq>monthly</changefreq><priority>0.4</priority></url>
+  <url><loc>https://www.cheapestalt.com/api/pages?page=contact</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+
+  <url><loc>https://www.cheapestalt.com/find?slug=airpods-pro-alternatives</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://www.cheapestalt.com/find?slug=best-airpods-pro-alternatives</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.cheapestalt.com/find?slug=cheap-airpods-pro-alternatives</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.cheapestalt.com/find?slug=dyson-v15-alternatives</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://www.cheapestalt.com/find?slug=best-dyson-v15-alternatives</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.cheapestalt.com/find?slug=ipad-pro-alternatives</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://www.cheapestalt.com/find?slug=best-ipad-pro-alternatives</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.cheapestalt.com/find?slug=cheap-ipad-pro-alternatives</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.cheapestalt.com/find?slug=nike-air-max-alternatives</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://www.cheapestalt.com/find?slug=samsung-65-tv-alternatives</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://www.cheapestalt.com/find?slug=macbook-pro-alternatives</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://www.cheapestalt.com/find?slug=best-macbook-pro-alternatives</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.cheapestalt.com/find?slug=sony-wf1000xm5-alternatives</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.cheapestalt.com/find?slug=fitbit-alternatives</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+
+  <url><loc>https://www.cheapestalt.com/find?slug=airpods-pro-vs-sony-wf1000xm5</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://www.cheapestalt.com/find?slug=ipad-pro-vs-samsung-galaxy-tab-s9</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.cheapestalt.com/find?slug=dyson-v15-vs-shark-stratos</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.cheapestalt.com/find?slug=macbook-pro-vs-dell-xps-15</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+
+</urlset>

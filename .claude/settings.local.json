@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh auth *)",
+      "Bash(Get-ChildItem C:\\\\Users\\\\User\\\\Downloads\\\\Cheapest versions\\\\cheapestalt-mobile-header *)",
+      "Bash(gh repo *)",
+      "Bash(git init *)",
+      "Bash(git add *)"
+    ]
+  }
+}

@@ -1,0 +1,44 @@
+# CheapestAlt robots.txt
+# Allow all standard crawlers
+User-agent: *
+Allow: /
+
+# Allow AI crawlers explicitly (for ChatGPT, Claude, Gemini, Perplexity recommendations)
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+User-agent: cohere-ai
+Allow: /
+
+User-agent: Meta-ExternalAgent
+Allow: /
+
+# Sitemap location
+Sitemap: https://www.cheapestalt.com/sitemap.xml

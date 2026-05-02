@@ -1,0 +1,343 @@
+// api/compare.js
+// Model: claude-sonnet-4-5
+// Storage: Supabase permanent lifetime + in-memory cache
+
+"use strict";
+const https = require("https");
+const MODEL = "claude-sonnet-4-5";
+const TAG   = "cheapestalt-20";
+
+// ── Supabase client ────────────────────────────────────────────────────────────
+function sbReq(method, path, body) {
+  const base = process.env.SUPABASE_URL;
+  const key  = process.env.SUPABASE_ANON_KEY;
+  if (!base || !key) return Promise.resolve({ data: null, error: "no-config" });
+  const host    = base.replace(/^https?:\/\//, "");
+  const payload = body ? JSON.stringify(body) : null;
+  return new Promise(res => {
+    const hdrs = { "apikey": key, "Authorization": "Bearer " + key, "Content-Type": "application/json" };
+    if (method === "POST")  hdrs["Prefer"] = "return=minimal,resolution=merge-duplicates";
+    if (method === "PATCH") hdrs["Prefer"] = "return=minimal";
+    if (payload) hdrs["Content-Length"] = Buffer.byteLength(payload);
+    const req = https.request({ hostname: host, path: "/rest/v1/" + path, method, headers: hdrs }, r => {
+      let d = ""; r.on("data", c => d += c);
+      r.on("end", () => {
+        let p = null; try { p = JSON.parse(d); } catch {}
+        res(r.statusCode >= 400 ? { data: null, error: p || d.slice(0, 200) } : { data: p, error: null });
+      });
+    });
+    req.on("error", e => res({ data: null, error: e.message }));
+    req.setTimeout(8000, () => { req.destroy(); res({ data: null, error: "timeout" }); });
+    if (payload) req.write(payload);
+    req.end();
+  });
+}
+
+const db = {
+  get:    slug      => sbReq("GET",   "comparisons?slug=eq." + encodeURIComponent(slug) + "&select=*&limit=1", null),
+  insert: row       => sbReq("POST",  "comparisons?on_conflict=slug", row),
+  update: (slug, r) => sbReq("PATCH", "comparisons?slug=eq." + encodeURIComponent(slug), r),
+};
+
+// ── Memory cache ────────────────────────────────────────────────────────────────
+const mem = new Map();
+const MEM_TTL = 1000 * 60 * 60 * 6;
+function mGet(k) { const e = mem.get(k); if (!e || Date.now() - e.t > MEM_TTL) { mem.delete(k); return null; } return e.v; }
+function mSet(k, v) { if (mem.size > 300) mem.delete(mem.keys().next().value); mem.set(k, { v, t: Date.now() }); }
+
+// ── Helpers ─────────────────────────────────────────────────────────────────────
+function mkSlug(s) { return s.toLowerCase().replace(/[^a-z0-9\s-]/g,"").replace(/\s+/g,"-").replace(/-+/g,"-").trim(); }
+function cmpSlug(a, b) { const s = [mkSlug(a), mkSlug(b)].sort(); return s[0] + "-vs-" + s[1]; }
+function amzUrl(n) { return "https://www.amazon.com/s?k=" + encodeURIComponent(n) + "&tag=" + TAG; }
+function esc(s) { return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+
+// ── Claude call ─────────────────────────────────────────────────────────────────
+function claude(apiKey, system, user, maxTok) {
+  const body = JSON.stringify({ model: MODEL, max_tokens: maxTok, system, messages: [{ role:"user", content:user }] });
+  return new Promise((ok, fail) => {
+    const req = https.request({
+      hostname: "api.anthropic.com", path: "/v1/messages", method: "POST",
+      headers: { "Content-Type":"application/json","Content-Length":Buffer.byteLength(body),"x-api-key":apiKey,"anthropic-version":"2023-06-01" }
+    }, r => { let d=""; r.on("data",c=>d+=c); r.on("end",()=>ok({status:r.statusCode,raw:d})); });
+    req.on("error", fail);
+    req.setTimeout(28000, () => req.destroy(new Error("Timeout")));
+    req.write(body); req.end();
+  });
+}
+
+// ── JSON extractor ──────────────────────────────────────────────────────────────
+function xJSON(text) {
+  let s = text.replace(/```json\s*/gi,"").replace(/```\s*/g,"").trim();
+  const a = s.indexOf("{"), b = s.lastIndexOf("}");
+  if (a !== -1 && b !== -1) s = s.slice(a, b + 1);
+  s = s.replace(/[\u2018\u2019]/g,"'").replace(/[\u201C\u201D]/g,'"').replace(/,(\s*[}\]])/g,"$1");
+  let out = "", inStr = false, prev = "";
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i];
+    if (c === '"' && prev !== "\\") inStr = !inStr;
+    if (inStr && c === "\n") { out += " "; prev = " "; continue; }
+    if (inStr && c === "\r") { prev = ""; continue; }
+    if (inStr && c === "\t") { out += " "; prev = " "; continue; }
+    if (c.charCodeAt(0) < 32 && c !== "\n" && c !== "\r" && c !== "\t") { prev = " "; continue; }
+    out += c; prev = c;
+  }
+  return JSON.parse(out);
+}
+
+// ── Full article HTML — same structure as find.js buildCmpHTML ─────────────────
+const FAV2 = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232563EB'/%3E%3Ctext x='16' y='22' font-family='Inter' font-size='13' font-weight='800' fill='white' text-anchor='middle'%3ECA%3C/text%3E%3C/svg%3E";
+const GA2  = "G-6MR7X29W2X";
+const CSS2 = `*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,system-ui,sans-serif;color:#0F172A;background:#fff;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column;min-height:100vh}
+main{flex:1}.wrap{max-width:880px;margin:0 auto;padding:44px 24px 80px}
+.hdr{background:#fff;border-bottom:1.5px solid #E2E8F0;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 28px;height:58px;position:sticky;top:0;z-index:200}
+.logo{font-size:18px;font-weight:800;color:#0F172A;text-decoration:none;letter-spacing:-0.4px;justify-self:start}.logo em{color:#2563EB;font-style:normal}
+.nav{display:flex;gap:6px;justify-self:center}
+.nav a{background:#2563EB;padding:7px 16px;border-radius:8px;font-size:13.5px;font-weight:600;color:#fff;text-decoration:none;white-space:nowrap}.nav a:hover{background:#1D4ED8}
+.tag{font-size:12px;color:#0F172A;border:1.5px solid #E2E8F0;border-radius:20px;padding:4px 12px;font-weight:500;background:#F8FAFC;justify-self:end;white-space:nowrap}
+h1{font-size:28px;font-weight:800;letter-spacing:-0.6px;line-height:1.2;margin-bottom:12px}
+.lead{font-size:15px;color:#475569;margin-bottom:28px;line-height:1.7}
+.badge{display:inline-block;background:#EFF6FF;color:#2563EB;font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px;border:1px solid #BFDBFE;margin-bottom:16px}
+.sec{border:1.5px solid #E2E8F0;border-radius:12px;margin-bottom:12px;overflow:hidden}
+.sec-h{background:#F8FAFC;padding:12px 18px;font-size:14px;font-weight:700;cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none}
+.sec-h:hover{background:#F1F5F9}
+.sec-b{display:none;padding:16px 18px;border-top:1px solid #E2E8F0}
+.sec.open .sec-b{display:block}
+.sec-ico{font-size:11px;transition:transform .2s;flex-shrink:0}
+.sec.open .sec-ico{transform:rotate(180deg)}
+.cmp-tbl{width:100%;border-collapse:collapse;font-size:13.5px}
+.cmp-tbl th{background:#F8FAFC;padding:10px 14px;text-align:left;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;border-bottom:1.5px solid #E2E8F0}
+.cmp-tbl td{padding:10px 14px;border-bottom:1px solid #E2E8F0}
+.cmp-tbl .feat{font-weight:600}.cmp-tbl .win{color:#2563EB;font-weight:700}
+.cmp-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.cmp-col{background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:10px;padding:16px}
+.cmp-col h3{font-size:14px;font-weight:700;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid #E2E8F0}
+.cmp-price{font-size:20px;font-weight:800;color:#2563EB;margin-bottom:12px}
+.pc{display:flex;gap:6px;font-size:13px;padding:3px 0;align-items:flex-start}
+.pc-dot{width:16px;height:16px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;margin-top:2px}
+.verdict{background:#FFFBEB;border:1.5px solid #FDE68A;border-radius:10px;padding:14px 18px;font-size:14px;line-height:1.75;color:#78350F}
+.faq-q{font-size:14px;font-weight:700;margin-bottom:5px}
+.faq-a{font-size:13px;color:#475569;line-height:1.6;margin-bottom:16px}
+.btn-az{display:inline-block;background:#FF9900;color:#0F172A;padding:10px 18px;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none;margin-top:10px}.btn-az:hover{background:#E88A00}
+.rel{display:flex;gap:8px;flex-wrap:wrap}
+.rel a{background:#F8FAFC;border:1.5px solid #E2E8F0;padding:7px 14px;border-radius:20px;font-size:13px;font-weight:600;color:#0F172A;text-decoration:none}.rel a:hover{border-color:#2563EB;color:#2563EB}
+.disc{background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:10px;padding:12px 16px;font-size:12px;color:#475569;margin-top:24px}
+.ftr{background:#F8FAFC;border-top:1.5px solid #E2E8F0;padding:24px 28px}
+.ftr-in{max-width:880px;margin:0 auto;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:13px;color:#0F172A;align-items:center}
+.ftr-in a{color:#0F172A;text-decoration:none;font-weight:500}.ftr-in a:hover{color:#2563EB}
+.ftr-links{display:flex;gap:16px;flex-wrap:wrap}
+@media(max-width:640px){.hdr{display:flex;flex-direction:column;height:auto;padding:12px 16px;gap:10px;align-items:center;text-align:center}.logo{justify-self:unset}.tag{display:none}.nav{justify-content:center;flex-wrap:wrap;gap:6px;width:100%}.nav a{font-size:12px;padding:6px 10px;white-space:nowrap}.cmp-cols{grid-template-columns:1fr}.wrap{padding:28px 16px 60px}h1{font-size:22px}}`;
+
+const HDR2 = '<header class="hdr"><a href="/" class="logo">Cheapest<em>Alt</em></a>' +
+  '<nav class="nav"><a href="/">Find Alternatives</a><a href="/#compare">Compare Products</a></nav>' +
+  '<div class="tag">Free &middot; No signup needed</div></header>';
+
+const FTR2 = '<footer class="ftr"><div class="ftr-in"><span>&copy; 2026 CheapestAlt. All rights reserved.</span>' +
+  '<div class="ftr-links"><a href="/">Home</a><a href="/#about">About</a>' +
+  '<a href="/#how-it-works">How it works</a><a href="/#disclosure">Affiliate Disclosure</a>' +
+  '<a href="mailto:Support@cheapestalt.com">Contact</a></div></div></footer>';
+
+function shell2(title, desc, slug, body) {
+  return '<!DOCTYPE html><html lang="en"><head>\n' +
+    '<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>\n' +
+    '<title>' + esc(title) + ' | CheapestAlt</title>\n' +
+    '<meta name="description" content="' + esc(desc) + '"/>\n' +
+    '<meta property="og:title" content="' + esc(title) + '"/>\n' +
+    '<meta property="og:description" content="' + esc(desc) + '"/>\n' +
+    '<link rel="canonical" href="https://www.cheapestalt.com/find?slug=' + esc(slug) + '"/>\n' +
+    '<link rel="icon" type="image/svg+xml" href="' + FAV2 + '"/>\n' +
+    '<meta name="theme-color" content="#2563EB"/>\n' +
+    '<script async src="https://www.googletagmanager.com/gtag/js?id=' + GA2 + '"></script>\n' +
+    '<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag("js",new Date());gtag("config","' + GA2 + '");</script>\n' +
+    '<link rel="preconnect" href="https://fonts.googleapis.com"/>\n' +
+    '<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>\n' +
+    '<style>' + CSS2 + '</style></head><body>\n' +
+    HDR2 + '\n<main class="wrap">' + body + '</main>\n' + FTR2 + '\n' +
+    '<script>function tog(el){el.classList.toggle("open")}</script>\n' +
+    '</body></html>';
+}
+
+function sec2(title, content, open) {
+  return '<div class="sec' + (open ? ' open' : '') + '" onclick="tog(this)">' +
+    '<div class="sec-h">' + esc(title) + '<span class="sec-ico">&#9662;</span></div>' +
+    '<div class="sec-b">' + content + '</div></div>';
+}
+
+function pcItem2(text, type) {
+  return '<div class="pc"><span class="pc-dot" style="background:' +
+    (type === "pro" ? "#F0FDF4;color:#16A34A" : "#FEF2F2;color:#DC2626") + '">' +
+    (type === "pro" ? "&#10003;" : "&#10007;") + '</span>' + esc(text) + '</div>';
+}
+
+function btnAz2(name) {
+  return '<a href="' + amzUrl(name) + '" target="_blank" rel="noopener" class="btn-az">View deal on Amazon &#8594;</a>';
+}
+
+function renderHTML(data, slug) {
+  const A = data.productA, B = data.productB;
+  if (!A || !B) return '';
+  const title = A.name + " vs " + B.name + " — Which is Better Value in 2026?";
+  const desc  = "Side-by-side comparison of " + A.name + " and " + B.name + ". Price, features, pros, cons and verdict.";
+
+  const tRows = (data.comparison || []).map(r =>
+    '<tr><td class="feat">' + esc(r.feature) + '</td>' +
+    '<td class="' + (r.winner === "a" ? "win" : "") + '">' + esc(r.a) + '</td>' +
+    '<td class="' + (r.winner === "b" ? "win" : "") + '">' + esc(r.b) + '</td></tr>'
+  ).join("");
+
+  const mkList = (items, type) => (items || []).map(x => pcItem2(x, type)).join("");
+
+  const sA = mkSlug(A.name), sB = mkSlug(B.name);
+
+  const faqHtml = (data.faqs || []).map(f =>
+    '<div style="padding:12px 0;border-bottom:1px solid #F1F5F9">' +
+    '<div class="faq-q">' + esc(f.q) + '</div>' +
+    '<div class="faq-a">' + esc(f.a) + '</div></div>'
+  ).join("");
+
+  const body =
+    '<div class="badge">Product comparison</div>' +
+    '<h1>' + esc(title) + '</h1>' +
+    (data.intro ? '<p class="lead">' + esc(data.intro) + '</p>' : '') +
+    sec2("1 — Feature comparison",
+      '<div style="overflow-x:auto"><table class="cmp-tbl"><thead><tr><th>Feature</th><th>' + esc(A.name) + '</th><th>' + esc(B.name) + '</th></tr></thead><tbody>' + tRows + '</tbody></table></div>',
+      true) +
+    sec2("2 — Pros & Cons",
+      '<div class="cmp-cols">' +
+      '<div class="cmp-col"><h3>' + esc(A.name) + '</h3>' +
+        '<div class="cmp-price">$' + Number(A.price || 0).toLocaleString() + '</div>' +
+        mkList(A.pros, "pro") + mkList(A.cons, "con") + btnAz2(A.name) + '</div>' +
+      '<div class="cmp-col"><h3>' + esc(B.name) + '</h3>' +
+        '<div class="cmp-price">$' + Number(B.price || 0).toLocaleString() + '</div>' +
+        mkList(B.pros, "pro") + mkList(B.cons, "con") + btnAz2(B.name) + '</div>' +
+      '</div>', true) +
+    (data.verdict ? sec2("3 — Verdict & Recommendation",
+      '<div class="verdict"><strong>Verdict: </strong>' + esc(data.verdict) +
+      (data.winnerReason ? '<br><br><strong>Winner: ' + esc(data.winner || "") + '</strong> &mdash; ' + esc(data.winnerReason) : '') +
+      '</div>') : '') +
+    (faqHtml ? sec2("4 — Frequently asked questions", faqHtml) : '') +
+    sec2("5 — Related pages",
+      '<div class="rel">' +
+      '<a href="/find?slug=' + sA + '-alternatives">Alternatives to ' + esc(A.name) + '</a>' +
+      '<a href="/find?slug=' + sB + '-alternatives">Alternatives to ' + esc(B.name) + '</a>' +
+      '<a href="/">Search more &#8594;</a></div>') +
+    '<div class="disc"><strong>Affiliate disclosure:</strong> Links are Amazon affiliate links (tag: ' + TAG + '). We earn a small commission at no extra cost to you.</div>';
+
+  return shell2(title, desc, slug, body);
+}
+
+
+// ── Prompt ──────────────────────────────────────────────────────────────────────
+const SYS = 'Return ONLY valid JSON. No markdown. No apostrophes. ' +
+  'Schema: {"productA":{"name":"str","price":0,"rating":0.0,"reviews":0,"icon":"emoji","pros":["str"],"cons":["str"]},' +
+  '"productB":{"name":"str","price":0,"rating":0.0,"reviews":0,"icon":"emoji","pros":["str"],"cons":["str"]},' +
+  '"comparison":[{"feature":"str","a":"str","b":"str","winner":"a"}],' +
+  '"intro":"str","verdict":"str","winner":"str","winnerReason":"str",' +
+  '"faqs":[{"q":"str","a":"str"},{"q":"str","a":"str"},{"q":"str","a":"str"},{"q":"str","a":"str"}]}. ' +
+  'Rules: 6 to 8 comparison rows, winner must be exactly a or b or tie, 3 to 4 pros and cons each, 4 FAQs specific to these two products, no apostrophes.';
+
+// ── Main handler ────────────────────────────────────────────────────────────────
+module.exports = async function handler(req, res) {
+  res.setHeader("Access-Control-Allow-Origin","*");
+  res.setHeader("Access-Control-Allow-Methods","POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers","Content-Type");
+  if (req.method === "OPTIONS") return res.status(204).end();
+  if (req.method !== "POST")   return res.status(405).json({ error: "Method not allowed" });
+
+  const apiKey = process.env.CLAUDE_API_KEY;
+  if (!apiKey) return res.status(500).json({ error: "CLAUDE_API_KEY not set" });
+
+  const { productA, productB } = req.body || {};
+  if (!productA || !productB)
+    return res.status(400).json({ error: "productA and productB are required" });
+
+  const a     = String(productA).trim().slice(0, 150);
+  const b     = String(productB).trim().slice(0, 150);
+  const slug  = cmpSlug(a, b);
+  const hasDB = !!(process.env.SUPABASE_URL && process.env.SUPABASE_ANON_KEY);
+
+  // 1. Memory cache
+  const hit = mGet(slug);
+  if (hit) return res.status(200).json(Object.assign({}, hit, { fromCache: true }));
+
+  // 2. Supabase — permanent lifetime storage
+  if (hasDB) {
+    const { data: rows } = await db.get(slug);
+    const row = Array.isArray(rows) ? rows[0] : rows;
+    if (row && row.content) {
+      let result;
+      try { result = typeof row.content === "string" ? JSON.parse(row.content) : row.content; } catch { result = {}; }
+      mSet(slug, result);
+      return res.status(200).json(Object.assign({}, result, { fromCache: false, fromDatabase: true }));
+    }
+  }
+
+  // 3. Generate with Claude Sonnet
+  let cr;
+  try { cr = await claude(apiKey, SYS, 'Compare A: "' + a + '" vs B: "' + b + '". 6-8 rows, no apostrophes. Return JSON only.', 2000); }
+  catch (e) { console.error("E1 network:",e.message); return res.status(502).json({ error: "Network error. Please try again." }); }
+
+  let cb;
+  try { cb = JSON.parse(cr.raw); }
+  catch(e1) { console.error("E2 cb parse:",e1.message,"raw:",cr.raw.slice(0,200)); return res.status(502).json({ error: "Please try again in a few seconds." }); }
+
+  if (cr.status !== 200) {
+    console.error("E3 claude status:",cr.status,"raw:",cr.raw.slice(0,300));
+    return res.status(502).json({ error: "AI service unavailable. Please try again." });
+  }
+
+  const raw = cb && cb.content && cb.content[0] && cb.content[0].text;
+  if (!raw) { console.error("E4 no raw, cb:",JSON.stringify(cb).slice(0,200)); return res.status(502).json({ error: "Empty response. Please try again." }); }
+
+  let data;
+  try { data = xJSON(raw); }
+  catch(e2) { console.error("E5 xJSON:",e2.message,"raw:",raw.slice(0,300)); return res.status(502).json({ error: "Please try again with different product names." }); }
+
+  if (!data.productA || !data.productB) { console.error("E6 no products, data:",JSON.stringify(data).slice(0,200)); return res.status(502).json({ error: "Please try again in a few seconds." }); }
+
+  // 4. Normalise winner field
+  data.comparison = (data.comparison || []).map(r => {
+    const w = String(r.winner || "tie").toLowerCase();
+    return { feature: r.feature, a: r.a, b: r.b, winner: (w === "a" || w === "b") ? w : "tie" };
+  });
+
+  data.productA.links = { amazon: amzUrl(data.productA.name) };
+  data.productB.links = { amazon: amzUrl(data.productB.name) };
+  data.slug        = slug;
+  data.type        = "comparison";
+  data.generatedAt = new Date().toISOString();
+  data.fromCache   = false;
+  data.fromDatabase = false;
+
+  // 5. Pre-render HTML for instant SEO delivery
+  const html = renderHTML(data, slug);
+
+  // 6. Save to Supabase — awaited BEFORE returning response
+  if (hasDB) {
+    const doSave = async (s, h) => {
+      const row = {
+        slug: s, type: "comparison", product_a: a, product_b: b,
+        title: data.productA.name + " vs " + data.productB.name,
+        content: data, html: h,
+        created_at: data.generatedAt, last_generated: data.generatedAt,
+      };
+      try {
+        const r = await db.insert(row);
+        if (r.error) {
+          const u = await db.update(s, { content: data, html: h, last_generated: data.generatedAt });
+          if (!u.error) console.log("CMP UPDATED:", s);
+        } else { console.log("CMP SAVED:", s); }
+      } catch(e) { console.error("CMP save catch:", e.message); }
+    };
+
+    await doSave(slug, html);
+
+    const slugUnsorted = mkSlug(a) + "-vs-" + mkSlug(b);
+    if (slugUnsorted !== slug) {
+      await doSave(slugUnsorted, renderHTML(data, slugUnsorted));
+    }
+  }
+
+  mSet(slug, data);
+  return res.status(200).json(data);
+};
