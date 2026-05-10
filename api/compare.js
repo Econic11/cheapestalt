@@ -1,4 +1,4 @@
-// api/compare.js
+﻿// api/compare.js
 // Model: claude-sonnet-4-5
 // Storage: Supabase permanent lifetime + in-memory cache
 
@@ -7,7 +7,7 @@ const https = require("https");
 const MODEL = "claude-sonnet-4-5";
 const TAG   = "cheapestalt-20";
 
-// ── Supabase client ────────────────────────────────────────────────────────────
+// â”€â”€ Supabase client â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function sbReq(method, path, body) {
   const base = process.env.SUPABASE_URL;
   const key  = process.env.SUPABASE_ANON_KEY;
@@ -39,19 +39,19 @@ const db = {
   update: (slug, r) => sbReq("PATCH", "comparisons?slug=eq." + encodeURIComponent(slug), r),
 };
 
-// ── Memory cache ────────────────────────────────────────────────────────────────
+// â”€â”€ Memory cache â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const mem = new Map();
 const MEM_TTL = 1000 * 60 * 60 * 6;
 function mGet(k) { const e = mem.get(k); if (!e || Date.now() - e.t > MEM_TTL) { mem.delete(k); return null; } return e.v; }
 function mSet(k, v) { if (mem.size > 300) mem.delete(mem.keys().next().value); mem.set(k, { v, t: Date.now() }); }
 
-// ── Helpers ─────────────────────────────────────────────────────────────────────
+// â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function mkSlug(s) { return s.toLowerCase().replace(/[^a-z0-9\s-]/g,"").replace(/\s+/g,"-").replace(/-+/g,"-").trim(); }
 function cmpSlug(a, b) { const s = [mkSlug(a), mkSlug(b)].sort(); return s[0] + "-vs-" + s[1]; }
 function amzUrl(n) { return "https://www.amazon.com/s?k=" + encodeURIComponent(n) + "&tag=" + TAG; }
 function esc(s) { return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
 
-// ── Claude call ─────────────────────────────────────────────────────────────────
+// â”€â”€ Claude call â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function claude(apiKey, system, user, maxTok) {
   const body = JSON.stringify({ model: MODEL, max_tokens: maxTok, system, messages: [{ role:"user", content:user }] });
   return new Promise((ok, fail) => {
@@ -65,7 +65,7 @@ function claude(apiKey, system, user, maxTok) {
   });
 }
 
-// ── JSON extractor ──────────────────────────────────────────────────────────────
+// â”€â”€ JSON extractor â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function xJSON(text) {
   let s = text.replace(/```json\s*/gi,"").replace(/```\s*/g,"").trim();
   const a = s.indexOf("{"), b = s.lastIndexOf("}");
@@ -84,7 +84,7 @@ function xJSON(text) {
   return JSON.parse(out);
 }
 
-// ── Full article HTML — same structure as find.js buildCmpHTML ─────────────────
+// â”€â”€ Full article HTML â€” same structure as find.js buildCmpHTML â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const FAV2 = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232563EB'/%3E%3Ctext x='16' y='22' font-family='Inter' font-size='13' font-weight='800' fill='white' text-anchor='middle'%3ECA%3C/text%3E%3C/svg%3E";
 const GA2  = "G-6MR7X29W2X";
 const CSS2 = `*{box-sizing:border-box;margin:0;padding:0}
@@ -129,7 +129,7 @@ h1{font-size:28px;font-weight:800;letter-spacing:-0.6px;line-height:1.2;margin-b
 @media(max-width:640px){.hdr{display:flex;flex-direction:column;height:auto;padding:12px 16px;gap:10px;align-items:center;text-align:center}.logo{justify-self:unset}.tag{display:none}.nav{justify-content:center;flex-wrap:wrap;gap:6px;width:100%}.nav a{font-size:12px;padding:6px 10px;white-space:nowrap}.cmp-cols{grid-template-columns:1fr}.wrap{padding:28px 16px 60px}h1{font-size:22px}}`;
 
 const HDR2 = '<header class="hdr"><a href="/" class="logo">Cheapest<em>Alt</em></a>' +
-  '<nav class="nav"><a href="/">Find Alternatives</a><a href="/#compare">Compare Products</a></nav>' +
+  '<nav class="nav"><a href="/">Find Alternatives</a><a href="https://cheapestalt.com/compare">Compare Products</a></nav>' +
   '<div class="tag">Free &middot; No signup needed</div></header>';
 
 const FTR2 = '<footer class="ftr"><div class="ftr-in"><span>&copy; 2026 CheapestAlt. All rights reserved.</span>' +
@@ -176,7 +176,7 @@ function btnAz2(name) {
 function renderHTML(data, slug) {
   const A = data.productA, B = data.productB;
   if (!A || !B) return '';
-  const title = A.name + " vs " + B.name + " — Which is Better Value in 2026?";
+  const title = A.name + " vs " + B.name + " â€” Which is Better Value in 2026?";
   const desc  = "Side-by-side comparison of " + A.name + " and " + B.name + ". Price, features, pros, cons and verdict.";
 
   const tRows = (data.comparison || []).map(r =>
@@ -199,10 +199,10 @@ function renderHTML(data, slug) {
     '<div class="badge">Product comparison</div>' +
     '<h1>' + esc(title) + '</h1>' +
     (data.intro ? '<p class="lead">' + esc(data.intro) + '</p>' : '') +
-    sec2("1 — Feature comparison",
+    sec2("1 â€” Feature comparison",
       '<div style="overflow-x:auto"><table class="cmp-tbl"><thead><tr><th>Feature</th><th>' + esc(A.name) + '</th><th>' + esc(B.name) + '</th></tr></thead><tbody>' + tRows + '</tbody></table></div>',
       true) +
-    sec2("2 — Pros & Cons",
+    sec2("2 â€” Pros & Cons",
       '<div class="cmp-cols">' +
       '<div class="cmp-col"><h3>' + esc(A.name) + '</h3>' +
         '<div class="cmp-price">$' + Number(A.price || 0).toLocaleString() + '</div>' +
@@ -211,12 +211,12 @@ function renderHTML(data, slug) {
         '<div class="cmp-price">$' + Number(B.price || 0).toLocaleString() + '</div>' +
         mkList(B.pros, "pro") + mkList(B.cons, "con") + btnAz2(B.name) + '</div>' +
       '</div>', true) +
-    (data.verdict ? sec2("3 — Verdict & Recommendation",
+    (data.verdict ? sec2("3 â€” Verdict & Recommendation",
       '<div class="verdict"><strong>Verdict: </strong>' + esc(data.verdict) +
       (data.winnerReason ? '<br><br><strong>Winner: ' + esc(data.winner || "") + '</strong> &mdash; ' + esc(data.winnerReason) : '') +
       '</div>') : '') +
-    (faqHtml ? sec2("4 — Frequently asked questions", faqHtml) : '') +
-    sec2("5 — Related pages",
+    (faqHtml ? sec2("4 â€” Frequently asked questions", faqHtml) : '') +
+    sec2("5 â€” Related pages",
       '<div class="rel">' +
       '<a href="/find?slug=' + sA + '-alternatives">Alternatives to ' + esc(A.name) + '</a>' +
       '<a href="/find?slug=' + sB + '-alternatives">Alternatives to ' + esc(B.name) + '</a>' +
@@ -227,7 +227,7 @@ function renderHTML(data, slug) {
 }
 
 
-// ── Prompt ──────────────────────────────────────────────────────────────────────
+// â”€â”€ Prompt â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const SYS = 'Return ONLY valid JSON. No markdown. No apostrophes. ' +
   'Schema: {"productA":{"name":"str","price":0,"rating":0.0,"reviews":0,"icon":"emoji","pros":["str"],"cons":["str"]},' +
   '"productB":{"name":"str","price":0,"rating":0.0,"reviews":0,"icon":"emoji","pros":["str"],"cons":["str"]},' +
@@ -236,7 +236,7 @@ const SYS = 'Return ONLY valid JSON. No markdown. No apostrophes. ' +
   '"faqs":[{"q":"str","a":"str"},{"q":"str","a":"str"},{"q":"str","a":"str"},{"q":"str","a":"str"}]}. ' +
   'Rules: 6 to 8 comparison rows, winner must be exactly a or b or tie, 3 to 4 pros and cons each, 4 FAQs specific to these two products, no apostrophes.';
 
-// ── Main handler ────────────────────────────────────────────────────────────────
+// â”€â”€ Main handler â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 module.exports = async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin","*");
   res.setHeader("Access-Control-Allow-Methods","POST, OPTIONS");
@@ -260,7 +260,7 @@ module.exports = async function handler(req, res) {
   const hit = mGet(slug);
   if (hit) return res.status(200).json(Object.assign({}, hit, { fromCache: true }));
 
-  // 2. Supabase — permanent lifetime storage
+  // 2. Supabase â€” permanent lifetime storage
   if (hasDB) {
     const { data: rows } = await db.get(slug);
     const row = Array.isArray(rows) ? rows[0] : rows;
@@ -312,7 +312,7 @@ module.exports = async function handler(req, res) {
   // 5. Pre-render HTML for instant SEO delivery
   const html = renderHTML(data, slug);
 
-  // 6. Save to Supabase — awaited BEFORE returning response
+  // 6. Save to Supabase â€” awaited BEFORE returning response
   if (hasDB) {
     const doSave = async (s, h) => {
       const row = {

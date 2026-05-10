@@ -1,12 +1,12 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>CheapestAlt — Find Cheaper Product Alternatives on Amazon</title>
+  <title>CheapestAlt â€” Find Cheaper Product Alternatives on Amazon</title>
   <meta name="description" content="Search any product and instantly discover cheaper alternatives on Amazon. Free product comparison tool."/>
   <meta name="keywords" content="cheaper alternatives, product comparison, save money, Amazon deals"/>
-  <meta property="og:title" content="CheapestAlt — Find Cheaper Product Alternatives"/>
+  <meta property="og:title" content="CheapestAlt â€” Find Cheaper Product Alternatives"/>
   <meta property="og:description" content="Find cheaper alternatives to any product on Amazon."/>
   <meta property="og:type" content="website"/>
 
@@ -41,8 +41,8 @@
     body{font-family:'Inter',system-ui,sans-serif;color:#0F172A;background:#fff;font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
     .app{display:flex;flex-direction:column;min-height:100vh}
 
-    /* ── HEADER ─────────────────────────────────────────────────────────────── */
-    /* Desktop: 3-column grid — logo | nav-center | tag */
+    /* â”€â”€ HEADER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    /* Desktop: 3-column grid â€” logo | nav-center | tag */
     .hdr{
       background:#fff;border-bottom:1.5px solid #E2E8F0;
       display:grid;grid-template-columns:1fr auto 1fr;
@@ -72,17 +72,17 @@
       .nb{font-size:13px;padding:9px 16px;flex:1;text-align:center}
     }
 
-    /* ── PAGES ── */
+    /* â”€â”€ PAGES â”€â”€ */
     .pg{display:none}.pg.on{display:block}
 
-    /* ── HERO ── */
+    /* â”€â”€ HERO â”€â”€ */
     .hero{text-align:center;padding:64px 24px 44px;max-width:720px;margin:0 auto}
     .hero h1{font-size:46px;font-weight:800;line-height:1.12;letter-spacing:-1.2px;color:#0F172A;margin-bottom:14px}
     .hero h1 strong{color:#2563EB}
     .hero p{font-size:17px;color:#0F172A;margin-bottom:36px;line-height:1.65}
     @media(max-width:640px){.hero{padding:36px 16px 32px}.hero h1{font-size:28px}.hero p{font-size:15px}}
 
-    /* ── SEARCH BAR ── */
+    /* â”€â”€ SEARCH BAR â”€â”€ */
     .srch-wrap{max-width:620px;margin:0 auto 20px}
     .srch-box{display:flex;align-items:center;background:#fff;border:2px solid #CBD5E1;border-radius:16px;padding:6px 6px 6px 18px;box-shadow:0 4px 16px rgba(15,23,42,0.08);transition:border-color .2s,box-shadow .2s;gap:10px}
     .srch-box:focus-within{border-color:#2563EB;box-shadow:0 4px 20px rgba(37,99,235,0.14),0 0 0 4px rgba(37,99,235,0.08)}
@@ -101,15 +101,15 @@
     .srch-hint:hover{background:#EFF6FF;border-color:#BFDBFE;color:#2563EB}
     @media(max-width:640px){.srch-divider{display:none}.srch-btn{padding:10px 14px;font-size:13px}}
 
-    /* ── SECTION HEADER ── */
+    /* â”€â”€ SECTION HEADER â”€â”€ */
     .sec-hdr{max-width:960px;margin:0 auto 18px;padding:0 24px;display:flex;align-items:center;justify-content:space-between}
     .sec-hdr h2{font-size:20px;font-weight:700;color:#0F172A;letter-spacing:-0.3px}
     .sec-tag{font-size:12.5px;color:#0F172A;background:#F8FAFC;border:1.5px solid #E2E8F0;padding:4px 12px;border-radius:20px;font-weight:600}
 
-    /* ── RESULTS LAYOUT ── */
+    /* â”€â”€ RESULTS LAYOUT â”€â”€ */
     .results-wrap{max-width:960px;margin:0 auto;padding:0 24px 72px}
 
-    /* Original product — full-width card */
+    /* Original product â€” full-width card */
     .orig-card{background:#fff;border:2px solid #BFDBFE;border-radius:14px;padding:20px 24px;margin-bottom:28px;display:flex;gap:20px;align-items:center}
     .orig-card:hover{border-color:#2563EB;box-shadow:0 4px 20px rgba(37,99,235,0.12)}
     .orig-icon{font-size:48px;flex-shrink:0}
@@ -127,7 +127,7 @@
     /* Alternatives section label */
     .alts-label{font-size:13px;font-weight:700;color:#0F172A;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:14px;padding-bottom:10px;border-bottom:1.5px solid #E2E8F0}
 
-    /* Alternative cards — 4 types */
+    /* Alternative cards â€” 4 types */
     .alt-card{background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:14px;padding:18px 20px;margin-bottom:12px;transition:border-color .18s,box-shadow .18s}
     .alt-card:hover{border-color:#CBD5E1;box-shadow:var(--sh-md)}
     .alt-card-inner{display:flex;gap:16px;align-items:flex-start}
@@ -147,7 +147,7 @@
     .alt-cta{display:inline-flex;align-items:center;gap:7px;background:#FF9900;color:#0F172A;padding:10px 18px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:'Inter',sans-serif;transition:all .15s;text-decoration:none}
     .alt-cta:hover{background:#FFF3D6;border:1.5px solid #FF9900}
     .alt-cta svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
-    /* Recommendation card — darker style */
+    /* Recommendation card â€” darker style */
     .alt-card.rec{background:#0F172A;border-color:#0F172A}
     .alt-card.rec .alt-name{color:#fff}
     .alt-card.rec .alt-desc{color:#94A3B8}
@@ -157,7 +157,7 @@
     .alt-cta-rec svg{width:13px;height:13px;fill:none;stroke:#0F172A;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
     @media(max-width:640px){.alt-card-inner{flex-direction:column}.alt-icon{width:auto}}
 
-    /* ── COLLAPSIBLE GUIDE ── */
+    /* â”€â”€ COLLAPSIBLE GUIDE â”€â”€ */
     .colls{max-width:960px;margin:0 auto;padding:0 24px 72px}
     .colls h3{font-size:18px;font-weight:700;color:#0F172A;margin-bottom:14px;letter-spacing:-0.3px}
     .coll{background:#fff;border:1.5px solid #E2E8F0;border-radius:10px;margin-bottom:8px;overflow:hidden}
@@ -168,7 +168,7 @@
     .coll-b{display:none;padding:14px 18px 16px;border-top:1px solid #E2E8F0;font-size:13.5px;color:#0F172A;line-height:1.75}
     .coll.open .coll-b{display:block}
 
-    /* ── COMPARE PAGE ── */
+    /* â”€â”€ COMPARE PAGE â”€â”€ */
     .cmp-hero{text-align:center;padding:56px 24px 36px}
     .cmp-hero h1{font-size:34px;font-weight:800;letter-spacing:-0.7px;margin-bottom:10px;color:#0F172A}
     .cmp-hero p{font-size:16px;color:#0F172A;margin-bottom:36px}
@@ -184,7 +184,7 @@
     .btn-primary:disabled{background:#93C5FD;border-color:#93C5FD;cursor:not-allowed;color:#fff}
     @media(max-width:640px){.cmp-inputs{grid-template-columns:1fr;gap:10px}.vs{display:none}}
 
-    /* ── COMPARE RESULT ── */
+    /* â”€â”€ COMPARE RESULT â”€â”€ */
     .cmp-res{max-width:960px;margin:0 auto;padding:0 24px 72px}
     .cmp-res h2{font-size:24px;font-weight:800;color:#0F172A;letter-spacing:-0.5px;margin-bottom:16px}
     .intro-box{background:#EFF6FF;border:1.5px solid #BFDBFE;border-radius:10px;padding:16px 20px;margin-bottom:20px;font-size:14px;line-height:1.75;color:#1E3A6E}
@@ -206,7 +206,7 @@
     .cmp-btns{display:flex;gap:12px;flex-wrap:wrap}
     @media(max-width:640px){.cmp-cols{grid-template-columns:1fr}.cmp-btns{flex-direction:column}}
 
-    /* ── SHARED COMPONENTS ── */
+    /* â”€â”€ SHARED COMPONENTS â”€â”€ */
     .dbtn{padding:11px 14px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;text-align:center;letter-spacing:0.2px;display:block;width:100%}
     .dbtn-az{background:#FF9900;color:#0F172A;border:1.5px solid #FF9900}
     .dbtn-az:hover{background:#FFF3D6;color:#0F172A;border-color:#FF9900}
@@ -225,7 +225,7 @@
     .empty h3{font-size:20px;font-weight:700;color:#0F172A;margin-bottom:8px}
     .empty p{font-size:14px;color:#0F172A;max-width:340px;margin:0 auto 20px}
 
-    /* ── FOOTER ── */
+    /* â”€â”€ FOOTER â”€â”€ */
     .ftr{background:#F8FAFC;border-top:1.5px solid #E2E8F0;padding:40px 28px 24px;margin-top:auto}
     .ftr-inner{max-width:960px;margin:0 auto;display:grid;grid-template-columns:2.2fr 1fr 1fr 1fr;gap:28px}
     .ftr-brand p{font-size:13px;color:#0F172A;line-height:1.65;max-width:220px;margin-top:10px}
@@ -234,7 +234,7 @@
     .ftr-col a:hover{color:#2563EB}
     .ftr-bottom{max-width:960px;margin:28px auto 0;padding-top:18px;border-top:1px solid #E2E8F0;display:flex;justify-content:space-between;font-size:12px;color:#0F172A}
     @media(max-width:640px){.ftr-inner{grid-template-columns:1fr 1fr}}
-    /* ── STATIC PAGES ── */
+    /* â”€â”€ STATIC PAGES â”€â”€ */
     .pg.static-pg{display:none;flex-direction:column;min-height:calc(100vh - 58px)}
     .static-wrap{max-width:760px;margin:0 auto;padding:52px 24px 80px;flex:1}
     .static-badge{display:inline-block;background:#EFF6FF;color:#2563EB;font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px;border:1px solid #BFDBFE;margin-bottom:18px}
@@ -260,9 +260,9 @@
     <a class="logo" href="/" onclick="navTo('home');return false">Cheapest<em>Alt</em></a>
     <nav class="nav">
       <a class="nb on" id="nb-home" href="/" onclick="navTo('home');return false">Find Alternatives</a>
-      <a class="nb" id="nb-cmp" href="/#compare" onclick="navTo('cmp');return false">Compare Products</a>
+      <a class="nb" id="nb-cmp" href="https://cheapestalt.com/compare">Compare Products</a>
     </nav>
-    <div class="hdr-tag">Free · No signup needed</div>
+    <div class="hdr-tag">Free Â· No signup needed</div>
   </header>
 
   <!-- HOME PAGE -->
@@ -273,7 +273,7 @@
       <div class="srch-wrap">
         <div class="srch-box">
           <span class="srch-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
-          <input class="srch-input" id="si" type="text" placeholder="Search any product — e.g. AirPods Pro, Samsung TV…" onkeydown="if(event.key==='Enter')go()"/>
+          <input class="srch-input" id="si" type="text" placeholder="Search any product â€” e.g. AirPods Pro, Samsung TVâ€¦" onkeydown="if(event.key==='Enter')go()"/>
           <div class="srch-divider"></div>
           <button class="srch-btn" id="srch-btn" onclick="go()">
             <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -292,9 +292,9 @@
     </div>
     <div id="ra">
       <div class="empty">
-        <div class="empty-ico">🔍</div>
+        <div class="empty-ico">ðŸ”</div>
         <h3>Search any product above</h3>
-        <p>Discover the best cheaper alternatives — with direct links to check the price on Amazon.</p>
+        <p>Discover the best cheaper alternatives â€” with direct links to check the price on Amazon.</p>
       </div>
     </div>
   </div>
@@ -303,7 +303,7 @@
   <div class="pg" id="pg-cmp">
     <div class="cmp-hero">
       <h1>Compare Two Products</h1>
-      <p>Side-by-side analysis of features, pricing, and value — before you buy.</p>
+      <p>Side-by-side analysis of features, pricing, and value â€” before you buy.</p>
     </div>
     <div class="cmp-form">
       <div class="cmp-inputs">
@@ -318,22 +318,22 @@
 
 
 
-  <!-- ── STATIC PAGES (inline, same header) ──────────────────────────────── -->
+  <!-- â”€â”€ STATIC PAGES (inline, same header) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
 
   <div class="pg static-pg" id="pg-how-it-works">
     <div class="static-wrap">
       <div class="static-badge">How it works</div>
       <h1>How CheapestAlt works</h1>
       <p class="static-lead">Three steps to finding the best cheaper alternative to any product.</p>
-      <div class="static-card"><h3>1. Search any product</h3><p>Type the name of any product — a specific model, brand, or category. Our search bar accepts anything.</p></div>
+      <div class="static-card"><h3>1. Search any product</h3><p>Type the name of any product â€” a specific model, brand, or category. Our search bar accepts anything.</p></div>
       <div class="static-card"><h3>2. We research alternatives</h3><p>Our system analyzes real products and identifies the best cheaper alternatives that offer similar or better value on Amazon.</p></div>
-      <div class="static-card"><h3>3. Compare and save</h3><p>We show you the original product side-by-side with cheaper alternatives — savings percentages, value scores, and direct Amazon links.</p></div>
+      <div class="static-card"><h3>3. Compare and save</h3><p>We show you the original product side-by-side with cheaper alternatives â€” savings percentages, value scores, and direct Amazon links.</p></div>
       <h2>The comparison tool</h2>
-      <p>Use our <a href="#" onclick="navTo('cmp');return false" class="static-link">Compare Products</a> feature to get a detailed feature-by-feature breakdown of any two products — pros, cons, and a clear value verdict.</p>
+      <p>Use our <a href="#" onclick="navTo('cmp');return false" class="static-link">Compare Products</a> feature to get a detailed feature-by-feature breakdown of any two products â€” pros, cons, and a clear value verdict.</p>
       <h2>Are prices accurate?</h2>
       <p>Prices are AI-estimated based on real market data. Always check Amazon's current price before purchasing. We link directly to Amazon for up-to-date pricing.</p>
       <h2>Affiliate links</h2>
-      <p>Our Amazon links are affiliate links. We earn a small commission if you purchase — at no extra cost to you. See our <a href="#" onclick="navTo('disclosure');return false" class="static-link">affiliate disclosure</a> for details.</p>
+      <p>Our Amazon links are affiliate links. We earn a small commission if you purchase â€” at no extra cost to you. See our <a href="#" onclick="navTo('disclosure');return false" class="static-link">affiliate disclosure</a> for details.</p>
     </div>
   </div>
 
@@ -341,11 +341,11 @@
     <div class="static-wrap">
       <div class="static-badge">About us</div>
       <h1>About CheapestAlt</h1>
-      <p class="static-lead">We help smart shoppers find cheaper alternatives to any product — without sacrificing quality.</p>
+      <p class="static-lead">We help smart shoppers find cheaper alternatives to any product â€” without sacrificing quality.</p>
       <h2>Our mission</h2>
-      <p>CheapestAlt was built on a simple idea: you should not have to pay a premium price just because a product has a famous name. Across every category — electronics, appliances, fashion, fitness — there are always better-value alternatives that most people never find.</p>
+      <p>CheapestAlt was built on a simple idea: you should not have to pay a premium price just because a product has a famous name. Across every category â€” electronics, appliances, fashion, fitness â€” there are always better-value alternatives that most people never find.</p>
       <p>We use AI to do the research for you. Search any product and our system instantly finds real alternatives on Amazon with honest prices, real ratings, and straight-to-the-point value comparisons.</p>
-      <div class="static-card"><h3>AI-powered, not sponsored</h3><p>Results come from AI analysis of real product data — not paid placements. We never accept money to rank a product higher.</p></div>
+      <div class="static-card"><h3>AI-powered, not sponsored</h3><p>Results come from AI analysis of real product data â€” not paid placements. We never accept money to rank a product higher.</p></div>
       <div class="static-card"><h3>Genuinely cheaper alternatives</h3><p>We only show alternatives that are meaningfully cheaper. We calculate real savings and explain exactly why each alternative is worth considering.</p></div>
       <div class="static-card"><h3>Built for speed</h3><p>Results in seconds. No accounts, no sign-up, no spam. Just search and save.</p></div>
       <h2>Contact us</h2>
@@ -357,9 +357,9 @@
     <div class="static-wrap">
       <div class="static-badge">Contact</div>
       <h1>Get in touch</h1>
-      <p class="static-lead">We read every message. Expect a reply within 24–48 hours.</p>
+      <p class="static-lead">We read every message. Expect a reply within 24â€“48 hours.</p>
       <div class="static-card"><h3>Email support</h3><p>For general questions, feedback, bug reports, or partnership inquiries:</p><a href="mailto:Support@cheapestalt.com" class="static-btn">Support@cheapestalt.com</a></div>
-      <div class="static-card"><h3>Found a bug?</h3><p>If a search returned wrong results or a link is broken — please email us with the product name you searched and what you expected to see.</p></div>
+      <div class="static-card"><h3>Found a bug?</h3><p>If a search returned wrong results or a link is broken â€” please email us with the product name you searched and what you expected to see.</p></div>
       <div class="static-card"><h3>Partnership inquiries</h3><p>Interested in partnering with CheapestAlt? Email <a href="mailto:Support@cheapestalt.com" class="static-link">Support@cheapestalt.com</a> with the subject line "Partnership".</p></div>
       <h2>FAQ</h2>
       <p><strong>How are prices determined?</strong><br>Prices are AI-estimated based on real market data. Always check Amazon for the current price before buying.</p>
@@ -377,7 +377,7 @@
       <h2>What we do NOT collect</h2>
       <p>We do not require account creation or login. We do not collect names, addresses, or payment information. We do not track you across other websites. We do not sell any data to third parties.</p>
       <h2>Third-party services</h2>
-      <p><strong>Anthropic</strong> — Your search queries are sent to Anthropic's API to generate product alternatives.<br><strong>Vercel</strong> — Our hosting provider.<br><strong>Amazon</strong> — Affiliate links direct you to Amazon, which has its own privacy policy.<br><strong>Google Analytics</strong> — We use Google Analytics to understand site usage.</p>
+      <p><strong>Anthropic</strong> â€” Your search queries are sent to Anthropic's API to generate product alternatives.<br><strong>Vercel</strong> â€” Our hosting provider.<br><strong>Amazon</strong> â€” Affiliate links direct you to Amazon, which has its own privacy policy.<br><strong>Google Analytics</strong> â€” We use Google Analytics to understand site usage.</p>
       <h2>Cookies</h2>
       <p>CheapestAlt does not use tracking cookies. Google Analytics and Vercel may set functional cookies required for operation.</p>
       <h2>Contact</h2>
@@ -395,7 +395,7 @@
       <h2>Amazon Associates</h2>
       <p>We participate in the Amazon Services LLC Associates Program, an affiliate advertising program designed to provide a means for sites to earn advertising fees by advertising and linking to amazon.com. Our affiliate tag is <strong>cheapestalt-20</strong>.</p>
       <h2>How this affects our recommendations</h2>
-      <p>Our product recommendations are generated by AI based on price, ratings, and value — not based on affiliate commission rates. We never accept payment to promote a specific product, and our rankings are never influenced by affiliate relationships.</p>
+      <p>Our product recommendations are generated by AI based on price, ratings, and value â€” not based on affiliate commission rates. We never accept payment to promote a specific product, and our rankings are never influenced by affiliate relationships.</p>
       <h2>FTC compliance</h2>
       <p>In accordance with the Federal Trade Commission guidelines, we disclose that links on CheapestAlt may be affiliate links. This disclosure applies site-wide.</p>
       <h2>Questions?</h2>
@@ -433,7 +433,7 @@
       <div class="ftr-col">
         <h4>Product</h4>
         <a href="#" onclick="navTo('home');return false">Find Alternatives</a>
-        <a href="#" onclick="navTo('cmp');return false">Compare Products</a>
+        <a href="https://cheapestalt.com/compare">Compare Products</a>
         <a href="#" onclick="navTo('how-it-works');return false">How it works</a>
       </div>
       <div class="ftr-col">
@@ -450,7 +450,7 @@
       </div>
     </div>
     <div class="ftr-bottom">
-      <span>© 2026 CheapestAlt. All rights reserved.</span>
+      <span>Â© 2026 CheapestAlt. All rights reserved.</span>
       <span>Amazon affiliate links may earn a commission at no cost to you.</span>
     </div>
   </footer>
@@ -478,7 +478,7 @@
   const amzIcon = `<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>`;
   const extIcon = `<svg viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>`;
 
-  // ── NAV — with URL hash state (survives refresh) ─────────────────────────
+  // â”€â”€ NAV â€” with URL hash state (survives refresh) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function navTo(page, pushState) {
     document.querySelectorAll('.pg').forEach(x => {
       x.classList.remove('on');
@@ -503,7 +503,7 @@
   // Restore page from URL hash on load / back button
   function restorePageFromURL() {
     const hash = location.hash.replace('#', '') || 'home';
-    // Map /#compare → cmp page
+    // Map /#compare â†’ cmp page
     const pageMap = { 'compare': 'cmp', 'cmp': 'cmp', 'home': 'home', 'about': 'about', 'contact': 'contact', 'privacy': 'privacy', 'disclosure': 'disclosure', 'terms': 'terms', 'how-it-works': 'how-it-works' };
     const page = pageMap[hash] || 'home';
     navTo(page, false);
@@ -514,7 +514,7 @@
     navTo(page, false);
   });
 
-  // ── SEARCH ─────────────────────────────────────────────────────────────────
+  // â”€â”€ SEARCH â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   async function go() {
     const query = document.getElementById('si').value.trim();
     if (!query || isSearching) return;
@@ -525,8 +525,8 @@
     document.getElementById('ra').innerHTML = `
       <div class="loading">
         <div class="spin"></div>
-        <p>Finding cheaper alternatives for <strong>"${esc(query)}"</strong>…</p>
-        <p class="loading-sub">Searching Amazon — this takes a few seconds.</p>
+        <p>Finding cheaper alternatives for <strong>"${esc(query)}"</strong>â€¦</p>
+        <p class="loading-sub">Searching Amazon â€” this takes a few seconds.</p>
       </div>`;
 
     try {
@@ -545,7 +545,7 @@
     } catch (err) {
       document.getElementById('ra').innerHTML = `
         <div class="err-box"><div class="err-inner">
-          <span class="err-icon">⚠</span>
+          <span class="err-icon">âš </span>
           <div>
             <strong>Unable to load results</strong>
             <p style="margin-top:6px;font-size:13px;color:#475569;line-height:1.6">We could not fetch results right now. Please refresh the page or try again in a few seconds. If the problem continues, try a different product name.</p>
@@ -560,7 +560,7 @@
 
   function quick(q) { document.getElementById('si').value = q; go(); }
 
-  // ── RENDER RESULTS ─────────────────────────────────────────────────────────
+  // â”€â”€ RENDER RESULTS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   // Shows: original (price visible) + 4 alternatives (no price, different type each)
   function renderResults(data) {
     const { original, alternatives } = data;
@@ -573,10 +573,10 @@
 
     h += `<div class="results-wrap">`;
 
-    // ── Original product — price shown ──────────────────────────────────────
+    // â”€â”€ Original product â€” price shown â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     h += `
       <div class="orig-card">
-        <div class="orig-icon">${original.icon || '📦'}</div>
+        <div class="orig-icon">${original.icon || 'ðŸ“¦'}</div>
         <div class="orig-info">
           <div class="orig-label">Original product</div>
           <div class="orig-name">${esc(original.name)}</div>
@@ -590,10 +590,10 @@
         </div>
       </div>
 
-      <div class="alts-label">Cheaper alternatives — click to check price on Amazon</div>`;
+      <div class="alts-label">Cheaper alternatives â€” click to check price on Amazon</div>`;
 
-    // ── Assign card types to alternatives ──────────────────────────────────
-    // Type map: 0→cheap%, 1→deal score, 2→best value, 3+→recommendation
+    // â”€â”€ Assign card types to alternatives â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // Type map: 0â†’cheap%, 1â†’deal score, 2â†’best value, 3+â†’recommendation
     const types = ['cheap', 'deal', 'value', 'rec'];
     const typeLabels = {
       cheap: 'Cheap Option',
@@ -621,13 +621,13 @@
 
       const desc = a.reason || `A strong alternative to ${original.name} available on Amazon.`;
       const ctaText = isRec
-        ? 'View the deal on Amazon →'
-        : 'Check price on Amazon →';
+        ? 'View the deal on Amazon â†’'
+        : 'Check price on Amazon â†’';
 
       h += `
         <div class="alt-card${isRec ? ' rec' : ''}">
           <div class="alt-card-inner">
-            <div class="alt-icon">${a.icon || '🛒'}</div>
+            <div class="alt-icon">${a.icon || 'ðŸ›’'}</div>
             <div class="alt-body">
               <div class="alt-type-badge badge-${type}">${typeLabels[type]}</div>
               <div class="alt-name">${esc(a.name)}</div>
@@ -643,7 +643,7 @@
 
     h += `</div>`; // close results-wrap
 
-    // ── Collapsible guide ──────────────────────────────────────────────
+    // â”€â”€ Collapsible guide â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const qSlug = slug(data.query || original.name);
     const seoBase = {
       alternatives: '/' + qSlug + '-alternatives',
@@ -652,11 +652,11 @@
     };
     h += `<div class="colls">
       <div class="coll" onclick="tog(this)">
-        <div class="coll-h">How to choose the right alternative <span class="coll-ico">▾</span></div>
+        <div class="coll-h">How to choose the right alternative <span class="coll-ico">â–¾</span></div>
         <div class="coll-b">Look for products with strong review counts and ratings. Read the top reviews for real-world experience. Check the return policy before buying. Mid-range alternatives often use the same components as premium products at a fraction of the price.</div>
       </div>
       <div class="coll" onclick="tog(this)">
-        <div class="coll-h">Explore more options for this product <span class="coll-ico">▾</span></div>
+        <div class="coll-h">Explore more options for this product <span class="coll-ico">â–¾</span></div>
         <div class="coll-b">
           Bookmark or share these dedicated pages for <strong>${esc(original.name)}</strong>:<br><br>
           <a href="/find?slug=${qSlug}-alternatives" target="_blank" style="display:block;color:#2563EB;margin-bottom:7px;font-weight:600;word-break:break-all">${window.location.origin}/find?slug=${qSlug}-alternatives</a>
@@ -665,14 +665,14 @@
         </div>
       </div>
       <div class="coll" onclick="tog(this)">
-        <div class="coll-h">Affiliate disclosure <span class="coll-ico">▾</span></div>
-        <div class="coll-b">Links on this page are Amazon affiliate links (tag: cheapestalt-20). We may earn a small commission if you purchase — at no extra cost to you. All rankings are based on value analysis, never paid placements.</div>
+        <div class="coll-h">Affiliate disclosure <span class="coll-ico">â–¾</span></div>
+        <div class="coll-b">Links on this page are Amazon affiliate links (tag: cheapestalt-20). We may earn a small commission if you purchase â€” at no extra cost to you. All rankings are based on value analysis, never paid placements.</div>
       </div>
     </div>`;
     document.getElementById('ra').innerHTML = h;
   }
 
-  // ── COMPARE ────────────────────────────────────────────────────────────────
+  // â”€â”€ COMPARE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   async function goCmp() {
     const a = document.getElementById('pa').value.trim();
     const b = document.getElementById('pb').value.trim();
@@ -680,13 +680,13 @@
     isComparing = true;
     const btn = document.getElementById('cmp-btn');
     btn.disabled = true;
-    btn.textContent = 'Analyzing…';
+    btn.textContent = 'Analyzingâ€¦';
 
     document.getElementById('cr').innerHTML = `
       <div class="loading">
         <div class="spin"></div>
-        <p>Comparing <strong>${esc(a)}</strong> vs <strong>${esc(b)}</strong>…</p>
-        <p class="loading-sub">Analyzing features, pricing, and value — this takes a few seconds.</p>
+        <p>Comparing <strong>${esc(a)}</strong> vs <strong>${esc(b)}</strong>â€¦</p>
+        <p class="loading-sub">Analyzing features, pricing, and value â€” this takes a few seconds.</p>
       </div>`;
 
     try {
@@ -704,7 +704,7 @@
     } catch (err) {
       document.getElementById('cr').innerHTML = `
         <div class="err-box"><div class="err-inner">
-          <span class="err-icon">⚠</span>
+          <span class="err-icon">âš </span>
           <div>
             <strong>Unable to load comparison</strong>
             <p style="margin-top:6px;font-size:13px;color:#475569;line-height:1.6">We could not generate this comparison right now. Please try again in a few seconds, or try different product names.</p>
@@ -718,7 +718,7 @@
     }
   }
 
-  // ── RENDER COMPARISON — Amazon only ──────────────────────────────────────
+  // â”€â”€ RENDER COMPARISON â€” Amazon only â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function renderComparison(data) {
     const { productA, productB, comparison, intro, verdict, winner, winnerReason } = data;
     const cacheLabel = data.fromCache ? '<span class="cache-tag">cached</span>' : '';

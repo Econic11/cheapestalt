@@ -1,7 +1,7 @@
-"use strict";
+﻿"use strict";
 // api/trending.js
-// GET /trending          → article index page
-// GET /trending/[slug]   → individual article
+// GET /trending          â†’ article index page
+// GET /trending/[slug]   â†’ individual article
 
 const https = require("https");
 
@@ -35,7 +35,7 @@ function trackClick(slug) {
   if (!base || !key) return;
   const host = base.replace(/^https?:\/\//, "");
   const body = Buffer.from(JSON.stringify({ click_count: 1 }));
-  // Use RPC or raw PATCH with increment — simplified: just log
+  // Use RPC or raw PATCH with increment â€” simplified: just log
   console.log("Click tracked:", slug);
 }
 
@@ -44,7 +44,7 @@ function esc(s) { return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;"
 const FAV = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232563EB'/%3E%3Ctext x='16' y='22' font-family='Inter' font-size='13' font-weight='800' fill='white' text-anchor='middle'%3ECA%3C/text%3E%3C/svg%3E";
 const GA  = "G-6MR7X29W2X";
 
-// ── Index page ─────────────────────────────────────────────────────────────────
+// â”€â”€ Index page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function buildIndex(articles) {
   const TYPE_COLORS = {
     alternative: { bg:"#EFF6FF", color:"#2563EB", label:"Alternative" },
@@ -59,7 +59,7 @@ function buildIndex(articles) {
       '<div class="card-badge" style="background:' + tc.bg + ';color:' + tc.color + '">' + tc.label + '</div>' +
       '<div class="card-title">' + esc(a.title) + '</div>' +
       '<div class="card-meta">' + esc(a.keyword) + ' &bull; ' + date + '</div>' +
-      '<div class="card-cta">Read Article →</div>' +
+      '<div class="card-cta">Read Article â†’</div>' +
       '</a>';
   }).join("");
 
@@ -89,7 +89,7 @@ function buildIndex(articles) {
 
   return '<!DOCTYPE html><html lang="en"><head>' +
     '<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>' +
-    '<title>Trending Product Deals — Best Alternatives &amp; Savings | CheapestAlt</title>' +
+    '<title>Trending Product Deals â€” Best Alternatives &amp; Savings | CheapestAlt</title>' +
     '<meta name="description" content="Discover the best product alternatives, deals and savings updated automatically every day. Compare prices and save money today."/>' +
     '<link rel="canonical" href="https://www.cheapestalt.com/trending"/>' +
     '<link rel="icon" type="image/svg+xml" href="' + FAV + '"/>' +
@@ -99,16 +99,16 @@ function buildIndex(articles) {
     '<style>' + css + '</style>' +
     '</head><body>' +
     '<header class="hdr"><a href="/" class="logo">Cheapest<em>Alt</em></a>' +
-    '<nav class="nav"><a href="/">Alternatives</a><a href="/#compare">Compare</a><a href="/stories">Stories</a><a href="/trending">Articles</a></nav>' +
+    '<nav class="nav"><a href="/">Alternatives</a><a href="https://cheapestalt.com/compare">Compare</a><a href="/stories">Stories</a><a href="/trending">Articles</a></nav>' +
     '</header>' +
     '<div class="main-content"><div class="hero">' +
-    '<div class="hero-badge">🔥 New Deals Published Daily</div>' +
+    '<div class="hero-badge">ðŸ”¥ New Deals Published Daily</div>' +
     '<h1>Today\'s Best Product Deals</h1>' +
-    '<p>Our AI finds the best alternatives and savings across thousands of Amazon products — so you never overpay again.</p>' +
+    '<p>Our AI finds the best alternatives and savings across thousands of Amazon products â€” so you never overpay again.</p>' +
     '</div>' +
     (articles.length > 0
       ? '<div class="grid">' + cards + '</div>'
-      : '<div class="empty"><h2>Articles coming soon</h2><p>Check back in a few hours — new articles are generated automatically.</p></div>'
+      : '<div class="empty"><h2>Articles coming soon</h2><p>Check back in a few hours â€” new articles are generated automatically.</p></div>'
     ) +
     '<footer class="ftr"><div class="ftr-in"><span>&copy; 2026 CheapestAlt</span>' +
     '<div class="ftr-links"><a href="/">Home</a><a href="/stories">Stories</a><a href="mailto:Support@cheapestalt.com">Contact</a></div>' +
@@ -116,24 +116,24 @@ function buildIndex(articles) {
     '</body></html>';
 }
 
-// ── 404 page ──────────────────────────────────────────────────────────────────
+// â”€â”€ 404 page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function notFound() {
   return '<!DOCTYPE html><html><head><meta charset="UTF-8"/><title>Not Found | CheapestAlt</title>' +
     '<style>body{font-family:system-ui;background:#0F172A;color:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}' +
     '.c{text-align:center}.c h1{font-size:22px;margin-bottom:10px}.c p{color:#94A3B8;margin-bottom:20px}' +
     'a{background:#2563EB;color:#fff;padding:10px 22px;border-radius:8px;text-decoration:none;font-weight:600}</style></head>' +
-    '<body><div class="c"><div style="font-size:48px;margin-bottom:16px">📭</div><h1>Article not found</h1>' +
+    '<body><div class="c"><div style="font-size:48px;margin-bottom:16px">ðŸ“­</div><h1>Article not found</h1>' +
     '<p>This article may still be generating.</p><a href="/trending">Browse all articles</a></div></body></html>';
 }
 
-// ── MAIN HANDLER ──────────────────────────────────────────────────────────────
+// â”€â”€ MAIN HANDLER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 module.exports = async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   if (req.method === "OPTIONS") return res.status(204).end();
 
   const url = (req.url || "").split("?")[0];
 
-  // Track CTA clicks — GET /trending/click?slug=xxx
+  // Track CTA clicks â€” GET /trending/click?slug=xxx
   if (url === "/trending/click") {
     const slug = (req.query && req.query.slug) || "";
     if (slug) trackClick(slug);

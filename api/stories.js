@@ -1,13 +1,13 @@
-"use strict";
+﻿"use strict";
 // api/stories.js
-// GET /stories/[slug]  → serves AMP Web Story HTML
-// GET /stories         → serves story index page
+// GET /stories/[slug]  â†’ serves AMP Web Story HTML
+// GET /stories         â†’ serves story index page
 
 const https = require("https");
 const GA_ID = "G-6MR7X29W2X";
 const TAG   = "cheapestalt-20";
 
-// ── Supabase ──────────────────────────────────────────────────────────────────
+// â”€â”€ Supabase â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function sbReq(method, path) {
   const base = process.env.SUPABASE_URL;
   const key  = process.env.SUPABASE_ANON_KEY;
@@ -34,7 +34,7 @@ function esc(s) {
 
 const FAV = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232563EB'/%3E%3Ctext x='16' y='22' font-family='Inter' font-size='13' font-weight='800' fill='white' text-anchor='middle'%3ECA%3C/text%3E%3C/svg%3E";
 
-// ── Story index page ──────────────────────────────────────────────────────────
+// â”€â”€ Story index page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function buildIndexPage(stories) {
   // Assign gradient per card based on index for visual variety
   const GRADIENTS = [
@@ -49,7 +49,7 @@ function buildIndexPage(stories) {
     "linear-gradient(135deg,#7C3AED,#DB2777)",
     "linear-gradient(135deg,#059669,#0f3460)",
   ];
-  const EMOJIS = ["🎧","🏠","💻","💪","🌿","📸","🎮","🐾","⚡","🎁"];
+  const EMOJIS = ["ðŸŽ§","ðŸ ","ðŸ’»","ðŸ’ª","ðŸŒ¿","ðŸ“¸","ðŸŽ®","ðŸ¾","âš¡","ðŸŽ"];
 
   const cards = stories.map((s, i) => {
     const grad = GRADIENTS[i % GRADIENTS.length];
@@ -58,7 +58,7 @@ function buildIndexPage(stories) {
       <div class="card-emoji">${emoji}</div>
       <div class="card-title">${esc(s.title)}</div>
       <div class="card-kw">${esc(s.keyword || "")}</div>
-      <div class="card-cta">Watch Story →</div>
+      <div class="card-cta">Watch Story â†’</div>
     </a>`;
   }).join("");
 
@@ -67,7 +67,7 @@ function buildIndexPage(stories) {
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Today's Trending Product Stories — Best Deals Found Daily | CheapestAlt</title>
+  <title>Today's Trending Product Stories â€” Best Deals Found Daily | CheapestAlt</title>
   <meta name="description" content="Our AI scans thousands of Amazon products every day to find the best deals. Discover what is trending right now and save money instantly."/>
   <link rel="canonical" href="https://www.cheapestalt.com/stories"/>
   <link rel="icon" type="image/svg+xml" href="${FAV}"/>
@@ -111,23 +111,23 @@ function buildIndexPage(stories) {
   <a href="/" class="logo">Cheapest<em>Alt</em></a>
   <nav class="nav">
     <a href="/">Alternatives</a>
-    <a href="/#compare">Compare</a>
+    <a href="https://cheapestalt.com/compare">Compare</a>
     <a href="/stories">Stories</a>
   </nav>
 </header>
 <div class="hero">
-  <div class="hero-badge">🔥 Updated Daily by AI</div>
+  <div class="hero-badge">ðŸ”¥ Updated Daily by AI</div>
   <h1>Today's Best Product Deals</h1>
-  <p>Our AI scans thousands of Amazon listings every day and handpicks the most trending products — so you never miss a deal. Fresh stories published every morning.</p>
+  <p>Our AI scans thousands of Amazon listings every day and handpicks the most trending products â€” so you never miss a deal. Fresh stories published every morning.</p>
   <div class="hero-stats">
-    <span>✅ AI-curated deals</span>
-    <span>✅ Updated every 24h</span>
-    <span>✅ Verified Amazon prices</span>
+    <span>âœ… AI-curated deals</span>
+    <span>âœ… Updated every 24h</span>
+    <span>âœ… Verified Amazon prices</span>
   </div>
 </div>
 ${stories.length > 0
   ? `<div class="grid">${cards}</div>`
-  : `<div class="empty"><h2>Stories coming soon</h2><p>Check back in a few hours — our daily pipeline generates fresh stories automatically.</p></div>`
+  : `<div class="empty"><h2>Stories coming soon</h2><p>Check back in a few hours â€” our daily pipeline generates fresh stories automatically.</p></div>`
 }
 <footer class="ftr"><div class="ftr-in">
   <span>&copy; 2026 CheapestAlt. All rights reserved.</span>
@@ -143,7 +143,7 @@ ${stories.length > 0
 </html>`;
 }
 
-// ── 404 page ──────────────────────────────────────────────────────────────────
+// â”€â”€ 404 page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function notFoundPage(slug) {
   return `<!DOCTYPE html>
 <html lang="en">
@@ -163,7 +163,7 @@ function notFoundPage(slug) {
 </head>
 <body>
 <div class="c">
-  <div style="font-size:48px;margin-bottom:16px">📭</div>
+  <div style="font-size:48px;margin-bottom:16px">ðŸ“­</div>
   <h1>Story not found</h1>
   <p>This story may still be generating, or the URL may be incorrect.</p>
   <a href="/stories">Browse all stories</a>
@@ -172,14 +172,14 @@ function notFoundPage(slug) {
 </html>`;
 }
 
-// ── MAIN HANDLER ──────────────────────────────────────────────────────────────
+// â”€â”€ MAIN HANDLER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 module.exports = async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   if (req.method === "OPTIONS") return res.status(204).end();
 
   const url = (req.url || "").split("?")[0];
 
-  // /stories — index page
+  // /stories â€” index page
   if (url === "/stories" || url === "/stories/") {
     const { data: rows } = await sbReq("GET",
       "stories?select=slug,title,keyword&order=created_at.desc&limit=50");
@@ -188,7 +188,7 @@ module.exports = async function handler(req, res) {
     return res.status(200).send(buildIndexPage(stories));
   }
 
-  // /stories/[slug] — individual AMP story
+  // /stories/[slug] â€” individual AMP story
   const slugMatch = url.match(/^\/stories\/([^/]+)$/);
   if (slugMatch) {
     const slug = slugMatch[1].toLowerCase().trim();
