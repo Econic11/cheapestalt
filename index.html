@@ -260,7 +260,7 @@
     <a class="logo" href="/" onclick="navTo('home');return false">Cheapest<em>Alt</em></a>
     <nav class="nav">
       <a class="nb on" id="nb-home" href="/" onclick="navTo('home');return false">Find Alternatives</a>
-      <a class="nb" id="nb-cmp" href="https://cheapestalt.com/compare">Compare Products</a>
+      <a class="nb" id="nb-compare" href="#compare" onclick="navTo('compare');return false">Compare Products</a>
     </nav>
     <div class="hdr-tag">Free Â· No signup needed</div>
   </header>
@@ -300,7 +300,7 @@
   </div>
 
   <!-- COMPARE PAGE -->
-  <div class="pg" id="pg-cmp">
+  <div class="pg" id="compare">
     <div class="cmp-hero">
       <h1>Compare Two Products</h1>
       <p>Side-by-side analysis of features, pricing, and value â€” before you buy.</p>
@@ -329,7 +329,7 @@
       <div class="static-card"><h3>2. We research alternatives</h3><p>Our system analyzes real products and identifies the best cheaper alternatives that offer similar or better value on Amazon.</p></div>
       <div class="static-card"><h3>3. Compare and save</h3><p>We show you the original product side-by-side with cheaper alternatives â€” savings percentages, value scores, and direct Amazon links.</p></div>
       <h2>The comparison tool</h2>
-      <p>Use our <a href="#" onclick="navTo('cmp');return false" class="static-link">Compare Products</a> feature to get a detailed feature-by-feature breakdown of any two products â€” pros, cons, and a clear value verdict.</p>
+      <p>Use our <a href="#" onclick="navTo('compare');return false" class="static-link">Compare Products</a> feature to get a detailed feature-by-feature breakdown of any two products â€” pros, cons, and a clear value verdict.</p>
       <h2>Are prices accurate?</h2>
       <p>Prices are AI-estimated based on real market data. Always check Amazon's current price before purchasing. We link directly to Amazon for up-to-date pricing.</p>
       <h2>Affiliate links</h2>
@@ -363,7 +363,7 @@
       <div class="static-card"><h3>Partnership inquiries</h3><p>Interested in partnering with CheapestAlt? Email <a href="mailto:Support@cheapestalt.com" class="static-link">Support@cheapestalt.com</a> with the subject line "Partnership".</p></div>
       <h2>FAQ</h2>
       <p><strong>How are prices determined?</strong><br>Prices are AI-estimated based on real market data. Always check Amazon for the current price before buying.</p>
-      <p style="margin-top:14px"><strong>How do I compare two products?</strong><br>Use our <a href="#" onclick="navTo('cmp');return false" class="static-link">Compare Products</a> tool to compare any two products instantly.</p>
+      <p style="margin-top:14px"><strong>How do I compare two products?</strong><br>Use our <a href="#" onclick="navTo('compare');return false" class="static-link">Compare Products</a> tool to compare any two products instantly.</p>
     </div>
   </div>
 
@@ -485,7 +485,7 @@
       if (x.classList.contains('static-pg')) x.style.display = '';
     });
     document.querySelectorAll('.nb').forEach(x => x.classList.remove('on'));
-    const pg = document.getElementById('pg-' + page);
+    const pg = document.getElementById('pg-' + page) || document.getElementById(page);
     if (pg) {
       pg.classList.add('on');
       if (pg.classList.contains('static-pg')) pg.style.display = 'flex';
@@ -504,7 +504,7 @@
   function restorePageFromURL() {
     const hash = location.hash.replace('#', '') || 'home';
     // Map /#compare â†’ cmp page
-    const pageMap = { 'compare': 'cmp', 'cmp': 'cmp', 'home': 'home', 'about': 'about', 'contact': 'contact', 'privacy': 'privacy', 'disclosure': 'disclosure', 'terms': 'terms', 'how-it-works': 'how-it-works' };
+    const pageMap = { 'compare': 'compare', 'cmp': 'compare', 'home': 'home', 'about': 'about', 'contact': 'contact', 'privacy': 'privacy', 'disclosure': 'disclosure', 'terms': 'terms', 'how-it-works': 'how-it-works' };
     const page = pageMap[hash] || 'home';
     navTo(page, false);
   }
