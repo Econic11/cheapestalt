@@ -503,8 +503,7 @@
   // Restore page from URL hash on load / back button
   function restorePageFromURL() {
     const hash = location.hash.replace('#', '') || 'home';
-    // Map /#compare â†’ cmp page
-    const pageMap = { 'compare': 'compare', 'cmp': 'compare', 'home': 'home', 'about': 'about', 'contact': 'contact', 'privacy': 'privacy', 'disclosure': 'disclosure', 'terms': 'terms', 'how-it-works': 'how-it-works' };
+    const pageMap = { 'compare': 'compare', 'home': 'home', 'about': 'about', 'contact': 'contact', 'privacy': 'privacy', 'disclosure': 'disclosure', 'terms': 'terms', 'how-it-works': 'how-it-works' };
     const page = pageMap[hash] || 'home';
     navTo(page, false);
   }
