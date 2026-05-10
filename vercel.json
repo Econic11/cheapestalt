@@ -46,6 +46,10 @@
   ],
   "rewrites": [
     {
+      "source": "/compare",
+      "destination": "/api/compare"
+    },
+    {
       "source": "/pages/:page",
       "destination": "/api/pages?page=:page"
     },

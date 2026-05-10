@@ -237,12 +237,200 @@ const SYS = 'Return ONLY valid JSON. No markdown. No apostrophes. ' +
   'Rules: 6 to 8 comparison rows, winner must be exactly a or b or tie, 3 to 4 pros and cons each, 4 FAQs specific to these two products, no apostrophes.';
 
 // â”€â”€ Main handler â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function comparePageHTML() {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Compare Two Products &ndash; CheapestAlt</title>
+<meta name="description" content="Side-by-side comparison of any two products. Features, pricing, and value verdict &mdash; before you buy."/>
+<link rel="canonical" href="https://www.cheapestalt.com/compare"/>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<meta name="theme-color" content="#2563EB"/>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-6MR7X29W2X"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6MR7X29W2X');</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,sans-serif;color:#0F172A;background:#fff;font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column;min-height:100vh}
+.hdr{background:#fff;border-bottom:1.5px solid #E2E8F0;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 28px;height:58px;position:sticky;top:0;z-index:200}
+.logo{font-size:18px;font-weight:800;color:#0F172A;text-decoration:none;letter-spacing:-0.4px;justify-self:start}
+.logo em{color:#2563EB;font-style:normal}
+.nav{display:flex;gap:4px;justify-self:center}
+.nb{background:#F8FAFC;border:1.5px solid #CBD5E1;padding:7px 16px;border-radius:8px;font-size:13.5px;font-weight:600;color:#0F172A;text-decoration:none;white-space:nowrap;transition:all .18s}
+.nb:hover{background:#EFF6FF;border-color:#2563EB;color:#2563EB}
+.nb.on{background:#2563EB!important;border-color:#2563EB!important;color:#fff!important}
+.hdr-tag{font-size:12px;color:#0F172A;border:1.5px solid #E2E8F0;border-radius:20px;padding:4px 12px;font-weight:500;background:#F8FAFC;justify-self:end;white-space:nowrap}
+@media(max-width:640px){.hdr{display:flex;flex-direction:column;height:auto;padding:12px 16px;gap:10px;align-items:center}.hdr-tag{display:none}.nav{justify-content:center;width:100%}.nb{font-size:13px;padding:9px 16px;flex:1;text-align:center}}
+main{flex:1}
+.cmp-hero{text-align:center;padding:56px 24px 36px}
+.cmp-hero h1{font-size:34px;font-weight:800;letter-spacing:-0.7px;margin-bottom:10px;color:#0F172A}
+.cmp-hero p{font-size:16px;color:#475569;margin-bottom:36px}
+.cmp-form{max-width:700px;margin:0 auto;padding:0 24px 32px}
+.cmp-inputs{display:grid;grid-template-columns:1fr 44px 1fr;gap:12px;align-items:center;margin-bottom:20px}
+.cmp-inputs input{padding:13px 16px;border:2px solid #E2E8F0;border-radius:10px;font-size:14px;font-family:'Inter',sans-serif;color:#0F172A;background:#fff;outline:none;width:100%;transition:border-color .18s,box-shadow .18s;font-weight:500}
+.cmp-inputs input::placeholder{color:#94A3B8;font-weight:400}
+.cmp-inputs input:focus{border-color:#2563EB;box-shadow:0 0 0 3px rgba(37,99,235,0.10)}
+.vs{width:44px;height:44px;background:#F8FAFC;border:2px solid #E2E8F0;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#0F172A}
+.cmp-go{display:flex;justify-content:center}
+.btn-primary{background:#2563EB;color:#fff;border:2px solid #2563EB;padding:13px 36px;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;box-shadow:0 2px 8px rgba(37,99,235,0.28)}
+.btn-primary:hover{background:#1D4ED8;border-color:#1D4ED8}
+.btn-primary:disabled{background:#93C5FD;border-color:#93C5FD;cursor:not-allowed}
+@media(max-width:640px){.cmp-inputs{grid-template-columns:1fr;gap:10px}.vs{display:none}}
+.cmp-res{max-width:960px;margin:0 auto;padding:0 24px 72px}
+.cmp-res h2{font-size:24px;font-weight:800;color:#0F172A;letter-spacing:-0.5px;margin-bottom:16px}
+.intro-box{background:#EFF6FF;border:1.5px solid #BFDBFE;border-radius:10px;padding:16px 20px;margin-bottom:20px;font-size:14px;line-height:1.75;color:#1E3A6E}
+.tbl-wrap{background:#fff;border:1.5px solid #E2E8F0;border-radius:14px;overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse}
+th{background:#F8FAFC;padding:11px 16px;text-align:left;font-size:12px;font-weight:700;color:#0F172A;border-bottom:1.5px solid #E2E8F0;letter-spacing:0.5px;text-transform:uppercase}
+td{padding:11px 16px;border-bottom:1px solid #E2E8F0;font-size:13.5px;color:#0F172A}
+tr:last-child td{border-bottom:none}
+td.win{color:#2563EB;font-weight:700}
+.cmp-cols{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.cmp-col{background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:14px;padding:18px 20px}
+.cmp-col h3{font-size:15px;font-weight:700;color:#0F172A;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid #E2E8F0}
+.pc{display:flex;gap:9px;align-items:flex-start;margin-bottom:8px;font-size:13px;color:#0F172A;line-height:1.5}
+.pc-dot{width:18px;height:18px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;margin-top:1px}
+.pro .pc-dot{background:#F0FDF4;color:#16A34A}
+.con .pc-dot{background:#FEF2F2;color:#DC2626}
+.verdict-box{background:#FFFBEB;border:1.5px solid #FDE68A;border-radius:10px;padding:16px 20px;font-size:14px;line-height:1.75;color:#78350F;margin-bottom:20px}
+.verdict-box strong{color:#0F172A;font-weight:700}
+.cmp-btns{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+.dbtn{padding:11px 14px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;text-align:center;display:block;width:100%;border:none}
+.dbtn-az{background:#FF9900;color:#0F172A}
+.dbtn-az:hover{background:#E88A00}
+.colls{max-width:960px;margin:0 auto;padding:0 24px 72px}
+.coll{background:#fff;border:1.5px solid #E2E8F0;border-radius:10px;margin-bottom:8px;overflow:hidden}
+.coll-h{padding:14px 18px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:14px;color:#0F172A;user-select:none}
+.coll-h:hover{background:#F8FAFC}
+.coll-ico{width:22px;height:22px;border-radius:50%;background:#F8FAFC;border:1.5px solid #E2E8F0;display:flex;align-items:center;justify-content:center;font-size:11px;transition:transform .2s;flex-shrink:0}
+.coll.open .coll-ico{transform:rotate(180deg);background:#EFF6FF;border-color:#BFDBFE;color:#2563EB}
+.coll-b{display:none;padding:14px 18px 16px;border-top:1px solid #E2E8F0;font-size:13.5px;color:#0F172A;line-height:1.75}
+.coll.open .coll-b{display:block}
+.err-box{max-width:960px;margin:0 auto;padding:0 24px}
+.err-inner{background:#FEF2F2;border:1.5px solid #FECACA;border-radius:10px;padding:16px 20px;color:#991B1B;font-size:14px;display:flex;align-items:flex-start;gap:12px}
+.err-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+.err-inner strong{display:block;margin-bottom:4px;font-weight:700;color:#7F1D1D}
+.loading{text-align:center;padding:56px 24px}
+.spin{width:34px;height:34px;border:3px solid #E2E8F0;border-top-color:#2563EB;border-radius:50%;animation:sp .65s linear infinite;margin:0 auto 14px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.loading p{color:#0F172A;font-size:14px}
+.loading-sub{font-size:12px;color:#94A3B8;margin-top:6px}
+.cache-tag{display:inline-block;background:#F0FDF4;color:#16A34A;font-size:11px;font-weight:600;padding:2px 8px;border-radius:6px;border:1px solid #BBF7D0;margin-left:8px;vertical-align:middle}
+@media(max-width:640px){.cmp-cols{grid-template-columns:1fr}.cmp-btns{flex-direction:column}}
+.ftr{background:#F8FAFC;border-top:1.5px solid #E2E8F0;padding:24px 28px;margin-top:auto}
+.ftr-in{max-width:960px;margin:0 auto;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:13px;color:#0F172A;align-items:center}
+.ftr-in a{color:#0F172A;text-decoration:none;font-weight:500}.ftr-in a:hover{color:#2563EB}
+.ftr-links{display:flex;gap:16px;flex-wrap:wrap}
+</style>
+</head>
+<body>
+<header class="hdr">
+  <a href="/" class="logo">Cheapest<em>Alt</em></a>
+  <nav class="nav">
+    <a class="nb" href="/">Find Alternatives</a>
+    <a class="nb on" href="/compare">Compare Products</a>
+  </nav>
+  <div class="hdr-tag">Free &middot; No signup needed</div>
+</header>
+<main>
+  <div class="cmp-hero">
+    <h1>Compare Two Products</h1>
+    <p>Side-by-side analysis of features, pricing, and value &mdash; before you buy.</p>
+  </div>
+  <div class="cmp-form">
+    <div class="cmp-inputs">
+      <input id="pa" type="text" placeholder="Product A  (e.g. AirPods Pro)"/>
+      <div class="vs">VS</div>
+      <input id="pb" type="text" placeholder="Product B  (e.g. Sony WF-1000XM5)"/>
+    </div>
+    <div class="cmp-go"><button class="btn-primary" id="cmp-btn" onclick="goCmp()">Compare Now</button></div>
+  </div>
+  <div id="cr"></div>
+</main>
+<footer class="ftr">
+  <div class="ftr-in">
+    <span>&copy; 2026 CheapestAlt. All rights reserved.</span>
+    <div class="ftr-links">
+      <a href="/">Home</a>
+      <a href="/compare">Compare</a>
+      <a href="/trending">Articles</a>
+      <a href="mailto:Support@cheapestalt.com">Contact</a>
+    </div>
+  </div>
+</footer>
+<script>
+  let isComparing = false;
+  function amzLink(name) { return 'https://www.amazon.com/s?k=' + encodeURIComponent(name) + '&tag=cheapestalt-20'; }
+  function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function slug(s) { return s.toLowerCase().replace(/[^a-z0-9\\s-]/g,'').replace(/\\s+/g,'-').replace(/-+/g,'-').trim(); }
+  function tog(el) { el.classList.toggle('open'); }
+
+  async function goCmp() {
+    const a = document.getElementById('pa').value.trim();
+    const b = document.getElementById('pb').value.trim();
+    if (!a || !b || isComparing) return;
+    isComparing = true;
+    const btn = document.getElementById('cmp-btn');
+    btn.disabled = true; btn.textContent = 'Analyzing…';
+    document.getElementById('cr').innerHTML = '<div class="loading"><div class="spin"></div><p>Comparing <strong>' + esc(a) + '</strong> vs <strong>' + esc(b) + '</strong>…</p><p class="loading-sub">Analyzing features, pricing, and value — this takes a few seconds.</p></div>';
+    try {
+      const resp = await fetch('/api/compare', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({productA:a,productB:b}) });
+      if (!resp.ok) { const err = await resp.json().catch(()=>({})); throw new Error(err.error||'HTTP '+resp.status); }
+      renderComparison(await resp.json());
+    } catch(err) {
+      document.getElementById('cr').innerHTML = '<div class="err-box"><div class="err-inner"><span class="err-icon">&#9888;</span><div><strong>Unable to load comparison</strong><p style="margin-top:6px;font-size:13px;color:#475569;line-height:1.6">Could not generate this comparison. Please try again or use different product names.</p><button onclick="goCmp()" style="margin-top:10px;background:#2563EB;color:#fff;border:none;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif">Try again</button></div></div></div>';
+    } finally { isComparing=false; btn.disabled=false; btn.textContent='Compare Now'; }
+  }
+
+  function renderComparison(data) {
+    const {productA,productB,comparison,intro,verdict,winner,winnerReason} = data;
+    const cacheLabel = data.fromCache ? '<span class="cache-tag">cached</span>' : '';
+    const rows = (comparison||[]).map(r=>'<tr><td><strong>'+esc(r.feature)+'</strong></td><td'+(r.winner==='a'?' class="win"':'')+'>'+esc(r.a)+'</td><td'+(r.winner==='b'?' class="win"':'')+'>'+esc(r.b)+'</td></tr>').join('');
+    const prosA = (productA.pros||[]).map(p=>'<div class="pc pro"><span class="pc-dot">&#10003;</span>'+esc(p)+'</div>').join('');
+    const consA = (productA.cons||[]).map(c=>'<div class="pc con"><span class="pc-dot">&#10007;</span>'+esc(c)+'</div>').join('');
+    const prosB = (productB.pros||[]).map(p=>'<div class="pc pro"><span class="pc-dot">&#10003;</span>'+esc(p)+'</div>').join('');
+    const consB = (productB.cons||[]).map(c=>'<div class="pc con"><span class="pc-dot">&#10007;</span>'+esc(c)+'</div>').join('');
+    const verdictHtml = verdict ? '<div class="verdict-box"><strong>Verdict: </strong>'+esc(verdict)+(winnerReason?'<br><br><strong>Winner: '+esc(winner)+'</strong> — '+esc(winnerReason):'')+' </div>' : '';
+    const slugA = slug(productA.name), slugB = slug(productB.name);
+    let html = '<div class="cmp-res">';
+    html += '<h2>'+esc(productA.name)+' vs '+esc(productB.name)+' '+cacheLabel+'</h2>';
+    if (intro) html += '<div class="intro-box">'+esc(intro)+'</div>';
+    html += '<div class="tbl-wrap"><table><thead><tr><th>Feature</th><th>'+esc(productA.name)+'</th><th>'+esc(productB.name)+'</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+    html += '<div class="cmp-cols">';
+    html += '<div class="cmp-col"><h3>'+esc(productA.name)+'</h3>'+prosA+consA+'<div style="margin-top:14px"><button class="dbtn dbtn-az" onclick="window.open(\''+amzLink(productA.name)+'\',\'_blank\')">View on Amazon &#8594;</button></div></div>';
+    html += '<div class="cmp-col"><h3>'+esc(productB.name)+'</h3>'+prosB+consB+'<div style="margin-top:14px"><button class="dbtn dbtn-az" onclick="window.open(\''+amzLink(productB.name)+'\',\'_blank\')">View on Amazon &#8594;</button></div></div>';
+    html += '</div>'+verdictHtml;
+    html += '<div class="cmp-btns"><button class="dbtn dbtn-az" style="flex:1" onclick="window.open(\''+amzLink(productA.name)+'\',\'_blank\')">Check '+esc(productA.name)+' on Amazon &#8594;</button><button class="dbtn dbtn-az" style="flex:1" onclick="window.open(\''+amzLink(productB.name)+'\',\'_blank\')">Check '+esc(productB.name)+' on Amazon &#8594;</button></div>';
+    html += '</div>';
+    html += '<div class="colls">';
+    html += '<div class="coll" onclick="tog(this)"><div class="coll-h">Read the full comparison article <span class="coll-ico">&#9662;</span></div><div class="coll-b"><p style="margin-bottom:14px">Get the in-depth analysis of <strong>'+esc(productA.name)+'</strong> vs <strong>'+esc(productB.name)+'</strong>.</p><a href="/find?slug='+(data.slug||slugA+'-vs-'+slugB)+'" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:#2563EB;color:#fff;padding:11px 22px;border-radius:8px;font-size:14px;font-weight:700;text-decoration:none">Read full article &#8594;</a></div></div>';
+    html += '<div class="coll" onclick="tog(this)"><div class="coll-h">Find cheaper alternatives <span class="coll-ico">&#9662;</span></div><div class="coll-b"><a href="/find?slug='+slugA+'-alternatives" target="_blank" style="display:flex;justify-content:space-between;background:#F8FAFC;border:1.5px solid #E2E8F0;padding:12px 16px;border-radius:8px;font-size:13px;font-weight:600;color:#0F172A;text-decoration:none;margin-bottom:8px">Alternatives to '+esc(productA.name)+' <span style="color:#2563EB">&#8594;</span></a><a href="/find?slug='+slugB+'-alternatives" target="_blank" style="display:flex;justify-content:space-between;background:#F8FAFC;border:1.5px solid #E2E8F0;padding:12px 16px;border-radius:8px;font-size:13px;font-weight:600;color:#0F172A;text-decoration:none">Alternatives to '+esc(productB.name)+' <span style="color:#2563EB">&#8594;</span></a></div></div>';
+    html += '</div>';
+    document.getElementById('cr').innerHTML = html;
+  }
+
+  document.getElementById('pa').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('pb').focus(); });
+  document.getElementById('pb').addEventListener('keydown', e => { if (e.key === 'Enter') goCmp(); });
+</script>
+</body>
+</html>`;
+}
+
 module.exports = async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin","*");
-  res.setHeader("Access-Control-Allow-Methods","POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Methods","GET, POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers","Content-Type");
   if (req.method === "OPTIONS") return res.status(204).end();
-  if (req.method !== "POST")   return res.status(405).json({ error: "Method not allowed" });
+
+  if (req.method === "GET") {
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    return res.status(200).send(comparePageHTML());
+  }
+
+  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
   const apiKey = process.env.CLAUDE_API_KEY;
   if (!apiKey) return res.status(500).json({ error: "CLAUDE_API_KEY not set" });
