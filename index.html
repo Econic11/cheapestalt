@@ -433,7 +433,7 @@
       <div class="ftr-col">
         <h4>Product</h4>
         <a href="#" onclick="navTo('home');return false">Find Alternatives</a>
-        <a href="https://cheapestalt.com/compare">Compare Products</a>
+        <a href="#compare" onclick="navTo('compare');return false">Compare Products</a>
         <a href="#" onclick="navTo('how-it-works');return false">How it works</a>
       </div>
       <div class="ftr-col">
@@ -762,12 +762,14 @@
     html += '<button class="dbtn dbtn-az" style="flex:1" onclick="window.open(\'' + amzLink(productA.name) + '\',\'_blank\')">Check ' + esc(productA.name) + ' on Amazon \u2192</button>';
     html += '<button class="dbtn dbtn-az" style="flex:1" onclick="window.open(\'' + amzLink(productB.name) + '\',\'_blank\')">Check ' + esc(productB.name) + ' on Amazon \u2192</button>';
     html += '</div></div>';
+    var articleSlug = data.slug || [slugA, slugB].sort().join('-vs-');
+    var articleUrl = '/compare/' + articleSlug;
+    html += '<div style="max-width:960px;margin:0 auto;padding:0 24px 16px">';
+    html += '<a href="' + articleUrl + '" target="_blank" style="display:flex;align-items:center;justify-content:space-between;background:#EFF6FF;border:1.5px solid #BFDBFE;border-radius:10px;padding:14px 18px;text-decoration:none;color:#0F172A;font-size:13.5px;font-weight:600">';
+    html += '<span>Read the full article: <strong>' + esc(productA.name) + ' vs ' + esc(productB.name) + '</strong></span>';
+    html += '<span style="color:#2563EB;font-size:12px;background:#fff;border:1.5px solid #BFDBFE;padding:4px 10px;border-radius:6px;white-space:nowrap">' + articleUrl + ' \u2192</span>';
+    html += '</a></div>';
     html += '<div class="colls" style="margin-top:8px">';
-    html += '<div class="coll" onclick="tog(this)">';
-    html += '<div class="coll-h">Read the full comparison article <span class="coll-ico">&#9662;</span></div>';
-    html += '<div class="coll-b"><p style="margin-bottom:14px;color:#0F172A;line-height:1.75">Get the complete in-depth analysis of <strong>' + esc(productA.name) + '</strong> vs <strong>' + esc(productB.name) + '</strong> \u2014 detailed specs, buying advice, pros and cons, and a final verdict.</p>';
-    html += '<a href="/find?slug=' + (data.slug || slugA + '-vs-' + slugB) + '" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:#2563EB;color:#fff;padding:11px 22px;border-radius:8px;font-size:14px;font-weight:700;text-decoration:none">Read full comparison article \u2192</a>';
-    html += '</div></div>';
     html += '<div class="coll" onclick="tog(this)">';
     html += '<div class="coll-h">Find cheaper alternatives to each product <span class="coll-ico">&#9662;</span></div>';
     html += '<div class="coll-b"><p style="margin-bottom:14px;color:#0F172A;line-height:1.75">Not satisfied with either option? Browse cheaper alternatives on Amazon.</p>';

@@ -427,6 +427,21 @@ module.exports = async function handler(req, res) {
 
   if (req.method === "GET") {
     res.setHeader("Content-Type", "text/html; charset=utf-8");
+    const slug = req.query && req.query.slug;
+    if (slug) {
+      const { data: rows } = await db.get(slug);
+      const row = Array.isArray(rows) ? rows[0] : rows;
+      if (!row || !row.content) {
+        res.setHeader("Location", "/compare");
+        return res.status(302).end();
+      }
+      let data;
+      try { data = typeof row.content === "string" ? JSON.parse(row.content) : row.content; } catch { data = {}; }
+      data.slug = slug;
+      const html = renderHTML(data, slug);
+      if (!html) { res.setHeader("Location", "/compare"); return res.status(302).end(); }
+      return res.status(200).send(html);
+    }
     return res.status(200).send(comparePageHTML());
   }
 

@@ -46,6 +46,10 @@
   ],
   "rewrites": [
     {
+      "source": "/compare/:slug",
+      "destination": "/api/compare?slug=:slug"
+    },
+    {
       "source": "/compare",
       "destination": "/api/compare"
     },
