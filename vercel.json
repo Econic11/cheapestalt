@@ -50,6 +50,10 @@
   ],
   "rewrites": [
     {
+      "source": "/seed-pages",
+      "destination": "/api/seed-pages"
+    },
+    {
       "source": "/goveelife-nugget-ice-maker-pro",
       "destination": "/api/find?slug=goveelife-nugget-ice-maker-pro"
     },
