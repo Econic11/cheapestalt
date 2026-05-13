@@ -447,66 +447,73 @@ function errPage(msg) {
 
 // â”€â”€ MAIN HANDLER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 module.exports = async function handler(req, res) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  if (req.method === "OPTIONS") return res.status(204).end();
+  res.setHeader(“Access-Control-Allow-Origin”, “*”);
+  if (req.method === “OPTIONS”) return res.status(204).end();
 
-  const apiKey = process.env.CLAUDE_API_KEY;
-  if (!apiKey) return res.status(500).send(errPage("Server configuration error."));
-
-  const rawSlug = ((req.query && req.query.slug) || "").trim().toLowerCase();
-  if (!rawSlug) return res.status(400).send(errPage("No page specified."));
-
-  const parsed = parseSlug(rawSlug);
-  if (!parsed) return res.status(400).send(errPage("Page not found. Try searching on the home page."));
+  const rawSlug = ((req.query && req.query.slug) || “”).trim().toLowerCase();
+  if (!rawSlug) return res.status(400).send(errPage(“No page specified.”));
 
   const hasDB = !!(process.env.SUPABASE_URL && process.env.SUPABASE_ANON_KEY);
 
   // 1. Memory cache (instant)
   const cached = mGet(rawSlug);
   if (cached) {
-    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.setHeader(“Content-Type”, “text/html; charset=utf-8”);
     return res.status(200).send(cached);
   }
 
-  // 2. Supabase (instant HTML, route to correct table)
+  // 2. Supabase pages table — serves any stored page including custom product pages
   if (hasDB) {
-    const dbGet = parsed.type === "compare" ? db.getCmp(rawSlug) : db.getAlt(rawSlug);
-    const { data: rows, error: dbErr } = await dbGet;
-    if (dbErr) console.error("DB GET err:", JSON.stringify(dbErr).slice(0, 150));
+    const { data: rows, error: dbErr } = await db.getAlt(rawSlug);
+    if (dbErr) console.error(“DB GET err:”, JSON.stringify(dbErr).slice(0, 150));
     const row = Array.isArray(rows) ? rows[0] : rows;
     if (row && row.html) {
       mSet(rawSlug, row.html);
-      res.setHeader("Content-Type", "text/html; charset=utf-8");
+      res.setHeader(“Content-Type”, “text/html; charset=utf-8”);
+      return res.status(200).send(row.html);
+    }
+  }
+
+  // 3. Parse slug — only needed for dynamic Claude generation
+  const apiKey = process.env.CLAUDE_API_KEY;
+  if (!apiKey) return res.status(500).send(errPage(“Server configuration error.”));
+
+  const parsed = parseSlug(rawSlug);
+  if (!parsed) return res.status(404).send(errPage(“Page not found. Try searching on the home page.”));
+
+  // 4. For compare pages: check comparisons table + slug variants
+  if (hasDB && parsed.type === “compare”) {
+    const { data: rows, error: dbErr } = await db.getCmp(rawSlug);
+    if (dbErr) console.error(“DB GET err:”, JSON.stringify(dbErr).slice(0, 150));
+    const row = Array.isArray(rows) ? rows[0] : rows;
+    if (row && row.html) {
+      mSet(rawSlug, row.html);
+      res.setHeader(“Content-Type”, “text/html; charset=utf-8”);
       return res.status(200).send(row.html);
     }
 
-    // For compare pages: try ALL slug variants that compare.js may have saved
-    if (parsed.type === "compare") {
-      // compare.js saves sorted alphabetically â€” try that
-      const slugs = [mkSlug(parsed.a), mkSlug(parsed.b)].sort();
-      const sortedSlug = slugs[0] + "-vs-" + slugs[1];
-      // Also try reversed order
-      const reversedSlug = mkSlug(parsed.b) + "-vs-" + mkSlug(parsed.a);
-      const toTry = [...new Set([sortedSlug, reversedSlug])].filter(s => s !== rawSlug);
-      for (const altSlug of toTry) {
-        const { data: rows2 } = await db.getCmp(altSlug);
-        const row2 = Array.isArray(rows2) ? rows2[0] : rows2;
-        if (row2 && row2.html) {
-          mSet(rawSlug, row2.html);
-          // Save under rawSlug for instant future visits
-          await db.saveCmp({ slug: rawSlug, type: "comparison",
-            product_a: parsed.a, product_b: parsed.b,
-            title: parsed.a + " vs " + parsed.b,
-            content: row2.content || {}, html: row2.html,
-            created_at: new Date().toISOString(), last_generated: new Date().toISOString() });
-          res.setHeader("Content-Type", "text/html; charset=utf-8");
-          return res.status(200).send(row2.html);
-        }
+    // Try slug variants that compare.js may have saved
+    const slugs = [mkSlug(parsed.a), mkSlug(parsed.b)].sort();
+    const sortedSlug = slugs[0] + “-vs-” + slugs[1];
+    const reversedSlug = mkSlug(parsed.b) + “-vs-” + mkSlug(parsed.a);
+    const toTry = [...new Set([sortedSlug, reversedSlug])].filter(s => s !== rawSlug);
+    for (const altSlug of toTry) {
+      const { data: rows2 } = await db.getCmp(altSlug);
+      const row2 = Array.isArray(rows2) ? rows2[0] : rows2;
+      if (row2 && row2.html) {
+        mSet(rawSlug, row2.html);
+        await db.saveCmp({ slug: rawSlug, type: “comparison”,
+          product_a: parsed.a, product_b: parsed.b,
+          title: parsed.a + “ vs “ + parsed.b,
+          content: row2.content || {}, html: row2.html,
+          created_at: new Date().toISOString(), last_generated: new Date().toISOString() });
+        res.setHeader(“Content-Type”, “text/html; charset=utf-8”);
+        return res.status(200).send(row2.html);
       }
     }
   }
 
-  // 3. Generate with Claude
+  // 5. Generate with Claude
   const now = new Date().toISOString();
   let cr, cb, rawText, data, html;
 

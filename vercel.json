@@ -33,6 +33,9 @@
     },
     "api/run-all.js": {
       "maxDuration": 60
+    },
+    "api/seed-pages.js": {
+      "maxDuration": 30
     }
   },
   "crons": [
@@ -46,6 +49,10 @@
     }
   ],
   "rewrites": [
+    {
+      "source": "/goveelife-nugget-ice-maker-pro",
+      "destination": "/api/find?slug=goveelife-nugget-ice-maker-pro"
+    },
     {
       "source": "/compare/:slug",
       "destination": "/api/compare?slug=:slug"
