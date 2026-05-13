@@ -36,6 +36,12 @@
     },
     "api/seed-pages.js": {
       "maxDuration": 30
+    },
+    "api/products.js": {
+      "maxDuration": 15
+    },
+    "api/admin-products.js": {
+      "maxDuration": 60
     }
   },
   "crons": [
@@ -88,6 +94,18 @@
     {
       "source": "/sitemap-trending.xml",
       "destination": "/api/sitemap"
+    },
+    {
+      "source": "/products",
+      "destination": "/api/products"
+    },
+    {
+      "source": "/products/:slug",
+      "destination": "/api/products"
+    },
+    {
+      "source": "/admin/add-product",
+      "destination": "/api/admin-products"
     },
     {
       "source": "/admin",
