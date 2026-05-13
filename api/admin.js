@@ -403,34 +403,31 @@ module.exports = async function handler(req, res){
 
   // Login page
   if(url==="/admin"||url==="/admin/"){
+    // One-time seed action: /admin?action=seed&key=<ADMIN_SECRET>
+    if(req.query&&req.query.action==="seed"){
+      const key=(req.query.key)||"";
+      if(key!==ADMIN_SECRET) return res.status(401).json({error:"Unauthorized"});
+      const fs=require("fs"),pathMod=require("path");
+      const now=new Date().toISOString();
+      const pages=[
+        {slug:"goveelife-nugget-ice-maker-pro",type:"product",keyword:"GoveeLife Smart Nugget Ice Maker Pro",title:"GoveeLife Smart Nugget Ice Maker Pro Review 2025 — Best Price on Amazon",htmlFile:"goveelife-nugget-ice-maker-pro.html"},
+      ];
+      const results=[];
+      for(const p of pages){
+        let html;
+        try{html=fs.readFileSync(pathMod.join(__dirname,"..",p.htmlFile),"utf8");}catch(e){
+          results.push({slug:p.slug,success:false,error:"file not found: "+e.message});continue;
+        }
+        const row={slug:p.slug,type:p.type,keyword:p.keyword,title:p.title,content:{},html,created_at:now,last_generated:now};
+        const {error}=await dbInsert("pages",row);
+        results.push({slug:p.slug,success:!error,error:error||undefined});
+      }
+      res.setHeader("Content-Type","application/json");
+      return res.status(results.every(r=>r.success)?200:207).json({results});
+    }
     if(isAuthed(req)){res.setHeader("Location","/admin/create-story");return res.status(302).end();}
     res.setHeader("Content-Type","text/html; charset=utf-8");
     return res.status(200).send(loginPage(false));
-  }
-
-  // One-time seed: insert product pages into Supabase pages table
-  if(url==="/admin/seed"){
-    const key=(req.query&&req.query.key)||"";
-    if(key!==ADMIN_SECRET) return res.status(401).json({error:"Unauthorized"});
-    const fs=require("fs"),path=require("path");
-    const now=new Date().toISOString();
-    const pages=[
-      {slug:"goveelife-nugget-ice-maker-pro",type:"product",keyword:"GoveeLife Smart Nugget Ice Maker Pro",title:"GoveeLife Smart Nugget Ice Maker Pro Review 2025 — Best Price on Amazon",htmlFile:"goveelife-nugget-ice-maker-pro.html"},
-    ];
-    const results=[];
-    for(const p of pages){
-      let html;
-      try{html=fs.readFileSync(path.join(__dirname,"..","public",p.htmlFile),"utf8");}catch(_){
-        try{html=fs.readFileSync(path.join(__dirname,"..",p.htmlFile),"utf8");}catch(e){
-          results.push({slug:p.slug,success:false,error:"file not found: "+e.message});continue;
-        }
-      }
-      const row={slug:p.slug,type:p.type,keyword:p.keyword,title:p.title,content:{},html,created_at:now,last_generated:now};
-      const {error}=await dbInsert("pages",row);
-      results.push({slug:p.slug,success:!error,error:error||undefined});
-    }
-    res.setHeader("Content-Type","application/json");
-    return res.status(results.every(r=>r.success)?200:207).json({results});
   }
 
   // Image upload endpoint — receives multipart from browser, uploads to Supabase server-side
