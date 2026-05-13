@@ -37,12 +37,6 @@
     "api/seed-pages.js": {
       "maxDuration": 30
     },
-    "api/products.js": {
-      "maxDuration": 15
-    },
-    "api/admin-products.js": {
-      "maxDuration": 60
-    }
   },
   "crons": [
     {
@@ -97,15 +91,15 @@
     },
     {
       "source": "/products",
-      "destination": "/api/products"
+      "destination": "/api/trending"
     },
     {
       "source": "/products/:slug",
-      "destination": "/api/products"
+      "destination": "/api/trending"
     },
     {
       "source": "/admin/add-product",
-      "destination": "/api/admin-products"
+      "destination": "/api/admin"
     },
     {
       "source": "/admin",
