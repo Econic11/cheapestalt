@@ -98,10 +98,6 @@
       "destination": "/api/trending"
     },
     {
-      "source": "/admin/add-product",
-      "destination": "/api/admin"
-    },
-    {
       "source": "/admin",
       "destination": "/api/admin"
     },
