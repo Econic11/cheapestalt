@@ -566,50 +566,46 @@ module.exports = async function handler(req, res){
     return res.status(200).json({url:publicUrl});
   }
 
-  // Add affiliate product article — handles /admin/add-product and /admin/create-story (legacy)
-  if(uCheck("/admin/add-product")||uCheck("/admin/create-story")||uEnd("/add-product")){
-    if(!isAuthed(req)){res.setHeader("Location","/admin");return res.status(302).end();}
+  // Catch-all: any /admin/* request that reaches here (logout/auth/upload handled above)
+  if(!isAuthed(req)){res.setHeader("Location","/admin");return res.status(302).end();}
 
-    if(req.method==="GET"){
-      res.setHeader("Content-Type","text/html; charset=utf-8");
-      return res.status(200).send(buildAddProductPage());
-    }
-
-    if(req.method==="POST"){
-      const apiKey=process.env.CLAUDE_API_KEY;
-      if(!apiKey) return res.status(500).json({ok:false,error:"CLAUDE_API_KEY not set"});
-      if(!SUPABASE_URL) return res.status(500).json({ok:false,error:"SUPABASE_URL not set"});
-      let body;try{body=JSON.parse((await readBody(req)).toString());}catch{return res.status(400).json({ok:false,error:"Invalid JSON"});}
-      const amazonTitle=(body.amazon_title||"").trim(),affiliateLink=(body.affiliate_link||"").trim();
-      if(!amazonTitle) return res.status(400).json({ok:false,error:"amazon_title required"});
-      if(!affiliateLink) return res.status(400).json({ok:false,error:"affiliate_link required"});
-      const sys='You are an expert SEO copywriter. Return ONLY valid JSON — no markdown, no backticks, no extra text. Keys: seo_title (string, compelling, includes product name + 2025), seo_subtitle (string, one benefit sentence), meta_description (string, max 155 chars), slug (string, url-safe lowercase hyphens only), description_html (string, 3-4 HTML paragraphs using <p> tags), pros (array of 5 strings), cons (array of 2-3 strings), faq (array of 5 objects each with "question" and "answer" string keys), related_keywords (array of 3 strings).';
-      const usr='Write a full SEO affiliate product article for:\n\nProduct Title: '+amazonTitle+'\n\nReturn ONLY valid JSON. Use <p> tags in description_html. No text before or after the JSON.';
-      let claudeData;
-      try{
-        const cr=await callClaude(apiKey,sys,usr);
-        if(cr.status!==200) return res.status(502).json({ok:false,error:"Claude API error: "+cr.status});
-        let p;try{p=JSON.parse(cr.raw);}catch{return res.status(502).json({ok:false,error:"Claude parse failed"});}
-        const txt=p&&p.content&&p.content[0]&&p.content[0].text;
-        if(!txt) return res.status(502).json({ok:false,error:"Empty Claude response"});
-        claudeData=xJSON(txt);
-      }catch(e){return res.status(502).json({ok:false,error:"Claude failed: "+e.message});}
-      const slug=mkProdSlug(claudeData.slug||claudeData.seo_title||amazonTitle);
-      if(!slug) return res.status(400).json({ok:false,error:"Could not generate slug"});
-      const articleUrl=PROD_SITE+"/products/"+slug;
-      const articleBody=buildProdBody(claudeData,affiliateLink);
-      const row={amazon_title:amazonTitle,affiliate_link:affiliateLink,slug,
-        seo_title:claudeData.seo_title||amazonTitle,seo_subtitle:claudeData.seo_subtitle||"",
-        meta_description:(claudeData.meta_description||"").slice(0,155),
-        article_body:articleBody,article_url:articleUrl,status:"draft"};
-      const{error:dbErr}=await dbInsert("affiliate_products",row);
-      if(dbErr){console.error("Affiliate save error:",JSON.stringify(dbErr).slice(0,200));return res.status(500).json({ok:false,error:"DB save failed: "+String(dbErr).slice(0,200)});}
-      console.log("Affiliate product saved:",slug);
-      return res.status(200).json({ok:true,slug,article_url:articleUrl});
-    }
-
-    return res.status(405).json({error:"Method not allowed"});
+  if(req.method==="GET"){
+    res.setHeader("Content-Type","text/html; charset=utf-8");
+    return res.status(200).send(buildAddProductPage());
   }
 
-  return res.status(404).json({error:"Not found",_u:url,_x:_xmp});
+  if(req.method==="POST"){
+    const apiKey=process.env.CLAUDE_API_KEY;
+    if(!apiKey) return res.status(500).json({ok:false,error:"CLAUDE_API_KEY not set"});
+    if(!SUPABASE_URL) return res.status(500).json({ok:false,error:"SUPABASE_URL not set"});
+    let body;try{body=JSON.parse((await readBody(req)).toString());}catch{return res.status(400).json({ok:false,error:"Invalid JSON"});}
+    const amazonTitle=(body.amazon_title||"").trim(),affiliateLink=(body.affiliate_link||"").trim();
+    if(!amazonTitle) return res.status(400).json({ok:false,error:"amazon_title required"});
+    if(!affiliateLink) return res.status(400).json({ok:false,error:"affiliate_link required"});
+    const sys='You are an expert SEO copywriter. Return ONLY valid JSON — no markdown, no backticks, no extra text. Keys: seo_title (string, compelling, includes product name + 2025), seo_subtitle (string, one benefit sentence), meta_description (string, max 155 chars), slug (string, url-safe lowercase hyphens only), description_html (string, 3-4 HTML paragraphs using <p> tags), pros (array of 5 strings), cons (array of 2-3 strings), faq (array of 5 objects each with "question" and "answer" string keys), related_keywords (array of 3 strings).';
+    const usr='Write a full SEO affiliate product article for:\n\nProduct Title: '+amazonTitle+'\n\nReturn ONLY valid JSON. Use <p> tags in description_html. No text before or after the JSON.';
+    let claudeData;
+    try{
+      const cr=await callClaude(apiKey,sys,usr);
+      if(cr.status!==200) return res.status(502).json({ok:false,error:"Claude API error: "+cr.status});
+      let p;try{p=JSON.parse(cr.raw);}catch{return res.status(502).json({ok:false,error:"Claude parse failed"});}
+      const txt=p&&p.content&&p.content[0]&&p.content[0].text;
+      if(!txt) return res.status(502).json({ok:false,error:"Empty Claude response"});
+      claudeData=xJSON(txt);
+    }catch(e){return res.status(502).json({ok:false,error:"Claude failed: "+e.message});}
+    const slug=mkProdSlug(claudeData.slug||claudeData.seo_title||amazonTitle);
+    if(!slug) return res.status(400).json({ok:false,error:"Could not generate slug"});
+    const articleUrl=PROD_SITE+"/products/"+slug;
+    const articleBody=buildProdBody(claudeData,affiliateLink);
+    const row={amazon_title:amazonTitle,affiliate_link:affiliateLink,slug,
+      seo_title:claudeData.seo_title||amazonTitle,seo_subtitle:claudeData.seo_subtitle||"",
+      meta_description:(claudeData.meta_description||"").slice(0,155),
+      article_body:articleBody,article_url:articleUrl,status:"draft"};
+    const{error:dbErr}=await dbInsert("affiliate_products",row);
+    if(dbErr){console.error("Affiliate save error:",JSON.stringify(dbErr).slice(0,200));return res.status(500).json({ok:false,error:"DB save failed: "+String(dbErr).slice(0,200)});}
+    console.log("Affiliate product saved:",slug);
+    return res.status(200).json({ok:true,slug,article_url:articleUrl});
+  }
+
+  return res.status(405).json({error:"Method not allowed"});
 };
