@@ -502,7 +502,7 @@ module.exports = async function handler(req, res){
     if((body.password||"").trim()===ADMIN_SECRET){
       const token=crypto.createHash("sha256").update(ADMIN_SECRET).digest("hex");
       res.setHeader("Set-Cookie","admin_token="+token+"; Path=/; Max-Age=86400; HttpOnly; SameSite=Lax");
-      res.setHeader("Location","/admin/create-story");
+      res.setHeader("Location","/admin/add-product");
       return res.status(302).end();
     }
     res.setHeader("Content-Type","text/html; charset=utf-8");
@@ -563,42 +563,15 @@ module.exports = async function handler(req, res){
     return res.status(200).json({url:publicUrl});
   }
 
-  // Create story page
-  if(url==="/admin/create-story"){
+  // Add affiliate product article — handles /admin/add-product and /admin/create-story (legacy)
+  if(url==="/admin/add-product"||url==="/admin/create-story"||url.endsWith("/add-product")){
     if(!isAuthed(req)){res.setHeader("Location","/admin");return res.status(302).end();}
 
     if(req.method==="GET"){
       res.setHeader("Content-Type","text/html; charset=utf-8");
-      return res.status(200).send(dashboardPage());
-    }
-
-    if(req.method==="POST"){
-      const body=await parseJSON(req);
-      if(!body) return res.status(400).json({error:"Invalid request"});
-      const{title,slug,keyword,coverImageUrl,slides}=body;
-      if(!title||!slug||!Array.isArray(slides)||slides.length<3)
-        return res.status(400).json({error:"Missing required fields or fewer than 3 slides"});
-
-      const coverUrl=coverImageUrl||null;
-      const processedSlides=slides.map(s=>({image:s.image||null,text:s.text,cta:s.cta||undefined}));
-      const html=buildAMPStory(title,slug,keyword||title,coverUrl,processedSlides);
-
-      const row={slug,title,keyword:keyword||title,cover_image:coverUrl,
-        pages:processedSlides,html,source:"manual",amp_valid:true,
-        last_generated:new Date().toISOString()};
-
-      const{error}=await dbInsert("stories",row);
-      if(error){console.error("DB error:",error);return res.status(500).json({error:"Database save failed: "+String(error).slice(0,200)});}
-      return res.status(200).json({ok:true,slug});
-    }
-  }
-
-  // Add affiliate product article
-  if(url==="/admin/add-product"){
-    if(req.method==="GET"){
-      res.setHeader("Content-Type","text/html; charset=utf-8");
       return res.status(200).send(buildAddProductPage());
     }
+
     if(req.method==="POST"){
       const apiKey=process.env.CLAUDE_API_KEY;
       if(!apiKey) return res.status(500).json({ok:false,error:"CLAUDE_API_KEY not set"});
@@ -631,6 +604,8 @@ module.exports = async function handler(req, res){
       console.log("Affiliate product saved:",slug);
       return res.status(200).json({ok:true,slug,article_url:articleUrl});
     }
+
+    return res.status(405).json({error:"Method not allowed"});
   }
 
   return res.status(404).json({error:"Not found"});
