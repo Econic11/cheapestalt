@@ -102,6 +102,10 @@
       "destination": "/api/admin"
     },
     {
+      "source": "/admin/add-product",
+      "destination": "/api/admin?action=addproduct"
+    },
+    {
       "source": "/admin/:path*",
       "destination": "/api/admin"
     },
