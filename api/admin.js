@@ -486,17 +486,20 @@ module.exports = async function handler(req, res){
   res.setHeader("Access-Control-Allow-Origin","*");
   if(req.method==="OPTIONS") return res.status(204).end();
 
-  const url=(req.url||"").split("?")[0];
+  const url=((req.url||"").split("?")[0]).replace(/\/+$/,"")||"/";
+  const _xmp=(req.headers["x-matched-path"]||"").split("?")[0].replace(/\/+$/,"");
+  const uCheck=s=>url===s||_xmp===s;
+  const uEnd=s=>url.endsWith(s)||_xmp.endsWith(s);
 
   // Logout
-  if(url==="/admin/logout"){
+  if(uCheck("/admin/logout")){
     res.setHeader("Set-Cookie","admin_token=; Path=/; Max-Age=0; HttpOnly");
     res.setHeader("Location","/admin");
     return res.status(302).end();
   }
 
   // Auth
-  if(url==="/admin/auth"&&req.method==="POST"){
+  if(uCheck("/admin/auth")&&req.method==="POST"){
     const buf=await readBody(req);
     const body=Object.fromEntries(new URLSearchParams(buf.toString()));
     if((body.password||"").trim()===ADMIN_SECRET){
@@ -510,7 +513,7 @@ module.exports = async function handler(req, res){
   }
 
   // Login page
-  if(url==="/admin"||url==="/admin/"){
+  if(uCheck("/admin")||uCheck("/admin/")){
     // One-time seed action: /admin?action=seed&key=<ADMIN_SECRET>
     if(req.query&&req.query.action==="seed"){
       const key=(req.query.key)||"";
@@ -533,13 +536,13 @@ module.exports = async function handler(req, res){
       res.setHeader("Content-Type","application/json");
       return res.status(results.every(r=>r.success)?200:207).json({results});
     }
-    if(isAuthed(req)){res.setHeader("Location","/admin/create-story");return res.status(302).end();}
+    if(isAuthed(req)){res.setHeader("Location","/admin/add-product");return res.status(302).end();}
     res.setHeader("Content-Type","text/html; charset=utf-8");
     return res.status(200).send(loginPage(false));
   }
 
   // Image upload endpoint — receives multipart from browser, uploads to Supabase server-side
-  if(url==="/admin/upload-image"&&req.method==="POST"){
+  if(uCheck("/admin/upload-image")&&req.method==="POST"){
     if(!isAuthed(req)) return res.status(401).json({error:"Unauthorized"});
 
     const ct=req.headers["content-type"]||"";
@@ -564,7 +567,7 @@ module.exports = async function handler(req, res){
   }
 
   // Add affiliate product article — handles /admin/add-product and /admin/create-story (legacy)
-  if(url==="/admin/add-product"||url==="/admin/create-story"||url.endsWith("/add-product")){
+  if(uCheck("/admin/add-product")||uCheck("/admin/create-story")||uEnd("/add-product")){
     if(!isAuthed(req)){res.setHeader("Location","/admin");return res.status(302).end();}
 
     if(req.method==="GET"){
@@ -608,5 +611,5 @@ module.exports = async function handler(req, res){
     return res.status(405).json({error:"Method not allowed"});
   }
 
-  return res.status(404).json({error:"Not found"});
+  return res.status(404).json({error:"Not found",_u:url,_x:_xmp});
 };
