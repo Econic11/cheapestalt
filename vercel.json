@@ -54,6 +54,10 @@
       "destination": "/api/seed-pages"
     },
     {
+      "source": "/goveelife-nugget-ice-maker-pro",
+      "destination": "/goveelife-nugget-ice-maker-pro.html"
+    },
+    {
       "source": "/compare/:slug",
       "destination": "/api/compare?slug=:slug"
     },
