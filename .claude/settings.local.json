@@ -12,7 +12,10 @@
       "Bash(ls api/)",
       "Bash(cat package.json)",
       "Bash(Remove-Item *)",
-      "Bash(git mv *)"
+      "Bash(git mv *)",
+      "Bash(git show *)",
+      "Read(//tmp/**)",
+      "Bash(curl *)"
     ]
   }
 }
