@@ -84,7 +84,7 @@
       "destination": "/api/admin"
     },
     {
-      "source": "/admin/add-product",
+      "source": "/add-product",
       "destination": "/api/product-admin"
     },
     {
