@@ -25,9 +25,6 @@
     "api/admin.js": {
       "maxDuration": 60
     },
-    "api/add-product.js": {
-      "maxDuration": 60
-    },
     "api/trending.js": {
       "maxDuration": 15
     },
@@ -36,7 +33,7 @@
     },
     "api/run-all.js": {
       "maxDuration": 60
-    },
+    }
   },
   "crons": [
     {
