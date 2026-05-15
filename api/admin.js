@@ -491,8 +491,13 @@ module.exports = async function handler(req, res){
   const uCheck=s=>url===s||_xmp===s;
   const uEnd=s=>url.endsWith(s)||_xmp.endsWith(s);
 
-  // Add-product: routed via ?action=addproduct query param (same pattern as ?action=seed)
-  if(req.query&&req.query.action==="addproduct"){
+  // Parse query params manually from URL (req.query unreliable with Vercel rewrites)
+  const rawQuery = (req.url||"").includes("?") ? (req.url||"").split("?")[1] : "";
+  const qParams = Object.fromEntries(new URLSearchParams(rawQuery));
+  const action = qParams.action || "";
+
+  // Add-product
+  if(action==="addproduct" || url.includes("add-product") || _xmp.includes("add-product")){
     if(!isAuthed(req)){res.setHeader("Location","/admin");return res.status(302).end();}
     if(req.method==="GET"){
       res.setHeader("Content-Type","text/html; charset=utf-8");
