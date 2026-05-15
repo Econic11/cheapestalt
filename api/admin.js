@@ -491,10 +491,12 @@ module.exports = async function handler(req, res){
   const uCheck=s=>url===s||_xmp===s;
   const uEnd=s=>url.endsWith(s)||_xmp.endsWith(s);
 
-  // Parse query params manually from URL (req.query unreliable with Vercel rewrites)
+  // Parse query params — check req.url, x-matched-path header, AND req.query
   const rawQuery = (req.url||"").includes("?") ? (req.url||"").split("?")[1] : "";
   const qParams = Object.fromEntries(new URLSearchParams(rawQuery));
-  const action = qParams.action || "";
+  const xmpQuery = (req.headers["x-matched-path"]||"").includes("?") ? (req.headers["x-matched-path"]||"").split("?")[1] : "";
+  const xmpParams = Object.fromEntries(new URLSearchParams(xmpQuery));
+  const action = qParams.action || xmpParams.action || (req.query&&req.query.action) || "";
 
   // Add-product
   if(action==="addproduct" || url.includes("add-product") || _xmp.includes("add-product")){
@@ -610,6 +612,15 @@ module.exports = async function handler(req, res){
     if(error) return res.status(500).json({error:"Storage upload failed: "+error});
 
     return res.status(200).json({url:publicUrl});
+  }
+
+  // Explicit fallback for add-product path
+  if(url.includes("add-product")||_xmp.includes("add-product")||(req.headers["x-matched-path"]||"").includes("add-product")){
+    if(!isAuthed(req)){res.setHeader("Location","/admin");return res.status(302).end();}
+    if(req.method==="GET"){
+      res.setHeader("Content-Type","text/html; charset=utf-8");
+      return res.status(200).send(buildAddProductPage());
+    }
   }
 
   // Catch-all: any /admin/* request that reaches here (logout/auth/upload handled above)
