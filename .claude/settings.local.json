@@ -10,7 +10,8 @@
       "Bash(git push *)",
       "Bash(git commit *)",
       "Bash(ls api/)",
-      "Bash(cat package.json)"
+      "Bash(cat package.json)",
+      "Bash(Remove-Item *)"
     ]
   }
 }

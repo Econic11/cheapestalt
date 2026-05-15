@@ -491,6 +491,10 @@ module.exports = async function handler(req, res){
   const uCheck=s=>url===s||_xmp===s;
   const uEnd=s=>url.endsWith(s)||_xmp.endsWith(s);
 
+  const fullUrl = req.url || "";
+  const fullXmp = req.headers["x-matched-path"] || "";
+  const isAddProduct = fullUrl.includes("add-product") || fullXmp.includes("add-product") || fullUrl.includes("action=addproduct") || fullXmp.includes("action=addproduct");
+
   // Parse query params — check req.url, x-matched-path header, AND req.query
   const rawQuery = (req.url||"").includes("?") ? (req.url||"").split("?")[1] : "";
   const qParams = Object.fromEntries(new URLSearchParams(rawQuery));
@@ -499,7 +503,7 @@ module.exports = async function handler(req, res){
   const action = qParams.action || xmpParams.action || (req.query&&req.query.action) || "";
 
   // Add-product
-  if(action==="addproduct" || url.includes("add-product") || _xmp.includes("add-product")){
+  if(isAddProduct){
     if(!isAuthed(req)){res.setHeader("Location","/admin");return res.status(302).end();}
     if(req.method==="GET"){
       res.setHeader("Content-Type","text/html; charset=utf-8");

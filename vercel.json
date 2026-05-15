@@ -37,9 +37,6 @@
     "api/run-all.js": {
       "maxDuration": 60
     },
-    "api/seed-pages.js": {
-      "maxDuration": 30
-    }
   },
   "crons": [
     {
@@ -52,10 +49,6 @@
     }
   ],
   "rewrites": [
-    {
-      "source": "/seed-pages",
-      "destination": "/api/seed-pages"
-    },
     {
       "source": "/goveelife-nugget-ice-maker-pro",
       "destination": "/goveelife-nugget-ice-maker-pro.html"
@@ -110,7 +103,7 @@
     },
     {
       "source": "/admin/add-product",
-      "destination": "/api/add-product"
+      "destination": "/api/admin?action=addproduct"
     },
     {
       "source": "/admin/:path*",
