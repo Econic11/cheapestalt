@@ -13,12 +13,6 @@
     "api/pages.js": {
       "maxDuration": 10
     },
-    "api/stories.js": {
-      "maxDuration": 15
-    },
-    "api/run-daily-stories.js": {
-      "maxDuration": 60
-    },
     "api/sitemap.js": {
       "maxDuration": 10
     },
@@ -71,18 +65,6 @@
       "destination": "/api/find"
     },
     {
-      "source": "/stories",
-      "destination": "/api/stories"
-    },
-    {
-      "source": "/stories/:slug",
-      "destination": "/api/stories"
-    },
-    {
-      "source": "/sitemap-stories.xml",
-      "destination": "/api/sitemap"
-    },
-    {
       "source": "/sitemap-trending.xml",
       "destination": "/api/sitemap"
     },
@@ -130,15 +112,6 @@
         {
           "key": "Access-Control-Allow-Headers",
           "value": "Content-Type"
-        }
-      ]
-    },
-    {
-      "source": "/sitemap-stories.xml",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "application/xml; charset=utf-8"
         }
       ]
     },
