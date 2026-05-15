@@ -25,6 +25,9 @@
     "api/admin.js": {
       "maxDuration": 60
     },
+    "api/add-product.js": {
+      "maxDuration": 60
+    },
     "api/trending.js": {
       "maxDuration": 15
     },
@@ -107,7 +110,7 @@
     },
     {
       "source": "/admin/add-product",
-      "destination": "/api/admin?action=addproduct"
+      "destination": "/api/add-product"
     },
     {
       "source": "/admin/:path*",
