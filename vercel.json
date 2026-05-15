@@ -53,7 +53,7 @@
     },
     {
       "source": "/add-product",
-      "destination": "/api/product-admin"
+      "destination": "/api/affiliate"
     },
     {
       "source": "/admin/:path*",
