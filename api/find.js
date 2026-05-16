@@ -1,4 +1,4 @@
-﻿"use strict";
+"use strict";
 // api/find.js
 // GET /find?slug=airpods-pro-alternatives
 // GET /find?slug=airpods-pro-vs-sony-wf1000xm5
@@ -9,7 +9,7 @@ const SONNET = "claude-sonnet-4-5-20251022";
 const TAG    = "cheapestalt-20";
 const GA_ID  = "G-6MR7X29W2X";
 
-// â”€â”€ Supabase â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -- Supabase --
 function sbReq(method, path, body) {
   const base = process.env.SUPABASE_URL;
   const key  = process.env.SUPABASE_ANON_KEY;
@@ -35,8 +35,8 @@ function sbReq(method, path, body) {
   });
 }
 
-// pages table  â†’ alternative pages
-// comparisons  â†’ comparison pages
+// pages table  -> alternative pages
+// comparisons  -> comparison pages
 const db = {
   getAlt:    s => sbReq("GET",   "pages?slug=eq."       + encodeURIComponent(s) + "&select=slug,html&limit=1", null),
   saveAlt:   r => sbReq("POST",  "pages",       r),
@@ -46,18 +46,18 @@ const db = {
   updCmp:  (s,r)=>sbReq("PATCH", "comparisons?slug=eq." + encodeURIComponent(s), r),
 };
 
-// â”€â”€ Memory cache â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -- Memory cache --
 const mem = new Map();
 function mGet(k) { const e = mem.get(k); if (!e || Date.now() - e.t > 86400000) { mem.delete(k); return null; } return e.v; }
 function mSet(k, v) { if (mem.size > 500) mem.delete(mem.keys().next().value); mem.set(k, { v, t: Date.now() }); }
 
-// â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -- Helpers --
 function mkSlug(s) { return s.toLowerCase().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-").trim(); }
 function unslug(s) { return s.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase()); }
 function esc(s)    { return String(s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
 function amz(n)    { return "https://www.amazon.com/s?k=" + encodeURIComponent(n) + "&tag=" + TAG; }
 
-// â”€â”€ Slug parser â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -- Slug parser --
 function parseSlug(raw) {
   const s = raw.toLowerCase().trim();
   const vs    = s.match(/^(.+?)-vs-(.+)$/);
@@ -71,7 +71,7 @@ function parseSlug(raw) {
   return null;
 }
 
-// â”€â”€ Claude â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -- Claude --
 function callClaude(apiKey, model, system, user, maxTok) {
   const body = JSON.stringify({ model, max_tokens: maxTok, system, messages: [{ role: "user", content: user }] });
   return new Promise((ok, fail) => {
@@ -85,12 +85,12 @@ function callClaude(apiKey, model, system, user, maxTok) {
   });
 }
 
-// â”€â”€ JSON extractor â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -- JSON extractor --
 function xJSON(text) {
   let s = text.replace(/```json\s*/gi, "").replace(/```\s*/g, "").trim();
   const a = s.indexOf("{"), b = s.lastIndexOf("}");
   if (a !== -1 && b !== -1) s = s.slice(a, b + 1);
-  s = s.replace(/[\u2018\u2019]/g, "'").replace(/[\u201C\u201D]/g, '"');
+  s = s.replace(/[‘’]/g, "'").replace(/[“”]/g, '"');
   s = s.replace(/,(\s*[}\]])/g, "$1");
   let out = "", inStr = false, prev = "";
   for (let i = 0; i < s.length; i++) {
@@ -106,7 +106,7 @@ function xJSON(text) {
   catch { return JSON.parse(out.replace(/[\x00-\x1F\x7F]/g, " ")); }
 }
 
-// â”€â”€ PROMPTS â€” kept SIMPLE so Claude never truncates â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -- PROMPTS -- kept SIMPLE so Claude never truncates --
 // Alternative: original + 4 alternatives. That is all. No pros/cons in JSON.
 const ALT_SYS =
   'Return ONLY valid JSON. No markdown. No apostrophes. ' +
@@ -133,7 +133,7 @@ const CMP_SYS =
   '"faqs":[{"q":"str","a":"str"},{"q":"str","a":"str"},{"q":"str","a":"str"}]}. ' +
   'Rules: 6 comparison rows shown above as example, winner = a or b or tie only, 3 pros 2 cons each, no apostrophes.';
 
-// â”€â”€ CSS + layout â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -- CSS + layout --
 const FAV = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232563EB'/%3E%3Ctext x='16' y='22' font-family='Inter' font-size='13' font-weight='800' fill='white' text-anchor='middle'%3ECA%3C/text%3E%3C/svg%3E";
 
 const CSS = `*{box-sizing:border-box;margin:0;padding:0}
@@ -241,7 +241,7 @@ function pcItem(text, type) {
     (type === "pro" ? "&#10003;" : "&#10007;") + '</span>' + esc(text) + '</div>';
 }
 
-// â”€â”€ BUILD ALTERNATIVE PAGE â€” same structure as search.js renderHTML (v23) â”€â”€â”€â”€â”€â”€â”€â”€
+// -- BUILD ALTERNATIVE PAGE -- same structure as search.js renderHTML (v23) --
 function buildAltHTML(d, product, angle, rawSlug) {
   const o   = d.original || {};
   const alt = d.alternatives || [];
@@ -249,7 +249,7 @@ function buildAltHTML(d, product, angle, rawSlug) {
 
   const labelMap = { best: "Best", cheap: "Cheapest", general: "Top" };
   const lbl   = labelMap[angle] || "Top";
-  const title = lbl + " Alternatives to " + (o.name || product) + " â€” Save Money in 2026";
+  const title = lbl + " Alternatives to " + (o.name || product) + " — Save Money in 2026";
   const desc  = "Find the best cheaper alternatives to " + (o.name || product) + " on Amazon. Compare prices and value.";
   const fav   = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232563EB'/%3E%3Ctext x='16' y='22' font-family='Inter' font-size='13' font-weight='800' fill='white' text-anchor='middle'%3ECA%3C/text%3E%3C/svg%3E";
 
@@ -310,7 +310,7 @@ function buildAltHTML(d, product, angle, rawSlug) {
     '<main class="wrap">' +
     '<h1>' + esc(title) + '</h1>' +
     '<p class="lead">Compare the best cheaper alternatives to ' + esc(o.name||product) + ' on Amazon &mdash; with real value analysis and direct deal links.</p>' +
-    '<div class="orig"><div class="orig-icon">' + esc(o.icon||"ðŸ“¦") + '</div>' +
+    '<div class="orig"><div class="orig-icon">' + esc(o.icon||"📦") + '</div>' +
     '<div class="orig-info"><div class="orig-label">Original product</div>' +
     '<div class="orig-name">' + esc(o.name||product) + '</div>' +
     '<div class="orig-price">$' + Number(o.price||0).toLocaleString() + '</div>' +
@@ -332,11 +332,11 @@ function buildAltHTML(d, product, angle, rawSlug) {
   return html;
 }
 
-// â”€â”€ BUILD COMPARE PAGE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -- BUILD COMPARE PAGE --
 function buildCmpHTML(d, rawSlug) {
   const A = d.productA, B = d.productB;
   if (!A || !B) return null;
-  const title = A.name + " vs " + B.name + " â€” Which is Better Value in 2026?";
+  const title = A.name + " vs " + B.name + " — Which is Better Value in 2026?";
   const desc  = "Side-by-side comparison of " + A.name + " and " + B.name + ". Price, features, pros, cons and verdict.";
 
   const tRows = (d.comparison || []).map(r =>
@@ -358,10 +358,10 @@ function buildCmpHTML(d, rawSlug) {
     '<div class="badge">Product comparison</div>' +
     '<h1>' + esc(title) + '</h1>' +
     (d.intro ? '<p class="lead">' + esc(d.intro) + '</p>' : '') +
-    sec("1 â€” Feature comparison",
+    sec("1 — Feature comparison",
       '<div style="overflow-x:auto"><table class="cmp-tbl"><thead><tr><th>Feature</th><th>' + esc(A.name) + '</th><th>' + esc(B.name) + '</th></tr></thead><tbody>' + tRows + '</tbody></table></div>',
       true) +
-    sec("2 â€” Pros & Cons",
+    sec("2 — Pros & Cons",
       '<div class="cmp-cols">' +
       '<div class="cmp-col"><h3>' + esc(A.name) + '</h3>' +
         '<div class="cmp-price">$' + Number(A.price || 0).toLocaleString() + '</div>' +
@@ -370,12 +370,12 @@ function buildCmpHTML(d, rawSlug) {
         '<div class="cmp-price">$' + Number(B.price || 0).toLocaleString() + '</div>' +
         mkList(B.pros, "pro") + mkList(B.cons, "con") + btnAz(B.name) + '</div>' +
       '</div>', true) +
-    (d.verdict ? sec("3 â€” Verdict & Recommendation",
+    (d.verdict ? sec("3 — Verdict & Recommendation",
       '<div class="verdict"><strong>Verdict: </strong>' + esc(d.verdict) +
       (d.winnerReason ? '<br><br><strong>Winner: ' + esc(d.winner || "") + '</strong> &mdash; ' + esc(d.winnerReason) : '') +
       '</div>') : '') +
-    (faqHtml ? sec("4 â€” Frequently asked questions", faqHtml) : '') +
-    sec("5 â€” Related pages",
+    (faqHtml ? sec("4 — Frequently asked questions", faqHtml) : '') +
+    sec("5 — Related pages",
       '<div class="rel">' +
       '<a href="/find?slug=' + sA + '-alternatives">Alternatives to ' + esc(A.name) + '</a>' +
       '<a href="/find?slug=' + sB + '-alternatives">Alternatives to ' + esc(B.name) + '</a>' +
@@ -385,7 +385,7 @@ function buildCmpHTML(d, rawSlug) {
   return shell(title, desc, rawSlug, body);
 }
 
-// â”€â”€ Supabase save (non-blocking) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -- Supabase save (non-blocking) --
 async function dbSave(hasDB, row, isCompare) {
   if (!hasDB) return;
   const saveFn = isCompare ? db.saveCmp : db.saveAlt;
@@ -403,7 +403,7 @@ async function dbSave(hasDB, row, isCompare) {
   } catch(e) { console.error("DB catch:", e.message); }
 }
 
-// â”€â”€ Background: auto-generate + save all 3 alt URL variants â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -- Background: auto-generate + save all 3 alt URL variants --
 function bgAllVariants(apiKey, product, hasDB) {
   const pSlug    = mkSlug(product);
   const variants = [
@@ -426,33 +426,33 @@ function bgAllVariants(apiKey, product, hasDB) {
       mSet(v.slug, html);
       const now = new Date().toISOString();
       dbSave(hasDB, { slug: v.slug, type: "alternative", keyword: product,
-        title: product + " â€” " + (v.angle === "best" ? "Best" : v.angle === "cheap" ? "Cheapest" : "Top") + " Alternatives",
+        title: product + " — " + (v.angle === "best" ? "Best" : v.angle === "cheap" ? "Cheapest" : "Top") + " Alternatives",
         content: data, html, created_at: now, last_generated: now }, false);
     }).catch(() => {});
   });
 }
 
-// â”€â”€ Error page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -- Error page --
 function errPage(msg) {
   return '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><title>Error | CheapestAlt</title>' +
     '<link rel="icon" type="image/svg+xml" href="' + FAV + '"/>' +
     '<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>' +
     '<style>' + CSS + '</style></head><body>' + HDR +
-    '<main><div style="text-align:center;padding:80px 24px"><div style="font-size:40px;margin-bottom:16px">âš ï¸</div>' +
+    '<main><div style="text-align:center;padding:80px 24px"><div style="font-size:40px;margin-bottom:16px">⚠️</div>' +
     '<h1 style="font-size:22px;margin-bottom:10px">Unable to load page</h1>' +
     '<p style="color:#475569;margin-bottom:20px">' + esc(msg) + '</p>' +
     '<a href="/" style="display:inline-block;background:#2563EB;color:#fff;padding:11px 24px;border-radius:8px;text-decoration:none;font-weight:600">Go back home</a>' +
     '</div></main>' + FTR + '</body></html>';
 }
 
-// â”€â”€ MAIN HANDLER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -- MAIN HANDLER --
 module.exports = async function handler(req, res) {
   try {
-  res.setHeader(“Access-Control-Allow-Origin”, “*”);
-  if (req.method === “OPTIONS”) return res.status(204).end();
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  if (req.method === "OPTIONS") return res.status(204).end();
 
-  const rawSlug = ((req.query && req.query.slug) || “”).trim().toLowerCase();
-  if (!rawSlug) return res.status(400).send(errPage(“No page specified.”));
+  const rawSlug = ((req.query && req.query.slug) || "").trim().toLowerCase();
+  if (!rawSlug) return res.status(400).send(errPage("No page specified."));
 
   const hasDB = !!(process.env.SUPABASE_URL && process.env.SUPABASE_ANON_KEY);
   console.log("DEBUG hasDB:", hasDB, "CLAUDE_API_KEY exists:", !!process.env.CLAUDE_API_KEY, "SUPABASE_URL:", process.env.SUPABASE_URL ? "set" : "missing");
@@ -460,56 +460,56 @@ module.exports = async function handler(req, res) {
   // 1. Memory cache (instant)
   const cached = mGet(rawSlug);
   if (cached) {
-    res.setHeader(“Content-Type”, “text/html; charset=utf-8”);
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
     return res.status(200).send(cached);
   }
 
-  // 2. Supabase pages table — serves any stored page including custom product pages
+  // 2. Supabase pages table -- serves any stored page including custom product pages
   if (hasDB) {
     const { data: rows, error: dbErr } = await db.getAlt(rawSlug);
-    if (dbErr) console.error(“DB GET err:”, JSON.stringify(dbErr).slice(0, 150));
+    if (dbErr) console.error("DB GET err:", JSON.stringify(dbErr).slice(0, 150));
     const row = Array.isArray(rows) ? rows[0] : rows;
     if (row && row.html) {
       mSet(rawSlug, row.html);
-      res.setHeader(“Content-Type”, “text/html; charset=utf-8”);
+      res.setHeader("Content-Type", "text/html; charset=utf-8");
       return res.status(200).send(row.html);
     }
   }
 
-  // 3. Parse slug — only needed for dynamic Claude generation
+  // 3. Parse slug -- only needed for dynamic Claude generation
   const apiKey = process.env.CLAUDE_API_KEY;
-  if (!apiKey) return res.status(500).send(errPage(“Server configuration error.”));
+  if (!apiKey) return res.status(500).send(errPage("Server configuration error."));
 
   const parsed = parseSlug(rawSlug);
-  if (!parsed) return res.status(404).send(errPage(“Page not found. Try searching on the home page.”));
+  if (!parsed) return res.status(404).send(errPage("Page not found. Try searching on the home page."));
 
   // 4. For compare pages: check comparisons table + slug variants
-  if (hasDB && parsed.type === “compare”) {
+  if (hasDB && parsed.type === "compare") {
     const { data: rows, error: dbErr } = await db.getCmp(rawSlug);
-    if (dbErr) console.error(“DB GET err:”, JSON.stringify(dbErr).slice(0, 150));
+    if (dbErr) console.error("DB GET err:", JSON.stringify(dbErr).slice(0, 150));
     const row = Array.isArray(rows) ? rows[0] : rows;
     if (row && row.html) {
       mSet(rawSlug, row.html);
-      res.setHeader(“Content-Type”, “text/html; charset=utf-8”);
+      res.setHeader("Content-Type", "text/html; charset=utf-8");
       return res.status(200).send(row.html);
     }
 
     // Try slug variants that compare.js may have saved
     const slugs = [mkSlug(parsed.a), mkSlug(parsed.b)].sort();
-    const sortedSlug = slugs[0] + “-vs-” + slugs[1];
-    const reversedSlug = mkSlug(parsed.b) + “-vs-” + mkSlug(parsed.a);
+    const sortedSlug = slugs[0] + "-vs-" + slugs[1];
+    const reversedSlug = mkSlug(parsed.b) + "-vs-" + mkSlug(parsed.a);
     const toTry = [...new Set([sortedSlug, reversedSlug])].filter(s => s !== rawSlug);
     for (const altSlug of toTry) {
       const { data: rows2 } = await db.getCmp(altSlug);
       const row2 = Array.isArray(rows2) ? rows2[0] : rows2;
       if (row2 && row2.html) {
         mSet(rawSlug, row2.html);
-        await db.saveCmp({ slug: rawSlug, type: “comparison”,
+        await db.saveCmp({ slug: rawSlug, type: "comparison",
           product_a: parsed.a, product_b: parsed.b,
-          title: parsed.a + “ vs “ + parsed.b,
+          title: parsed.a + " vs " + parsed.b,
           content: row2.content || {}, html: row2.html,
           created_at: new Date().toISOString(), last_generated: new Date().toISOString() });
-        res.setHeader(“Content-Type”, “text/html; charset=utf-8”);
+        res.setHeader("Content-Type", "text/html; charset=utf-8");
         return res.status(200).send(row2.html);
       }
     }
@@ -519,7 +519,7 @@ module.exports = async function handler(req, res) {
   const now = new Date().toISOString();
   let cr, cb, rawText, data, html;
 
-  // â”€â”€ ALTERNATIVE PAGE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // -- ALTERNATIVE PAGE --
   if (parsed.type === "search") {
     try {
       cr = await callClaude(apiKey, HAIKU, ALT_SYS,
@@ -556,7 +556,7 @@ module.exports = async function handler(req, res) {
 
     await dbSave(hasDB, {
       slug: rawSlug, type: "alternative", keyword: parsed.product,
-      title: parsed.product + " â€” Cheaper Alternatives on Amazon",
+      title: parsed.product + " — Cheaper Alternatives on Amazon",
       content: data, html, created_at: now, last_generated: now
     }, false);
 
@@ -564,7 +564,7 @@ module.exports = async function handler(req, res) {
     setTimeout(() => bgAllVariants(apiKey, parsed.product, hasDB), 300);
   }
 
-  // â”€â”€ COMPARE PAGE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // -- COMPARE PAGE --
   else if (parsed.type === "compare") {
     try {
       cr = await callClaude(apiKey, SONNET, CMP_SYS,
