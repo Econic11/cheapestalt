@@ -447,6 +447,7 @@ function errPage(msg) {
 
 // â”€â”€ MAIN HANDLER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 module.exports = async function handler(req, res) {
+  try {
   res.setHeader(“Access-Control-Allow-Origin”, “*”);
   if (req.method === “OPTIONS”) return res.status(204).end();
 
@@ -617,4 +618,8 @@ module.exports = async function handler(req, res) {
 
   res.setHeader("Content-Type", "text/html; charset=utf-8");
   return res.status(200).send(html);
+  } catch(e) {
+    console.error("FIND CRASH:", e.message, e.stack);
+    res.status(500).send("Error: " + e.message);
+  }
 };
