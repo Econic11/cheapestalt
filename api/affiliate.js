@@ -172,7 +172,7 @@ module.exports = async function handler(req, res){
       seo_title:claudeData.seo_title||amazonTitle,
       seo_subtitle:claudeData.seo_subtitle||"",
       meta_description:(claudeData.meta_description||"").slice(0,155),
-      article_body:articleBody, article_url:articleUrl, status:"draft"
+      article_body:articleBody, article_url:articleUrl, status:"published"
     };
 
     const{error:dbErr}=await dbInsert("affiliate_products",row);
