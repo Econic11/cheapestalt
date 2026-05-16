@@ -5,7 +5,7 @@
 
 const https = require("https");
 const HAIKU  = "claude-haiku-4-5-20251001";
-const SONNET = "claude-sonnet-4-5";
+const SONNET = "claude-sonnet-4-5-20251022";
 const TAG    = "cheapestalt-20";
 const GA_ID  = "G-6MR7X29W2X";
 
