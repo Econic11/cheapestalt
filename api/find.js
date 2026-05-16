@@ -454,6 +454,7 @@ module.exports = async function handler(req, res) {
   if (!rawSlug) return res.status(400).send(errPage(“No page specified.”));
 
   const hasDB = !!(process.env.SUPABASE_URL && process.env.SUPABASE_ANON_KEY);
+  console.log("DEBUG hasDB:", hasDB, "CLAUDE_API_KEY exists:", !!process.env.CLAUDE_API_KEY, "SUPABASE_URL:", process.env.SUPABASE_URL ? "set" : "missing");
 
   // 1. Memory cache (instant)
   const cached = mGet(rawSlug);
