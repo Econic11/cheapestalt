@@ -471,8 +471,10 @@ module.exports = async function handler(req, res) {
     if (row && row.content) {
       let result;
       try { result = typeof row.content === "string" ? JSON.parse(row.content) : row.content; } catch { result = {}; }
-      mSet(slug, result);
-      return res.status(200).json(Object.assign({}, result, { fromCache: false, fromDatabase: true }));
+      if (!result.slug || !result.slug.includes('/compare/')) {
+        mSet(slug, result);
+        return res.status(200).json(Object.assign({}, result, { fromCache: false, fromDatabase: true }));
+      }
     }
   }
 
