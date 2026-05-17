@@ -521,8 +521,8 @@ module.exports = async function handler(req, res) {
   if (hasDB) {
     const doSave = async (s, h) => {
       const row = {
-        slug: s, type: “comparison”, product_a: a, product_b: b,
-        title: data.productA.name + “ vs “ + data.productB.name,
+        slug: s, type: "comparison", product_a: a, product_b: b,
+        title: data.productA.name + " vs " + data.productB.name,
         content: data, html: h,
         created_at: data.generatedAt, last_generated: data.generatedAt,
       };
@@ -530,16 +530,16 @@ module.exports = async function handler(req, res) {
         const r = await db.insert(row);
         if (r.error) {
           const u = await db.update(s, { content: data, html: h, last_generated: data.generatedAt });
-          if (!u.error) console.log(“CMP UPDATED:”, s);
-        } else { console.log(“CMP SAVED:”, s); }
-      } catch(e) { console.error(“CMP save catch:”, e.message); }
+          if (!u.error) console.log("CMP UPDATED:", s);
+        } else { console.log("CMP SAVED:", s); }
+      } catch(e) { console.error("CMP save catch:", e.message); }
     };
 
-    doSave(slug, html).catch(e => console.error(“CMP save error:”, e.message));
+    doSave(slug, html).catch(e => console.error("CMP save error:", e.message));
 
-    const slugUnsorted = mkSlug(a) + “-vs-” + mkSlug(b);
+    const slugUnsorted = mkSlug(a) + "-vs-" + mkSlug(b);
     if (slugUnsorted !== slug) {
-      doSave(slugUnsorted, renderHTML(data, slugUnsorted)).catch(e => console.error(“CMP save2 error:”, e.message));
+      doSave(slugUnsorted, renderHTML(data, slugUnsorted)).catch(e => console.error("CMP save2 error:", e.message));
     }
   }
 
