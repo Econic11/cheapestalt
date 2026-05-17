@@ -2,7 +2,7 @@
 
 const https = require("https");
 const HAIKU  = "claude-haiku-4-5-20251001";
-const SONNET = "claude-sonnet-4-5-20251022";
+const SONNET = "claude-sonnet-4-6";
 const TAG    = "cheapestalt-20";
 
 function sbReq(method, path, body) {
