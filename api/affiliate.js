@@ -45,13 +45,28 @@ function xJSON(text){
   return JSON.parse(s);
 }
 
+function cleanText(s) {
+  return String(s || "")
+    .replace(/â€"/g, "—")
+    .replace(/â€™/g, "'")
+    .replace(/â€œ/g, '"')
+    .replace(/â€/g, '"')
+    .replace(/â€˜/g, "'")
+    .replace(/Â/g, "")
+    .replace(/â/g, "'")
+    .replace(/â/g, '"')
+    .replace(/â/g, '"')
+    .replace(/â/g, "–")
+    .replace(/â/g, "—");
+}
+
 function buildProdBody(data,affLink){
   const btn='<a href="'+esc(affLink)+'" target="_blank" rel="noopener sponsored" style="display:inline-block;background:#1A56DB;color:#fff;padding:14px 28px;border-radius:10px;font-weight:700;text-decoration:none;font-size:16px;">Check Price on Amazon &#x2192;</a>';
   const H2=t=>'<h2 style="font-size:24px;font-weight:700;color:#111827;margin:0 0 20px;">'+t+'</h2>';
-  const pros=(Array.isArray(data.pros)?data.pros:[]).map(p=>'<li style="display:flex;gap:10px;margin-bottom:10px;"><span style="color:#16A34A;font-size:18px;">&#10003;</span><span>'+esc(p)+'</span></li>').join('');
-  const cons=(Array.isArray(data.cons)?data.cons:[]).map(c=>'<li style="display:flex;gap:10px;margin-bottom:10px;"><span style="color:#DC2626;font-size:18px;">&#10007;</span><span>'+esc(c)+'</span></li>').join('');
-  const faq=(Array.isArray(data.faq)?data.faq:[]).map(f=>'<details style="border:1px solid #E5E7EB;border-radius:8px;margin-bottom:10px;overflow:hidden;"><summary style="padding:16px;cursor:pointer;font-weight:600;font-size:15px;list-style:none;">'+esc(f.question||'')+'</summary><div style="padding:0 16px 16px;color:#374151;line-height:1.7;">'+esc(f.answer||'')+'</div></details>').join('');
-  return '<section style="margin-bottom:48px;">'+H2('Why It Is Worth It')+(data.description_html||'')+'<p style="margin-top:24px;">'+btn+'</p></section>'
+  const pros=(Array.isArray(data.pros)?data.pros:[]).map(p=>'<li style="display:flex;gap:10px;margin-bottom:10px;"><span style="color:#16A34A;font-size:18px;">&#10003;</span><span>'+esc(cleanText(p))+'</span></li>').join('');
+  const cons=(Array.isArray(data.cons)?data.cons:[]).map(c=>'<li style="display:flex;gap:10px;margin-bottom:10px;"><span style="color:#DC2626;font-size:18px;">&#10007;</span><span>'+esc(cleanText(c))+'</span></li>').join('');
+  const faq=(Array.isArray(data.faq)?data.faq:[]).map(f=>'<details style="border:1px solid #E5E7EB;border-radius:8px;margin-bottom:10px;overflow:hidden;"><summary style="padding:16px;cursor:pointer;font-weight:600;font-size:15px;list-style:none;">'+esc(cleanText(f.question||''))+'</summary><div style="padding:0 16px 16px;color:#374151;line-height:1.7;">'+esc(cleanText(f.answer||''))+'</div></details>').join('');
+  return '<section style="margin-bottom:48px;">'+H2('Why It Is Worth It')+cleanText(data.description_html||'')+'<p style="margin-top:24px;">'+btn+'</p></section>'
     +'<section style="margin-bottom:48px;">'+H2('Pros &amp; Cons')+'<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">'
     +'<div style="background:#F0FDF4;border:1.5px solid #BBF7D0;border-radius:12px;padding:24px;"><h3 style="color:#166534;font-weight:700;margin-bottom:14px;">Pros</h3><ul style="list-style:none;padding:0;">'+pros+'</ul></div>'
     +'<div style="background:#FEF2F2;border:1.5px solid #FECACA;border-radius:12px;padding:24px;"><h3 style="color:#991B1B;font-weight:700;margin-bottom:14px;">Cons</h3><ul style="list-style:none;padding:0;">'+cons+'</ul></div>'
@@ -169,7 +184,7 @@ module.exports = async function handler(req, res){
 
     const row={
       amazon_title:amazonTitle, affiliate_link:affiliateLink, slug,
-      seo_title:claudeData.seo_title||amazonTitle,
+      seo_title:cleanText(claudeData.seo_title||amazonTitle),
       seo_subtitle:claudeData.seo_subtitle||"",
       meta_description:(claudeData.meta_description||"").slice(0,155),
       article_body:articleBody, article_url:articleUrl, status:"published"
