@@ -208,7 +208,11 @@ module.exports = async function handler(req, res) {
     if (hasDB && parsed.type === "compare") {
       const { data: rows } = await db.getCmp(rawSlug);
       const row = Array.isArray(rows) ? rows[0] : rows;
-      if (row && row.html) { mSet(rawSlug, row.html); res.setHeader("Content-Type", "text/html; charset=utf-8"); return res.status(200).send(row.html); }
+      if (row && row.html && !row.html.includes('href="/compare/')) {
+        mSet(rawSlug, row.html);
+        res.setHeader("Content-Type", "text/html; charset=utf-8");
+        return res.status(200).send(row.html);
+      }
     }
 
     const now = new Date().toISOString();
