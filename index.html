@@ -501,6 +501,8 @@
     </div>
   </div>
 
+<div id="home-sections">
+
   <!-- HOW IT WORKS -->
   <div style="background:#F8FAFC;border-top:1.5px solid #E2E8F0;padding:64px 24px;">
     <div style="max-width:960px;margin:0 auto;text-align:center;">
@@ -590,6 +592,8 @@
     </div>
   </div>
 
+</div><!-- end #home-sections -->
+
   <!-- FOOTER -->
   <footer class="ftr">
     <div class="ftr-inner">
@@ -666,8 +670,13 @@
     }
     if (page === 'compare') {
       document.getElementById("compare-sections").style.display = "block";
+      document.getElementById("home-sections").style.display = "none";
+    } else if (page === 'home') {
+      document.getElementById("compare-sections").style.display = "none";
+      document.getElementById("home-sections").style.display = "block";
     } else {
       document.getElementById("compare-sections").style.display = "none";
+      document.getElementById("home-sections").style.display = "none";
     }
     window.scrollTo(0, 0);
   }
