@@ -1,10 +1,10 @@
 ﻿"use strict";
 // api/run-trending.js
-// Automated pipeline: Google Trends â†’ AI article generation â†’ Supabase
+// Automated pipeline: Google Trends → AI article generation → Supabase
 // Runs every 6 hours via Vercel Cron
 // Manual trigger: GET /api/run-trending?secret=cheapestalt-stories-2026
 //
-// Per run: fetches 5 trending keywords â†’ generates 3 articles each at different angles
+// Per run: fetches 5 trending keywords → generates 3 articles each at different angles
 // = up to 15 new SEO articles per run, 60 per day
 
 const https = require("https");
@@ -12,7 +12,7 @@ const MODEL = "claude-haiku-4-5-20251001";
 const TAG   = "cheapestalt-20";
 const SITE  = "https://www.cheapestalt.com";
 
-// â”€â”€ Supabase â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -- Supabase ------------------------------------------------------------------
 function sbReq(method, path, body) {
   const base = process.env.SUPABASE_URL;
   const key  = process.env.SUPABASE_ANON_KEY;
@@ -45,7 +45,7 @@ function sbReq(method, path, body) {
   });
 }
 
-// â”€â”€ Claude API â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -- Claude API ----------------------------------------------------------------
 function callClaude(apiKey, system, user, maxTokens) {
   const body = JSON.stringify({
     model: MODEL, max_tokens: maxTokens || 2000,
@@ -88,7 +88,7 @@ function esc(s) {
          .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 }
 
-// â”€â”€ STEP 1: Trending keywords â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -- STEP 1: Trending keywords -------------------------------------------------
 // Google Trends doesn't have a public API. We use:
 // 1. Amazon Best Sellers RSS (reliable, product-focused)
 // 2. A large rotating seed pool as fallback
@@ -122,7 +122,7 @@ const SEED_POOL = [
 ];
 
 
-// â”€â”€ Google Trends RSS (free, no API key needed) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -- Google Trends RSS (free, no API key needed) -------------------------------
 // Fetches daily trending searches from Google Trends RSS feed
 function fetchGoogleTrends() {
   return new Promise(resolve => {
@@ -137,7 +137,7 @@ function fetchGoogleTrends() {
     }, r => {
       let d = ""; r.on("data", c => d += c);
       r.on("end", () => {
-        // Extract <title> tags from RSS â€” skip the first one (feed title)
+        // Extract <title> tags from RSS — skip the first one (feed title)
         const titles = [];
         const regex  = /<title><!\[CDATA\[([^\]]+)\]\]><\/title>|<title>([^<]+)<\/title>/g;
         let m, count = 0;
@@ -161,7 +161,7 @@ function fetchGoogleTrends() {
   });
 }
 
-// â”€â”€ Fetch custom keywords from Supabase (added manually by you) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -- Fetch custom keywords from Supabase (added manually by you) ---------------
 async function fetchCustomKeywords() {
   const { data, error } = await sbReq("GET",
     "custom_keywords?active=eq.true&order=priority.desc&select=keyword&limit=20",
@@ -189,7 +189,7 @@ async function getTrendingKeywords() {
   const rotated = [...SEED_POOL.slice(dayOfYear % SEED_POOL.length),
                    ...SEED_POOL.slice(0, dayOfYear % SEED_POOL.length)];
 
-  // Merge: custom first, then trends, then seed pool â€” deduplicate
+  // Merge: custom first, then trends, then seed pool — deduplicate
   const all = [...customKws, ...trendsKws, ...rotated];
   const seen = new Set();
   const unique = all.filter(k => {
@@ -198,7 +198,7 @@ async function getTrendingKeywords() {
     seen.add(key); return true;
   });
 
-  console.log("Keyword sources â€” custom:", customKws.length,
+  console.log("Keyword sources — custom:", customKws.length,
     "trends:", trendsKws.length, "seed:", rotated.length,
     "total unique:", unique.length);
 
@@ -211,25 +211,25 @@ async function getTrendingKeywords() {
   ];
 }
 
-// â”€â”€ STEP 2: Article angle variations â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -- STEP 2: Article angle variations -----------------------------------------
 // For each keyword we generate 3 articles with different angles
 const ANGLES = [
   {
     type:   "alternative",
     prompt: (kw) => `Write a complete SEO article about "Best cheap alternatives to ${kw}". Focus on helping people find cheaper options. Include: hook intro, what the product is, 3-4 cheaper alternatives with pros/cons, comparison table, pricing section, FAQ (4 questions), and conclusion. Use affiliate links for Amazon. Write in simple engaging English. Feel human and helpful, not robotic.`,
-    title:  (kw) => `Best Cheap Alternatives to ${titleCase(kw)} in 2026 â€” Save Up to 80%`,
+    title:  (kw) => `Best Cheap Alternatives to ${titleCase(kw)} in 2026 — Save Up to 80%`,
     meta:   (kw) => `Looking for cheaper alternatives to ${kw}? We found the best budget options that deliver the same quality. Compare prices and save money today.`,
   },
   {
     type:   "comparison",
-    prompt: (kw) => `Write a complete SEO article titled "${titleCase(kw)} vs Budget Alternatives â€” Which Is Worth It?". Help readers decide between the original and cheaper options. Include: intro with the dilemma, detailed comparison table (price, quality, features), pros and cons of each, our recommendation, FAQ (4 questions), and a strong conclusion. Feel honest and helpful.`,
-    title:  (kw) => `${titleCase(kw)} vs Budget Alternatives â€” Which One Is Worth It in 2026?`,
+    prompt: (kw) => `Write a complete SEO article titled "${titleCase(kw)} vs Budget Alternatives — Which Is Worth It?". Help readers decide between the original and cheaper options. Include: intro with the dilemma, detailed comparison table (price, quality, features), pros and cons of each, our recommendation, FAQ (4 questions), and a strong conclusion. Feel honest and helpful.`,
+    title:  (kw) => `${titleCase(kw)} vs Budget Alternatives — Which One Is Worth It in 2026?`,
     meta:   (kw) => `Is ${kw} worth the price? We compare it to the best budget alternatives so you can make the smartest buying decision.`,
   },
   {
     type:   "deal",
     prompt: (kw) => `Write a complete SEO article about "Where to find the best deals on ${kw} and alternatives". Help readers find the lowest prices. Include: intro about saving money, where to find deals (Amazon, sales, alternatives), top budget picks with prices, money-saving tips, FAQ (4 questions), and conclusion. Be enthusiastic and helpful.`,
-    title:  (kw) => `Where to Find the Best ${titleCase(kw)} Deals â€” Top Budget Picks 2026`,
+    title:  (kw) => `Where to Find the Best ${titleCase(kw)} Deals — Top Budget Picks 2026`,
     meta:   (kw) => `Find the best ${kw} deals and budget alternatives on Amazon. We compare prices so you get maximum value for your money.`,
   },
 ];
@@ -238,7 +238,7 @@ function titleCase(s) {
   return s.replace(/\b\w/g, c => c.toUpperCase());
 }
 
-// â”€â”€ STEP 3: Generate article HTML with Claude â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -- STEP 3: Generate article HTML with Claude ---------------------------------
 const ARTICLE_SYS =
   'You are an expert SEO copywriter. Return ONLY valid JSON, no markdown, no extra text. ' +
   'Schema: {"title":"str","meta":"str max 155 chars","intro":"2 sentence hook paragraph","sections":[{"h2":"str","body":"2-3 short paragraphs as plain text"}],"pros":["str"],"cons":["str"],"verdict":"1 paragraph","faq":[{"q":"str","a":"str"},{"q":"str","a":"str"},{"q":"str","a":"str"}]}. ' +
@@ -263,8 +263,8 @@ async function generateArticle(apiKey, keyword, angle) {
   return data;
 }
 
-// â”€â”€ STEP 4: Daily background style â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// Changes every 24 hours â€” gives articles a fresh look each day
+// -- STEP 4: Daily background style --------------------------------------------
+// Changes every 24 hours — gives articles a fresh look each day
 function getDailyStyle() {
   const day = Math.floor(Date.now() / 86400000);
   const styles = [
@@ -279,7 +279,7 @@ function getDailyStyle() {
   return styles[day % styles.length];
 }
 
-// â”€â”€ STEP 5: Build full article page HTML â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -- STEP 5: Build full article page HTML --------------------------------------
 function buildArticlePage(article, slug, keyword, variationType, affiliateLink, style) {
   const pageUrl  = SITE + "/trending/" + slug;
   const amzLink  = affiliateLink || ("https://www.amazon.com/s?k=" + encodeURIComponent(keyword) + "&tag=" + TAG);
@@ -447,7 +447,7 @@ function buildArticlePage(article, slug, keyword, variationType, affiliateLink, 
     '</body></html>';
 }
 
-// â”€â”€ STEP 6: Check if slug already generated recently â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -- STEP 6: Check if slug already generated recently -------------------------
 async function slugIsRecent(slug) {
   const { data } = await sbReq("GET",
     "trending_articles?slug=eq." + encodeURIComponent(slug) +
@@ -461,7 +461,7 @@ async function slugIsRecent(slug) {
   return age < 20 * 3600 * 1000;
 }
 
-// â”€â”€ STEP 7: Save to Supabase â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -- STEP 7: Save to Supabase --------------------------------------------------
 async function saveArticle(row) {
   const { error } = await sbReq("POST",
     "trending_articles?on_conflict=slug", row);
@@ -473,7 +473,7 @@ async function saveArticle(row) {
   return true;
 }
 
-// â”€â”€ MAIN HANDLER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -- MAIN HANDLER --------------------------------------------------------------
 module.exports = async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   if (req.method === "OPTIONS") return res.status(204).end();

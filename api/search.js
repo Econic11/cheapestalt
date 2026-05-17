@@ -7,7 +7,7 @@ const https = require("https");
 const MODEL = "claude-haiku-4-5-20251001";
 const TAG   = "cheapestalt-20";
 
-// â”€â”€ Supabase client â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -- Supabase client ------------------------------------------------------------
 function sbReq(method, path, body) {
   const base = process.env.SUPABASE_URL;
   const key  = process.env.SUPABASE_ANON_KEY;
@@ -39,18 +39,18 @@ const db = {
   update: (slug, row) => sbReq("PATCH", "pages?slug=eq." + encodeURIComponent(slug), row),
 };
 
-// â”€â”€ Memory cache â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -- Memory cache ----------------------------------------------------------------
 const mem = new Map();
 const MEM_TTL = 1000 * 60 * 60 * 6; // 6h warm cache
 function mGet(k) { const e = mem.get(k); if (!e || Date.now() - e.t > MEM_TTL) { mem.delete(k); return null; } return e.v; }
 function mSet(k, v) { if (mem.size > 300) mem.delete(mem.keys().next().value); mem.set(k, { v, t: Date.now() }); }
 
-// â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -- Helpers ---------------------------------------------------------------------
 function mkSlug(s) { return s.toLowerCase().replace(/[^a-z0-9\s-]/g,"").replace(/\s+/g,"-").replace(/-+/g,"-").trim(); }
 function amzUrl(n) { return "https://www.amazon.com/s?k=" + encodeURIComponent(n) + "&tag=" + TAG; }
 function esc(s) { return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
 
-// â”€â”€ Claude call â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -- Claude call -----------------------------------------------------------------
 function claude(apiKey, system, user, maxTok) {
   const body = JSON.stringify({ model: MODEL, max_tokens: maxTok, system, messages: [{ role:"user", content:user }] });
   return new Promise((ok, fail) => {
@@ -64,7 +64,7 @@ function claude(apiKey, system, user, maxTok) {
   });
 }
 
-// â”€â”€ JSON extractor â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -- JSON extractor --------------------------------------------------------------
 function xJSON(text) {
   let s = text.replace(/```json\s*/gi,"").replace(/```\s*/g,"").trim();
   const a = s.indexOf("{"), b = s.lastIndexOf("}");
@@ -84,7 +84,7 @@ function xJSON(text) {
   return JSON.parse(out);
 }
 
-// â”€â”€ Pre-render HTML page (lifetime SEO storage) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -- Pre-render HTML page (lifetime SEO storage) ---------------------------------
 function renderHTML(data, slug) {
   const o   = data.original;
   const alt = data.alternatives || [];
@@ -107,7 +107,7 @@ function renderHTML(data, slug) {
       '</div>';
   }).join("");
 
-  const title = "Cheaper Alternatives to " + o.name + " â€” Save Money in 2026";
+  const title = "Cheaper Alternatives to " + o.name + " — Save Money in 2026";
   const desc  = "Find the best cheaper alternatives to " + o.name + " on Amazon. Compare prices and value.";
   const fav   = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232563EB'/%3E%3Ctext x='16' y='22' font-family='Inter' font-size='13' font-weight='800' fill='white' text-anchor='middle'%3ECA%3C/text%3E%3C/svg%3E";
 
@@ -161,7 +161,7 @@ h1{font-size:30px;font-weight:800;letter-spacing:-0.6px;line-height:1.2;margin-b
 </header>
 <main class="wrap">
   <h1>${esc(title)}</h1>
-  <p class="lead">Compare the best cheaper alternatives to ${esc(o.name)} on Amazon â€” with real value analysis and direct deal links.</p>
+  <p class="lead">Compare the best cheaper alternatives to ${esc(o.name)} on Amazon — with real value analysis and direct deal links.</p>
   <div class="orig">
     <div class="orig-icon">${o.icon || "ðŸ“¦"}</div>
     <div class="orig-info">
@@ -171,7 +171,7 @@ h1{font-size:30px;font-weight:800;letter-spacing:-0.6px;line-height:1.2;margin-b
       <a href="${amzUrl(o.name)}" target="_blank" rel="noopener" class="btn-az">Check price on Amazon &#8594;</a>
     </div>
   </div>
-  <div class="alts-label">Cheaper alternatives â€” click to check price on Amazon</div>
+  <div class="alts-label">Cheaper alternatives — click to check price on Amazon</div>
   ${altCards}
   <div style="margin-top:28px;display:flex;gap:10px;flex-wrap:wrap">
     <a href="/find?slug=best-${pSlug}-alternatives" style="background:#F8FAFC;border:1.5px solid #E2E8F0;padding:8px 16px;border-radius:20px;font-size:13px;font-weight:600;color:#0F172A;text-decoration:none">Best ${esc(o.name)} alternatives</a>
@@ -190,7 +190,7 @@ h1{font-size:30px;font-weight:800;letter-spacing:-0.6px;line-height:1.2;margin-b
 }
 
 
-// â”€â”€ Render unique VARIANT article (best / cheapest / general) â€” SEO optimised â”€â”€â”€â”€
+// -- Render unique VARIANT article (best / cheapest / general) — SEO optimised ----
 function renderVariantHTML(data, slug, angle, qBase, pSlug) {
   const o   = data.original || {};
   const alt = data.alternatives || [];
@@ -200,15 +200,15 @@ function renderVariantHTML(data, slug, angle, qBase, pSlug) {
   const cfg = {
     general: {
       label:   "Top",
-      h1:      "Top Alternatives to " + oName + " â€” Best Value Picks in 2026",
+      h1:      "Top Alternatives to " + oName + " — Best Value Picks in 2026",
       desc:    "Compare the top cheaper alternatives to " + oName + " on Amazon. Honest value analysis, pros & cons, and expert recommendation.",
-      intro:   oName + " is a popular product but comes at a premium price. We analysed hundreds of Amazon listings to find the best alternatives that offer real value â€” not just a lower price tag. Every option below has been selected for quality, customer satisfaction, and genuine savings.",
+      intro:   oName + " is a popular product but comes at a premium price. We analysed hundreds of Amazon listings to find the best alternatives that offer real value — not just a lower price tag. Every option below has been selected for quality, customer satisfaction, and genuine savings.",
       focus:   "Balanced mix of budget and mid-range options.",
       recTitle:"Best overall pick",
     },
     best: {
       label:   "Best",
-      h1:      "Best Alternatives to " + oName + " â€” Top-Rated Picks in 2026",
+      h1:      "Best Alternatives to " + oName + " — Top-Rated Picks in 2026",
       desc:    "Find the best-rated alternatives to " + oName + " on Amazon. Compare top-reviewed options with pros, cons, and expert recommendation.",
       intro:   "Looking for the highest-rated alternatives to " + oName + "? We filtered Amazon by customer rating, number of reviews, and overall satisfaction to bring you the best options. These alternatives are top-ranked in their category and trusted by thousands of buyers.",
       focus:   "Highest-rated and most reviewed options.",
@@ -216,7 +216,7 @@ function renderVariantHTML(data, slug, angle, qBase, pSlug) {
     },
     cheap: {
       label:   "Cheapest",
-      h1:      "Cheapest Alternatives to " + oName + " â€” Save the Most in 2026",
+      h1:      "Cheapest Alternatives to " + oName + " — Save the Most in 2026",
       desc:    "Find the cheapest alternatives to " + oName + " on Amazon and save up to 80%. Compare budget picks with pros, cons, and buying advice.",
       intro:   "Want the maximum savings vs " + oName + "? We searched Amazon for the most affordable alternatives that still deliver acceptable quality. Whether you need a temporary solution or just want to save money without compromising too much, these budget picks deliver the most savings.",
       focus:   "Cheapest options with the most savings percentage.",
@@ -273,7 +273,7 @@ function renderVariantHTML(data, slug, angle, qBase, pSlug) {
       '<a href="' + amzUrl(oName) + '" target="_blank" rel="noopener" class="btn-az">Check price on Amazon &#8594;</a>' +
     '</div></div>';
 
-  // Alternative cards â€” each unique with pros/cons and verdict
+  // Alternative cards — each unique with pros/cons and verdict
   const altCards = alt.map((a, i) => {
     const idx = Math.min(i, 3);
     const pct = a.save || ("Save " + Math.round(Math.max(0,(1-(a.price||0)/(o.price||1))*100)) + "%");
@@ -283,7 +283,7 @@ function renderVariantHTML(data, slug, angle, qBase, pSlug) {
       ? "Best budget pick if you want maximum savings on " + oName + "."
       : angle2==="best"
       ? "Top-rated option with strong customer reviews."
-      : "Solid value alternative to " + oName + " â€” recommended for most buyers.");
+      : "Solid value alternative to " + oName + " — recommended for most buyers.");
 
     return '<div class="alt-card">' +
       '<div class="alt-top">' +
@@ -308,30 +308,30 @@ function renderVariantHTML(data, slug, angle, qBase, pSlug) {
       '</div>';
   }).join("");
 
-  // Recommendation box â€” picks best option by angle
+  // Recommendation box — picks best option by angle
   const best = angle2==="cheap"
     ? alt.reduce((a,b) => ((a.price||9999) < (b.price||9999) ? a : b), alt[0]||{})
     : alt.reduce((a,b) => ((a.rating||0) > (b.rating||0) ? a : b), alt[0]||{});
   const recText = angle2==="cheap"
-    ? "For maximum savings, we recommend <strong>" + esc(best.name||"") + "</strong> â€” the cheapest option at $" + Number(best.price||0).toLocaleString() + ". It offers the highest savings percentage vs " + esc(oName) + " and is available on Amazon."
+    ? "For maximum savings, we recommend <strong>" + esc(best.name||"") + "</strong> — the cheapest option at $" + Number(best.price||0).toLocaleString() + ". It offers the highest savings percentage vs " + esc(oName) + " and is available on Amazon."
     : angle2==="best"
-    ? "Our top-rated pick is <strong>" + esc(best.name||"") + "</strong> â€” it has the strongest customer ratings and delivers the best quality-to-price ratio in this comparison."
-    : "For most buyers, we recommend <strong>" + esc(best.name||"") + "</strong> â€” it strikes the best balance between price, quality, and availability on Amazon.";
+    ? "Our top-rated pick is <strong>" + esc(best.name||"") + "</strong> — it has the strongest customer ratings and delivers the best quality-to-price ratio in this comparison."
+    : "For most buyers, we recommend <strong>" + esc(best.name||"") + "</strong> — it strikes the best balance between price, quality, and availability on Amazon.";
 
-  // FAQs â€” use Claude-generated if available, else fallback per angle
+  // FAQs — use Claude-generated if available, else fallback per angle
   const claudeFaqs = (data.faqs && data.faqs.length >= 3) ? data.faqs : null;
   const faqs = claudeFaqs || (angle2==="cheap" ? [
     { q: "What is the cheapest alternative to " + oName + "?",
-      a: (alt[0]||{}).name ? (alt[0].name + " at $" + Number((alt[0].price||0)).toLocaleString() + " â€” a saving of " + (alt[0].save||"up to 80%") + " vs the original.") : "See the options above for current Amazon prices." },
+      a: (alt[0]||{}).name ? (alt[0].name + " at $" + Number((alt[0].price||0)).toLocaleString() + " — a saving of " + (alt[0].save||"up to 80%") + " vs the original.") : "See the options above for current Amazon prices." },
     { q: "Are cheap alternatives to " + oName + " worth it?",
-      a: "Yes â€” many budget alternatives deliver 80% of the performance at 30% of the price. The key is to check reviews and ratings before buying, which we have done for you above." },
+      a: "Yes — many budget alternatives deliver 80% of the performance at 30% of the price. The key is to check reviews and ratings before buying, which we have done for you above." },
     { q: "Do budget alternatives come with a warranty?",
       a: "Most alternatives sold on Amazon include at least a 12-month manufacturer warranty. Check the product listing for full warranty details." },
     { q: "Can I return a " + oName + " alternative if I am not satisfied?",
-      a: "Yes â€” all products listed here are sold on Amazon, which offers a standard 30-day return policy on most items." },
+      a: "Yes — all products listed here are sold on Amazon, which offers a standard 30-day return policy on most items." },
   ] : angle2==="best" ? [
     { q: "What is the best-rated alternative to " + oName + "?",
-      a: (alt[0]||{}).name ? (alt[0].name + " â€” it has the highest customer rating and most positive reviews in this category.") : "See the top options above ranked by customer rating." },
+      a: (alt[0]||{}).name ? (alt[0].name + " — it has the highest customer rating and most positive reviews in this category.") : "See the top options above ranked by customer rating." },
     { q: "How do I choose the best alternative to " + oName + "?",
       a: "Look at customer ratings (4 stars and above), number of reviews (more is better), and whether the product is sold by a reputable brand. All options above meet these criteria." },
     { q: "Are highly-rated alternatives reliable?",
@@ -340,11 +340,11 @@ function renderVariantHTML(data, slug, angle, qBase, pSlug) {
       a: "Focus on the core features you use most. Our pros and cons breakdown above highlights which alternatives excel at specific features so you can match them to your needs." },
   ] : [
     { q: "What is the best alternative to " + oName + "?",
-      a: (alt[0]||{}).name ? ("Based on our analysis, " + alt[0].name + " offers the best overall value â€” strong savings with good quality and positive Amazon reviews.") : "See our top picks above â€” each has been selected for value and quality." },
+      a: (alt[0]||{}).name ? ("Based on our analysis, " + alt[0].name + " offers the best overall value — strong savings with good quality and positive Amazon reviews.") : "See our top picks above — each has been selected for value and quality." },
     { q: "How much can I save by switching from " + oName + "?",
       a: "Depending on the alternative you choose, you can save anywhere from 30% to 80% compared to " + oName + ". Check the savings percentage next to each option above." },
     { q: "Do alternatives to " + oName + " ship with Amazon Prime?",
-      a: "Yes â€” all alternatives listed above are available on Amazon, and most qualify for Prime shipping with free 1-2 day delivery." },
+      a: "Yes — all alternatives listed above are available on Amazon, and most qualify for Prime shipping with free 1-2 day delivery." },
     { q: "Is it safe to buy alternatives to " + oName + " on Amazon?",
       a: "Amazon has a strong buyer protection policy. All products are returnable within 30 days if you are not satisfied, making it risk-free to try a cheaper alternative." },
   ]);
@@ -371,13 +371,13 @@ function renderVariantHTML(data, slug, angle, qBase, pSlug) {
     '<p class="lead">' + esc(cv.intro) + '</p>' +
     '<h2>Original: ' + esc(oName) + '</h2>' +
     origCard +
-    '<h2>' + cv.label + ' alternatives â€” pros, cons & verdict</h2>' +
+    '<h2>' + cv.label + ' alternatives — pros, cons & verdict</h2>' +
     altCards +
     sec("Expert recommendation",
       '<div class="rec-box"><div class="rec-title">' + cv.recTitle + '</div>' + recText + '</div>') +
     sec("Frequently asked questions", faqHtml) +
     sec("Related pages", relLinks) +
-    '<div class="disc"><strong>Affiliate disclosure:</strong> Links are Amazon affiliate links (tag: ' + TAG + '). We earn a small commission at no extra cost to you. Rankings are based on value analysis â€” never paid placements.</div>';
+    '<div class="disc"><strong>Affiliate disclosure:</strong> Links are Amazon affiliate links (tag: ' + TAG + '). We earn a small commission at no extra cost to you. Rankings are based on value analysis — never paid placements.</div>';
 
   return '<!DOCTYPE html><html lang="en"><head>\n' +
     '<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>\n' +
@@ -405,14 +405,14 @@ function renderVariantHTML(data, slug, angle, qBase, pSlug) {
     '</body></html>';
 }
 
-// â”€â”€ Prompt â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -- Prompt ----------------------------------------------------------------------
 const SYS = 'Return ONLY valid JSON. No markdown. No apostrophes. ' +
   'Schema: {"original":{"name":"str","price":0,"rating":0.0,"reviews":0,"icon":"emoji"},' +
   '"alternatives":[{"name":"str","price":0,"rating":0.0,"reviews":0,"icon":"emoji","save":"Save X%","reason":"str"}],' +
   '"faqs":[{"q":"str","a":"str"},{"q":"str","a":"str"},{"q":"str","a":"str"},{"q":"str","a":"str"}]}. ' +
   'Rules: 4 cheaper Amazon alternatives, USD prices, sort by most savings, 4 FAQs specific to this product and its alternatives, no apostrophes.';
 
-// â”€â”€ Main handler â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -- Main handler ----------------------------------------------------------------
 module.exports = async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin","*");
   res.setHeader("Access-Control-Allow-Methods","POST, OPTIONS");
@@ -435,7 +435,7 @@ module.exports = async function handler(req, res) {
   const hit = mGet(slug);
   if (hit) return res.status(200).json(Object.assign({}, hit, { fromCache: true }));
 
-  // 2. Supabase â€” permanent lifetime storage
+  // 2. Supabase — permanent lifetime storage
   if (hasDB) {
     const { data: rows } = await db.get(slug);
     const row = Array.isArray(rows) ? rows[0] : rows;
@@ -488,14 +488,14 @@ module.exports = async function handler(req, res) {
   // 5. Pre-render HTML for instant SEO delivery
   const html = renderHTML(data, slug);
 
-  // 6. Save to Supabase â€” AWAITED so Vercel doesn't kill before save completes
+  // 6. Save to Supabase — AWAITED so Vercel doesn't kill before save completes
   if (hasDB) {
     // Save main slug
     const row = {
       slug,
       type:        "alternative",
       keyword:     q,
-      title:       data.original.name + " â€” Cheaper Alternatives on Amazon",
+      title:       data.original.name + " — Cheaper Alternatives on Amazon",
       content:     data,
       html,
       created_at:  data.generatedAt,
@@ -509,9 +509,9 @@ module.exports = async function handler(req, res) {
       } else { console.log("SAVED:", slug); }
     } catch(e) { console.error("DB catch:", e.message); }
 
-    // Save all variant slugs â€” use BOTH user query base AND product name base
+    // Save all variant slugs — use BOTH user query base AND product name base
     // index.html uses slug(data.query) = slug variable (mkSlug of user input)
-    // search.js pSlug uses Claude's product name â€” can differ from user input
+    // search.js pSlug uses Claude's product name — can differ from user input
     const qBase = slug; // mkSlug(q) = user's typed query slug
     const variantSlugs = new Set([
       qBase     + "-alternatives",
