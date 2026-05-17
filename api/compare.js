@@ -4,13 +4,14 @@
 
 "use strict";
 const https = require("https");
-const MODEL = "claude-sonnet-4-6";
+const MODEL = "claude-haiku-4-5-20251001";
 const TAG   = "cheapestalt-20";
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY;
 
 // -- Supabase client ------------------------------------------------------------
-function sbReq(method, path, body) {
+function sbReq(method, path, body, authKey) {
   const base = process.env.SUPABASE_URL;
-  const key  = process.env.SUPABASE_ANON_KEY;
+  const key  = authKey || process.env.SUPABASE_ANON_KEY;
   if (!base || !key) return Promise.resolve({ data: null, error: "no-config" });
   const host    = base.replace(/^https?:\/\//, "");
   const payload = body ? JSON.stringify(body) : null;
@@ -35,8 +36,8 @@ function sbReq(method, path, body) {
 
 const db = {
   get:    slug      => sbReq("GET",   "comparisons?slug=eq." + encodeURIComponent(slug) + "&select=*&limit=1", null),
-  insert: row       => sbReq("POST",  "comparisons?on_conflict=slug", row),
-  update: (slug, r) => sbReq("PATCH", "comparisons?slug=eq." + encodeURIComponent(slug), r),
+  insert: row       => sbReq("POST",  "comparisons?on_conflict=slug", row, SUPABASE_SERVICE_KEY),
+  update: (slug, r) => sbReq("PATCH", "comparisons?slug=eq." + encodeURIComponent(slug), r, SUPABASE_SERVICE_KEY),
 };
 
 // -- Memory cache ----------------------------------------------------------------
@@ -406,7 +407,7 @@ td.win{color:#2563EB;font-weight:700}
     html += '<div class="cmp-btns"><button class="dbtn dbtn-az" style="flex:1" onclick="window.open(\''+amzLink(productA.name)+'\',\'_blank\')">Check '+esc(productA.name)+' on Amazon &#8594;</button><button class="dbtn dbtn-az" style="flex:1" onclick="window.open(\''+amzLink(productB.name)+'\',\'_blank\')">Check '+esc(productB.name)+' on Amazon &#8594;</button></div>';
     html += '</div>';
     html += '<div class="colls">';
-    html += '<div class="coll" onclick="tog(this)"><div class="coll-h">Read the full comparison article <span class="coll-ico">&#9662;</span></div><div class="coll-b"><p style="margin-bottom:14px">Get the in-depth analysis of <strong>'+esc(productA.name)+'</strong> vs <strong>'+esc(productB.name)+'</strong>.</p><a href="/find?slug='+(data.slug||slugA+'-vs-'+slugB)+'" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:#2563EB;color:#fff;padding:11px 22px;border-radius:8px;font-size:14px;font-weight:700;text-decoration:none">Read full article &#8594;</a></div></div>';
+    html += '<div class="coll" onclick="tog(this)"><div class="coll-h">Read the full comparison article <span class="coll-ico">&#9662;</span></div><div class="coll-b"><p style="margin-bottom:14px">Get the in-depth analysis of <strong>'+esc(productA.name)+'</strong> vs <strong>'+esc(productB.name)+'</strong>.</p><a href="/alternatives/'+(data.slug||slugA+'-vs-'+slugB)+'" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:#2563EB;color:#fff;padding:11px 22px;border-radius:8px;font-size:14px;font-weight:700;text-decoration:none">Read full article &#8594;</a></div></div>';
     html += '<div class="coll" onclick="tog(this)"><div class="coll-h">Find cheaper alternatives <span class="coll-ico">&#9662;</span></div><div class="coll-b"><a href="/find?slug='+slugA+'-alternatives" target="_blank" style="display:flex;justify-content:space-between;background:#F8FAFC;border:1.5px solid #E2E8F0;padding:12px 16px;border-radius:8px;font-size:13px;font-weight:600;color:#0F172A;text-decoration:none;margin-bottom:8px">Alternatives to '+esc(productA.name)+' <span style="color:#2563EB">&#8594;</span></a><a href="/find?slug='+slugB+'-alternatives" target="_blank" style="display:flex;justify-content:space-between;background:#F8FAFC;border:1.5px solid #E2E8F0;padding:12px 16px;border-radius:8px;font-size:13px;font-weight:600;color:#0F172A;text-decoration:none">Alternatives to '+esc(productB.name)+' <span style="color:#2563EB">&#8594;</span></a></div></div>';
     html += '</div>';
     document.getElementById('cr').innerHTML = html;
@@ -477,7 +478,7 @@ module.exports = async function handler(req, res) {
 
   // 3. Generate with Claude Sonnet
   let cr;
-  try { cr = await claude(apiKey, SYS, 'Compare A: "' + a + '" vs B: "' + b + '". 6-8 rows, no apostrophes. Return JSON only.', 2000); }
+  try { cr = await claude(apiKey, SYS, 'Compare A: "' + a + '" vs B: "' + b + '". 6-8 rows, no apostrophes. Return JSON only.', 3000); }
   catch (e) { console.error("E1 network:",e.message); return res.status(502).json({ error: "Network error. Please try again." }); }
 
   let cb;
