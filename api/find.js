@@ -5,6 +5,17 @@ const HAIKU  = "claude-haiku-4-5-20251001";
 const SONNET = "claude-sonnet-4-5-20251022";
 const TAG    = "cheapestalt-20";
 
+function fixEncoding(s) {
+  return String(s || "")
+    .replace(/â€"/g, "—")
+    .replace(/â€™/g, "'")
+    .replace(/â€œ/g, '"')
+    .replace(/â€/g, '"')
+    .replace(/â€˜/g, "'")
+    .replace(/Â/g, "")
+    .replace(/â‚¬/g, "€");
+}
+
 function sbReq(method, path, body) {
   const base = process.env.SUPABASE_URL;
   const key  = process.env.SUPABASE_ANON_KEY;
@@ -78,7 +89,8 @@ function xJSON(text) {
   const a = s.indexOf("{"), b = s.lastIndexOf("}");
   if (a !== -1 && b !== -1) s = s.slice(a, b + 1);
   s = s.replace(/,(\s*[}\]])/g, "$1");
-  return JSON.parse(s);
+  const result = JSON.parse(s);
+  return JSON.parse(JSON.stringify(result).replace(/â€"/g, "—").replace(/â€™/g, "'").replace(/â€œ/g, '"').replace(/â€/g, '"').replace(/Â /g, " ").replace(/Â/g, ""));
 }
 
 const ALT_SYS = 'Return ONLY valid JSON. No markdown. No apostrophes. Exact schema: {"original":{"name":"str","price":99,"icon":"emoji"},"alternatives":[{"name":"str","price":49,"icon":"emoji","save":"Save 50%","reason":"one short sentence"},{"name":"str","price":39,"icon":"emoji","save":"Save 60%","reason":"one short sentence"},{"name":"str","price":29,"icon":"emoji","save":"Save 70%","reason":"one short sentence"},{"name":"str","price":19,"icon":"emoji","save":"Save 80%","reason":"one short sentence"}]}. Rules: real Amazon products, USD prices, 4 alternatives cheaper than original, no apostrophes.';
