@@ -15,7 +15,10 @@
       "Bash(git mv *)",
       "Bash(git show *)",
       "Read(//tmp/**)",
-      "Bash(curl *)"
+      "Bash(curl *)",
+      "Bash(python -c ' *)",
+      "Bash(node -e ' *)",
+      "PowerShell($lines = Get-Content \"C:\\\\Users\\\\User\\\\Downloads\\\\Cheapest versions\\\\cheapestalt-mobile-header\\\\index.html\" -Encoding UTF8; $line = $lines[294]; [System.Text.Encoding]::UTF8.GetBytes\\($line\\) | ForEach-Object { \"{0:X2}\" -f $_ } | Out-String)"
     ]
   }
 }
