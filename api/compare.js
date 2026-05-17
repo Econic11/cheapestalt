@@ -4,7 +4,7 @@
 
 "use strict";
 const https = require("https");
-const MODEL = "claude-sonnet-4-5";
+const MODEL = "claude-sonnet-4-6";
 const TAG   = "cheapestalt-20";
 
 // -- Supabase client ------------------------------------------------------------
