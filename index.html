@@ -943,12 +943,11 @@
     html += '<button class="dbtn dbtn-az" style="flex:1" onclick="window.open(\'' + amzLink(productB.name) + '\',\'_blank\')">Check ' + esc(productB.name) + ' on Amazon \u2192</button>';
     html += '</div></div>';
     var articleSlug = data.slug || [slugA, slugB].sort().join('-vs-');
-    var articleUrl = '/compare/' + articleSlug;
-    html += '<div style="max-width:960px;margin:0 auto;padding:0 24px 16px">';
-    html += '<a href="' + articleUrl + '" target="_blank" style="display:flex;align-items:center;justify-content:space-between;background:#EFF6FF;border:1.5px solid #BFDBFE;border-radius:10px;padding:14px 18px;text-decoration:none;color:#0F172A;font-size:13.5px;font-weight:600">';
-    html += '<span>Read the full article: <strong>' + esc(productA.name) + ' vs ' + esc(productB.name) + '</strong></span>';
-    html += '<span style="color:#2563EB;font-size:12px;background:#fff;border:1.5px solid #BFDBFE;padding:4px 10px;border-radius:6px;white-space:nowrap">' + articleUrl + ' \u2192</span>';
-    html += '</a></div>';
+    var articleUrl = '/find?slug=' + articleSlug;
+    html += '<div style="margin-top:20px;padding:16px 20px;background:#EFF6FF;border:1.5px solid #BFDBFE;border-radius:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">';
+    html += '<span style="font-size:14px;font-weight:600;color:#0F172A;">Full comparison article: <strong>' + esc(productA.name) + ' vs ' + esc(productB.name) + '</strong></span>';
+    html += '<a href="' + articleUrl + '" target="_blank" style="display:inline-block;background:#2563EB;color:#fff;padding:10px 22px;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none;white-space:nowrap;">Read Full Article \u2192</a>';
+    html += '</div>';
     html += '<div class="colls" style="margin-top:8px">';
     html += '<div class="coll" onclick="tog(this)">';
     html += '<div class="coll-h">Find cheaper alternatives to each product <span class="coll-ico">&#9662;</span></div>';
