@@ -705,7 +705,7 @@
     document.getElementById('ra').innerHTML = `
       <div class="loading">
         <div class="spin"></div>
-        <p>Finding cheaper alternatives for <strong>"${esc(query)}"</strong>â€¦</p>
+        <p>Finding cheaper alternatives for <strong>"${esc(query)}"</strong></p>
         <p class="loading-sub">Searching Amazon — this takes a few seconds.</p>
       </div>`;
 
@@ -860,12 +860,12 @@
     isComparing = true;
     const btn = document.getElementById('cmp-btn');
     btn.disabled = true;
-    btn.textContent = 'Analyzingâ€¦';
+    btn.textContent = 'Analyzing';
 
     document.getElementById('cr').innerHTML = `
       <div class="loading">
         <div class="spin"></div>
-        <p>Comparing <strong>${esc(a)}</strong> vs <strong>${esc(b)}</strong>â€¦</p>
+        <p>Comparing <strong>${esc(a)}</strong> vs <strong>${esc(b)}</strong></p>
         <p class="loading-sub">Analyzing features, pricing, and value — this takes a few seconds.</p>
       </div>`;
 
