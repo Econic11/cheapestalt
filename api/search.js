@@ -509,10 +509,8 @@ module.exports = async function handler(req, res) {
       } else { console.log("SAVED:", slug); }
     } catch(e) { console.error("DB catch:", e.message); }
 
-    // Save all variant slugs — use BOTH user query base AND product name base
-    // index.html uses slug(data.query) = slug variable (mkSlug of user input)
-    // search.js pSlug uses Claude's product name — can differ from user input
-    const qBase = slug; // mkSlug(q) = user's typed query slug
+    // Save variant slugs in background — fire and forget to keep response fast
+    const qBase = slug;
     const variantSlugs = new Set([
       qBase     + "-alternatives",
       "best-"  + qBase  + "-alternatives",
@@ -521,26 +519,24 @@ module.exports = async function handler(req, res) {
       "best-"  + pSlug + "-alternatives",
       "cheap-" + pSlug + "-alternatives",
     ]);
-    variantSlugs.delete(slug); // already saved above
-    for (const vs of variantSlugs) {
-      // Determine angle from slug prefix
-      const vAngle = vs.startsWith("best-") ? "best" : vs.startsWith("cheap-") ? "cheap" : "general";
-      const vhtml = renderVariantHTML(data, vs, vAngle, qBase, pSlug);
-      const vTitles = { best: "Best", cheap: "Cheapest", general: "Top" };
-      const vrow  = {
-        slug: vs, type: "alternative", keyword: q,
-        title: vTitles[vAngle] + " Alternatives to " + data.original.name + " on Amazon",
-        content: data, html: vhtml,
-        created_at: data.generatedAt, last_generated: data.generatedAt,
-      };
-      try {
-        const vr = await db.insert(vrow);
-        if (vr.error) {
-          await db.update(vs, { content: data, html: vhtml, last_generated: data.generatedAt });
-          console.log("VARIANT UPDATED:", vs);
-        } else { console.log("VARIANT SAVED:", vs); }
-      } catch(e) { console.error("VARIANT catch:", e.message); }
-    }
+    variantSlugs.delete(slug);
+    (async () => {
+      for (const vs of variantSlugs) {
+        const vAngle = vs.startsWith("best-") ? "best" : vs.startsWith("cheap-") ? "cheap" : "general";
+        const vhtml = renderVariantHTML(data, vs, vAngle, qBase, pSlug);
+        const vTitles = { best: "Best", cheap: "Cheapest", general: "Top" };
+        const vrow = {
+          slug: vs, type: "alternative", keyword: q,
+          title: vTitles[vAngle] + " Alternatives to " + data.original.name + " on Amazon",
+          content: data, html: vhtml,
+          created_at: data.generatedAt, last_generated: data.generatedAt,
+        };
+        try {
+          const vr = await db.insert(vrow);
+          if (vr.error) await db.update(vs, { content: data, html: vhtml, last_generated: data.generatedAt });
+        } catch(e) {}
+      }
+    })();
   }
 
   mSet(slug, data);
