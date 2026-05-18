@@ -407,10 +407,10 @@ function renderVariantHTML(data, slug, angle, qBase, pSlug) {
 
 // -- Prompt ----------------------------------------------------------------------
 const SYS = 'Return ONLY valid JSON. No markdown. No apostrophes. ' +
-  'Schema: {"original":{"name":"str","price":0,"rating":0.0,"reviews":0,"icon":"emoji"},' +
-  '"alternatives":[{"name":"str","price":0,"rating":0.0,"reviews":0,"icon":"emoji","save":"Save X%","reason":"str"}],' +
+  'Schema: {"original":{"name":"str","price":99,"rating":4.5,"reviews":1000,"icon":"emoji"},' +
+  '"alternatives":[{"name":"str","price":49,"rating":4.2,"reviews":500,"icon":"emoji","save":"Save X%","reason":"str"}],' +
   '"faqs":[{"q":"str","a":"str"},{"q":"str","a":"str"},{"q":"str","a":"str"},{"q":"str","a":"str"}]}. ' +
-  'Rules: 4 cheaper Amazon alternatives, USD prices, sort by most savings, 4 FAQs specific to this product and its alternatives, no apostrophes.';
+  'Rules: 4 cheaper Amazon alternatives, estimate real current Amazon USD price for every product (never use 0), sort by most savings, 4 FAQs specific to this product and its alternatives, no apostrophes.';
 
 // -- Main handler ----------------------------------------------------------------
 module.exports = async function handler(req, res) {

@@ -760,7 +760,7 @@
         <div class="orig-info">
           <div class="orig-label">Original product</div>
           <div class="orig-name">${esc(original.name)}</div>
-          <div class="orig-price">$${Number(original.price).toLocaleString()}</div>
+          <div class="orig-price">${original.price ? '$' + Number(original.price).toLocaleString() : 'Check on Amazon'}</div>
           <div class="orig-sub">Check the current price before purchasing</div>
         </div>
         <div class="orig-btn-wrap">
