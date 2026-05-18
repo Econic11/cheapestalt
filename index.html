@@ -944,9 +944,10 @@
     html += '</div></div>';
     var articleSlug = data.slug || [slugA, slugB].sort().join('-vs-');
     var articleUrl = '/find?slug=' + articleSlug;
-    html += '<div class="coll" style="margin-top:8px;" onclick="window.open(\'' + articleUrl + '\', \'_blank\')">';
-    html += '<div class="coll-h">Read the full article: <strong>' + esc(productA.name) + ' vs ' + esc(productB.name) + '</strong><span class="coll-ico" style="color:#2563EB">\u2192</span></div>';
-    html += '</div>';
+    html += '<div class="colls" style="margin-top:8px">';
+    html += '<div class="coll" onclick="window.open(\'' + articleUrl + '\', \'_blank\')">';
+    html += '<div class="coll-h">Read the full article: <strong>' + esc(productA.name) + ' vs ' + esc(productB.name) + '</strong><span class="coll-ico">\u2192</span></div>';
+    html += '</div></div>';
     html += '<div class="colls" style="margin-top:8px">';
     html += '<div class="coll" onclick="tog(this)">';
     html += '<div class="coll-h">Find cheaper alternatives to each product <span class="coll-ico">&#9662;</span></div>';
