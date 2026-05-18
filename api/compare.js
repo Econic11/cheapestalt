@@ -538,49 +538,13 @@ module.exports = async function handler(req, res) {
       } catch(e) { console.error("CMP save catch:", e.message); }
     };
 
-    doSave(slug, html).catch(e => console.error("CMP save error:", e.message));
+    await doSave(slug, html).catch(e => console.error("CMP save error:", e.message));
 
     const slugUnsorted = mkSlug(a) + "-vs-" + mkSlug(b);
     if (slugUnsorted !== slug) {
       doSave(slugUnsorted, renderHTML(data, slugUnsorted)).catch(e => console.error("CMP save2 error:", e.message));
     }
   }
-
-  // Pre-generate the full article page in background so it loads instantly
-  setTimeout(async () => {
-    try {
-      const articleSlug = data.slug;
-      if (!articleSlug || !process.env.CLAUDE_API_KEY) return;
-      const base = process.env.SUPABASE_URL;
-      const key = process.env.SUPABASE_ANON_KEY;
-      if (!base || !key) return;
-      const host = base.replace(/^https?:\/\//, "");
-      // Check if article already exists in comparisons table
-      await new Promise(resolve => {
-        const req = https.request({
-          hostname: host,
-          path: "/rest/v1/comparisons?slug=eq." + encodeURIComponent(articleSlug) + "&select=slug&limit=1",
-          method: "GET",
-          headers: { "apikey": key, "Authorization": "Bearer " + key }
-        }, r => {
-          let d = ""; r.on("data", c => d += c);
-          r.on("end", () => {
-            try {
-              const rows = JSON.parse(d);
-              if (Array.isArray(rows) && rows.length > 0) { resolve(); return; }
-            } catch {}
-            // Article not cached — fetch find.js to pre-generate it
-            https.get("https://cheapestalt.com/find?slug=" + encodeURIComponent(articleSlug), res => {
-              res.resume();
-              resolve();
-            }).on("error", () => resolve());
-          });
-        });
-        req.on("error", () => resolve());
-        req.end();
-      });
-    } catch(e) {}
-  }, 100);
 
   return res.status(200).json(data);
 };
