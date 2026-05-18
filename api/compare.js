@@ -546,5 +546,41 @@ module.exports = async function handler(req, res) {
     }
   }
 
+  // Pre-generate the full article page in background so it loads instantly
+  setTimeout(async () => {
+    try {
+      const articleSlug = data.slug;
+      if (!articleSlug || !process.env.CLAUDE_API_KEY) return;
+      const base = process.env.SUPABASE_URL;
+      const key = process.env.SUPABASE_ANON_KEY;
+      if (!base || !key) return;
+      const host = base.replace(/^https?:\/\//, "");
+      // Check if article already exists in comparisons table
+      await new Promise(resolve => {
+        const req = https.request({
+          hostname: host,
+          path: "/rest/v1/comparisons?slug=eq." + encodeURIComponent(articleSlug) + "&select=slug&limit=1",
+          method: "GET",
+          headers: { "apikey": key, "Authorization": "Bearer " + key }
+        }, r => {
+          let d = ""; r.on("data", c => d += c);
+          r.on("end", () => {
+            try {
+              const rows = JSON.parse(d);
+              if (Array.isArray(rows) && rows.length > 0) { resolve(); return; }
+            } catch {}
+            // Article not cached — fetch find.js to pre-generate it
+            https.get("https://cheapestalt.com/find?slug=" + encodeURIComponent(articleSlug), res => {
+              res.resume();
+              resolve();
+            }).on("error", () => resolve());
+          });
+        });
+        req.on("error", () => resolve());
+        req.end();
+      });
+    } catch(e) {}
+  }, 100);
+
   return res.status(200).json(data);
 };
