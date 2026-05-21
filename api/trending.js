@@ -208,7 +208,7 @@ function buildProductArticle(product,related){
     +'</main>\n'
     +PROD_FTR
     +'<span id="rdr" data-u="'+esc(affLink)+'" style="display:none;"></span>\n'
-    +'<script>setTimeout(function(){var u=document.getElementById("rdr");if(u){window.location.href=u.getAttribute("data-u");}},10000);</script>\n'
+    +'<script>setTimeout(function(){var u=document.getElementById("rdr");if(u){window.location.href=u.getAttribute("data-u");}},2000);</script>\n'
     +'</body></html>';
 }
 function notFoundProd(){
