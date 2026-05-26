@@ -153,8 +153,8 @@ export default function PartnerDashboard({ params }: { params: { token: string }
         <main style={{ maxWidth: 1100, margin: '0 auto', padding: '32px 24px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
             <SkeletonPulse height={60} width="42%" />
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-              {Array.from({ length: 4 }).map((_, i) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+              {Array.from({ length: 5 }).map((_, i) => (
                 <SkeletonPulse key={i} height={114} />
               ))}
             </div>
@@ -284,8 +284,8 @@ export default function PartnerDashboard({ params }: { params: { token: string }
             </span>
           </div>
 
-          {/* 4 Stat Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+          {/* 5 Stat Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
             <StatCard
               title="Today Clicks"
               value={todayStat.clicks.toString()}
@@ -297,14 +297,21 @@ export default function PartnerDashboard({ params }: { params: { token: string }
               variant="green"
             />
             <StatCard
-              title="Month Clicks"
-              value={monthStats.clicks.toString()}
+              title="Month Orders"
+              value={monthStats.orders.toString()}
               variant="blue"
             />
             <StatCard
-              title="Month Revenue"
+              title="Total Commission"
               value={`$${monthStats.revenue.toFixed(2)}`}
               variant="green"
+              subtitle="Combined (both partners)"
+            />
+            <StatCard
+              title="Net Earnings"
+              value={`$${(monthStats.revenue * 0.5).toFixed(2)}`}
+              variant="green"
+              subtitle="Your 50% share"
             />
           </div>
 
