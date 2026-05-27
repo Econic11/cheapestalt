@@ -30,6 +30,14 @@
       "destination": "/api/test"
     },
     {
+      "source": "/go",
+      "destination": "/api/go"
+    },
+    {
+      "source": "/set-ref",
+      "destination": "/api/set-ref"
+    },
+    {
       "source": "/goveelife-nugget-ice-maker-pro",
       "destination": "/goveelife-nugget-ice-maker-pro.html"
     },

@@ -968,6 +968,16 @@
 
   // Restore page on load
   restorePageFromURL();
+
+  // Detect ?ref= referral param and store it as a 30-day cookie via the server
+  (function() {
+    try {
+      var ref = new URLSearchParams(window.location.search).get('ref');
+      if (ref && /^[a-zA-Z0-9_-]{1,50}$/.test(ref)) {
+        fetch('/api/set-ref?ref=' + encodeURIComponent(ref)).catch(function(){});
+      }
+    } catch(e) {}
+  })();
 </script>
 </body>
 </html>
