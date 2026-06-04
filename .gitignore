@@ -4,3 +4,14 @@ out
 dev.db
 .env
 *.log
+
+# Next.js / partner project files — do not commit to this repo
+app/
+components/
+next.config.mjs
+next-env.d.ts
+tailwind.config.ts
+postcss.config.js
+tsconfig.json
+prisma/
+package-lock.json
