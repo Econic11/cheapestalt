@@ -768,7 +768,7 @@
           <div class="orig-sub">Check the current price before purchasing</div>
         </div>
         <div class="orig-btn-wrap">
-          <button class="btn-amazon" onclick="window.open('${amzLink(original.name)}','_blank')">
+          <button class="btn-amazon" onclick="window.open('${(original.links && original.links.amazon) || amzLink(original.name)}','_blank')">
             ${extIcon} Check price on Amazon
           </button>
         </div>
@@ -814,10 +814,13 @@
             <div class="alt-icon">${a.icon || 'ðŸ›’'}</div>
             <div class="alt-body">
               <div class="alt-type-badge badge-${type}">${typeLabels[type]}</div>
+              ${a.image ? '<img src="' + a.image + '" alt="" style="width:100%;max-height:130px;object-fit:contain;border-radius:8px;margin:6px 0 4px;"/>' : ''}
               <div class="alt-name">${esc(a.name)}</div>
+              ${a.rating ? '<div style="font-size:12px;color:#F59E0B;margin:3px 0;">&#9733; ' + a.rating + (a.reviews ? ' &middot; ' + a.reviews + ' reviews' : '') + '</div>' : ''}
+              ${a.realPrice ? '<div style="font-size:14px;font-weight:700;color:#16A34A;margin:2px 0 4px;">' + a.realPrice + '</div>' : ''}
               ${metricHtml}
               <div class="alt-desc">${esc(desc)}</div>
-              <button class="${isRec ? 'alt-cta-rec' : 'alt-cta'}" onclick="window.open('${amzLink(a.name)}','_blank')">
+              <button class="${isRec ? 'alt-cta-rec' : 'alt-cta'}" onclick="window.open('${(a.links && a.links.amazon) || amzLink(a.name)}','_blank')">
                 ${extIcon} ${ctaText}
               </button>
             </div>
