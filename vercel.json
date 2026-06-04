@@ -26,10 +26,6 @@
     }
   ],
   "rewrites": [
-    {
-      "source": "/test",
-      "destination": "/api/test"
-    },
     { "source": "/api/test-amazon", "destination": "/api/test-amazon" },
     {
       "source": "/go",
