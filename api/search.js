@@ -49,6 +49,11 @@ function mSet(k, v) { if (mem.size > 300) mem.delete(mem.keys().next().value); m
 // -- Helpers ---------------------------------------------------------------------
 function mkSlug(s) { return s.toLowerCase().replace(/[^a-z0-9\s-]/g,"").replace(/\s+/g,"-").replace(/-+/g,"-").trim(); }
 function amzUrl(n) { return "https://www.amazon.com/s?k=" + encodeURIComponent(n) + "&tag=" + TAG; }
+function amzDirect(item) {
+  const asin = item && item.asin;
+  if (asin && /^B[0-9A-Z]{9}$/.test(asin)) return "https://www.amazon.com/dp/" + asin + "?tag=" + TAG;
+  return amzUrl(item.name);
+}
 function esc(s) { return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
 
 // -- Claude call -----------------------------------------------------------------
@@ -408,10 +413,10 @@ function renderVariantHTML(data, slug, angle, qBase, pSlug) {
 
 // -- Prompt ----------------------------------------------------------------------
 const SYS = 'Return ONLY valid JSON. No markdown. No apostrophes. ' +
-  'Schema: {"original":{"name":"str","price":99,"rating":4.5,"reviews":1000,"icon":"emoji"},' +
-  '"alternatives":[{"name":"str","price":49,"rating":4.2,"reviews":500,"icon":"emoji","save":"Save X%","reason":"str"}],' +
+  'Schema: {"original":{"name":"str","asin":"B0XXXXXXXXX","price":99,"rating":4.5,"reviews":1000,"icon":"emoji"},' +
+  '"alternatives":[{"name":"str","asin":"B0XXXXXXXXX","price":49,"rating":4.2,"reviews":500,"icon":"emoji","save":"Save X%","reason":"str"}],' +
   '"faqs":[{"q":"str","a":"str"},{"q":"str","a":"str"},{"q":"str","a":"str"},{"q":"str","a":"str"}]}. ' +
-  'Rules: 4 cheaper Amazon alternatives, estimate real current Amazon USD price for every product (never use 0), sort by most savings, 4 FAQs specific to this product and its alternatives, no apostrophes.';
+  'Rules: 4 cheaper Amazon alternatives, include the real Amazon ASIN for every product (format B followed by 9 uppercase letters/digits — leave empty string if unknown), estimate real current Amazon USD price for every product (never use 0), sort by most savings, 4 FAQs specific to this product and its alternatives, no apostrophes.';
 
 // -- Main handler ----------------------------------------------------------------
 module.exports = async function handler(req, res) {
@@ -473,9 +478,9 @@ module.exports = async function handler(req, res) {
 
   // 4. Enrich
   const pSlug = mkSlug(data.original.name) || slug;
-  data.original.links = { amazon: amzUrl(data.original.name) };
+  data.original.links = { amazon: amzDirect(data.original) };
   data.alternatives   = data.alternatives.map(a => Object.assign({}, a, {
-    links: { amazon: amzUrl(a.name) },
+    links: { amazon: amzDirect(a) },
     save:  a.save || ("Save " + Math.round((1 - a.price / data.original.price) * 100) + "%"),
   }));
 
