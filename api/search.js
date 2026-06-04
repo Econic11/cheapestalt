@@ -3,6 +3,7 @@
 // Storage: Supabase permanent + in-memory cache
 
 "use strict";
+const amz = require("./amazon");
 const https = require("https");
 const MODEL = "claude-haiku-4-5-20251001";
 const TAG   = "cheapestalt-20";
@@ -477,6 +478,29 @@ module.exports = async function handler(req, res) {
     links: { amazon: amzUrl(a.name) },
     save:  a.save || ("Save " + Math.round((1 - a.price / data.original.price) * 100) + "%"),
   }));
+
+  // 4b. Enrich with real Amazon products (direct product links + real prices + images)
+  try {
+    const realProducts = await amz.searchProducts(data.original.name, 4);
+    if (realProducts && realProducts.length > 0) {
+      data.alternatives = data.alternatives.map((alt, i) => {
+        const real = realProducts[i];
+        if (!real) return alt;
+        return Object.assign({}, alt, {
+          asin:      real.asin,
+          image:     real.image || alt.image,
+          realPrice: real.price,
+          rating:    real.rating,
+          reviews:   real.reviews,
+          links:     { amazon: real.url },
+        });
+      });
+      data.amazonProducts = realProducts;
+    }
+  } catch(e) {
+    console.log("Amazon API fallback:", e.message);
+  }
+
   data.query       = q;
   data.slug        = slug;
   data.seoSlug     = pSlug + "-alternatives";
