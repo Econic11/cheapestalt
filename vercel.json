@@ -12,7 +12,8 @@
     },
     "api/find.js": {
       "maxDuration": 60
-    }
+    },
+    "api/test-amazon.js": { "maxDuration": 15 }
   },
   "crons": [
     {
@@ -29,6 +30,7 @@
       "source": "/test",
       "destination": "/api/test"
     },
+    { "source": "/api/test-amazon", "destination": "/api/test-amazon" },
     {
       "source": "/go",
       "destination": "/api/go"
