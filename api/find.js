@@ -202,6 +202,7 @@ async function dbSave(hasDB, row, isCompare) {
 
 module.exports = async function handler(req, res) {
   try {
+    let amazonHtml = "";
     res.setHeader("Access-Control-Allow-Origin", "*");
     if (req.method === "OPTIONS") return res.status(204).end();
 
@@ -213,12 +214,12 @@ module.exports = async function handler(req, res) {
     if (!apiKey) return res.status(500).send(errPage("Server configuration error: missing API key."));
 
     const cached = mGet(rawSlug);
-    if (cached) { res.setHeader("Content-Type", "text/html; charset=utf-8"); return res.status(200).send(cached); }
+    if (cached) { res.setHeader("Content-Type", "text/html; charset=utf-8"); return res.status(200).send(cached + amazonHtml); }
 
     if (hasDB) {
       const { data: rows } = await db.getAlt(rawSlug);
       const row = Array.isArray(rows) ? rows[0] : rows;
-      if (row && row.html) { mSet(rawSlug, row.html); res.setHeader("Content-Type", "text/html; charset=utf-8"); return res.status(200).send(row.html); }
+      if (row && row.html) { mSet(rawSlug, row.html); res.setHeader("Content-Type", "text/html; charset=utf-8"); return res.status(200).send(row.html + amazonHtml); }
     }
 
     const parsed = parseSlug(rawSlug);
@@ -230,7 +231,7 @@ module.exports = async function handler(req, res) {
       if (row && row.html && !row.html.includes('href="/compare/')) {
         mSet(rawSlug, row.html);
         res.setHeader("Content-Type", "text/html; charset=utf-8");
-        return res.status(200).send(row.html);
+        return res.status(200).send(row.html + amazonHtml);
       }
     }
 
@@ -269,7 +270,6 @@ module.exports = async function handler(req, res) {
 
     else { return res.status(400).send(errPage("Unknown page type.")); }
 
-    let amazonHtml = "";
     try {
       const keyword = parsed && parsed.product ? parsed.product : "";
       if (keyword) {
