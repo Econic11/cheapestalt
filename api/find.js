@@ -50,7 +50,7 @@ function amz(n) { return "https://www.amazon.com/s?k=" + encodeURIComponent(n) +
 // Amazon Creators API — fetch real products with direct links
 async function fetchAmazonProducts(keyword) {
   try {
-    const amzModule = require("./amazon");
+    const amzModule = require("./_amazon");
     return await amzModule.searchProducts(keyword, 4);
   } catch(e) {
     console.log("Amazon API skipped:", e.message);
@@ -61,7 +61,7 @@ async function fetchAmazonProducts(keyword) {
 // Build real product cards HTML
 function buildProductCards(products) {
   try {
-    const amzModule = require("./amazon");
+    const amzModule = require("./_amazon");
     return amzModule.productGrid(products);
   } catch(e) {
     return "";
