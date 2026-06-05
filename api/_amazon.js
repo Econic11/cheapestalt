@@ -56,19 +56,22 @@ async function searchProducts(keyword, count) {
 }
 
 function productCard(p) {
-  return '<div style="border:1.5px solid #E2E8F0;border-radius:12px;padding:16px;background:#fff;display:flex;flex-direction:column;gap:10px;">'
-    + (p.image ? '<img src="' + p.image + '" alt="' + p.title.slice(0,60) + '" style="width:100%;max-height:160px;object-fit:contain;border-radius:8px;"/>' : '')
-    + '<div style="font-size:13px;font-weight:700;color:#0F172A;line-height:1.4;">' + p.title.slice(0,100) + '</div>'
-    + (p.price ? '<div style="font-size:20px;font-weight:800;color:#2563EB;">' + p.price + '</div>' : '')
-    + (p.rating ? '<div style="font-size:12px;color:#F59E0B;">★ ' + p.rating + (p.reviews ? ' (' + p.reviews + ' reviews)' : '') + '</div>' : '')
-    + '<a href="' + p.url + '" target="_blank" rel="noopener" style="display:block;text-align:center;background:#FF9900;color:#0F172A;padding:10px;border-radius:8px;font-weight:700;font-size:14px;text-decoration:none;">🛒 Check Price on Amazon</a>'
-    + '</div>';
+  return '<a href="' + p.url + '" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:12px;background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:14px;padding:14px 16px;margin-bottom:10px;text-decoration:none;color:inherit;">'
+    + '<img src="' + (p.image || '') + '" alt="' + p.title.slice(0,40) + '" style="width:48px;height:48px;object-fit:contain;border-radius:8px;flex-shrink:0;background:#fff;border:1px solid #E2E8F0;"/>'
+    + '<div style="flex:1;min-width:0;">'
+    + '<div style="font-size:14px;font-weight:700;color:#0F172A;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + p.title.slice(0,60) + '</div>'
+    + (p.price ? '<div style="font-size:15px;font-weight:800;color:#2563EB;margin-top:2px;">' + p.price + '</div>' : '')
+    + (p.rating ? '<div style="font-size:11px;color:#F59E0B;margin-top:1px;">★ ' + p.rating + (p.reviews ? ' (' + p.reviews + ')' : '') + '</div>' : '')
+    + '</div>'
+    + '<div style="background:#FF9900;color:#0F172A;padding:7px 12px;border-radius:8px;font-size:12px;font-weight:700;white-space:nowrap;flex-shrink:0;">Check price</div>'
+    + '</a>';
 }
 
 function productGrid(products) {
   if (!products || !products.length) return "";
-  return '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin:24px 0;">'
-    + products.map(p => productCard(p)).join("") + '</div>';
+  return '<div style="display:flex;flex-direction:column;margin:16px 0;">'
+    + products.map(p => productCard(p)).join("")
+    + '</div>';
 }
 
 module.exports = { searchProducts, productCard, productGrid };
