@@ -1,122 +1,43 @@
 {
   "cleanUrls": true,
   "functions": {
-    "api/affiliate.js": {
-      "maxDuration": 60
-    },
-    "api/search.js": {
-      "maxDuration": 60
-    },
-    "api/compare.js": {
-      "maxDuration": 60
-    },
-    "api/find.js": {
-      "maxDuration": 60
-    },
-    "api/test-amazon.js": { "maxDuration": 15 }
+    "api/affiliate.js": { "maxDuration": 60 },
+    "api/search.js":    { "maxDuration": 60 },
+    "api/compare.js":   { "maxDuration": 60 },
+    "api/find.js":      { "maxDuration": 60 }
   },
   "crons": [
-    {
-      "path": "/api/run-all",
-      "schedule": "0 8 * * *"
-    },
-    {
-      "path": "/api/run-all",
-      "schedule": "0 20 * * *"
-    }
+    { "path": "/api/run-all", "schedule": "0 8 * * *" },
+    { "path": "/api/run-all", "schedule": "0 20 * * *" }
   ],
   "rewrites": [
-    {
-      "source": "/go",
-      "destination": "/api/go"
-    },
-    {
-      "source": "/set-ref",
-      "destination": "/api/set-ref"
-    },
-    {
-      "source": "/goveelife-nugget-ice-maker-pro",
-      "destination": "/goveelife-nugget-ice-maker-pro.html"
-    },
-    {
-      "source": "/compare/:slug",
-      "destination": "/api/compare?slug=:slug"
-    },
-    {
-      "source": "/compare",
-      "destination": "/api/compare"
-    },
-    {
-      "source": "/pages/:page",
-      "destination": "/api/pages?page=:page"
-    },
-    {
-      "source": "/alternatives/:slug",
-      "destination": "/api/find?slug=:slug-alternatives"
-    },
-    {
-      "source": "/find",
-      "destination": "/api/find"
-    },
-    {
-      "source": "/sitemap-trending.xml",
-      "destination": "/api/sitemap"
-    },
-    {
-      "source": "/products",
-      "destination": "/api/trending"
-    },
-    {
-      "source": "/products/:slug",
-      "destination": "/api/trending"
-    },
-    {
-      "source": "/admin",
-      "destination": "/api/admin"
-    },
-    {
-      "source": "/add-product",
-      "destination": "/api/affiliate"
-    },
-    {
-      "source": "/admin/:path*",
-      "destination": "/api/admin"
-    },
-    {
-      "source": "/trending",
-      "destination": "/api/trending"
-    },
-    {
-      "source": "/trending/:slug",
-      "destination": "/api/trending"
-    }
+    { "source": "/goveelife-nugget-ice-maker-pro", "destination": "/goveelife-nugget-ice-maker-pro.html" },
+    { "source": "/compare/:slug", "destination": "/api/compare?slug=:slug" },
+    { "source": "/compare",       "destination": "/api/compare" },
+    { "source": "/pages/:page",   "destination": "/api/pages?page=:page" },
+    { "source": "/alternatives/:slug", "destination": "/api/find?slug=:slug-alternatives" },
+    { "source": "/find",               "destination": "/api/find" },
+    { "source": "/sitemap-trending.xml", "destination": "/api/sitemap" },
+    { "source": "/products",       "destination": "/api/trending" },
+    { "source": "/products/:slug", "destination": "/api/trending" },
+    { "source": "/admin",          "destination": "/api/admin" },
+    { "source": "/add-product",    "destination": "/api/affiliate" },
+    { "source": "/admin/:path*",   "destination": "/api/admin" },
+    { "source": "/trending",       "destination": "/api/trending" },
+    { "source": "/trending/:slug", "destination": "/api/trending" }
   ],
   "headers": [
     {
       "source": "/api/(.*)",
       "headers": [
-        {
-          "key": "Access-Control-Allow-Origin",
-          "value": "*"
-        },
-        {
-          "key": "Access-Control-Allow-Methods",
-          "value": "POST, GET, OPTIONS"
-        },
-        {
-          "key": "Access-Control-Allow-Headers",
-          "value": "Content-Type"
-        }
+        { "key": "Access-Control-Allow-Origin",  "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "POST, GET, OPTIONS" },
+        { "key": "Access-Control-Allow-Headers", "value": "Content-Type" }
       ]
     },
     {
       "source": "/sitemap-trending.xml",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "application/xml; charset=utf-8"
-        }
-      ]
+      "headers": [{ "key": "Content-Type", "value": "application/xml; charset=utf-8" }]
     }
   ]
 }
