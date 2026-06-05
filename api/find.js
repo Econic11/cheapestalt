@@ -203,20 +203,6 @@ async function dbSave(hasDB, row, isCompare) {
 module.exports = async function handler(req, res) {
   try {
     let amazonHtml = "";
-    try {
-      const keyword = rawSlug.replace(/-alternatives$/, "").replace(/-vs-.*$/, "").replace(/-/g, " ");
-      if (keyword) {
-        const realProducts = await fetchAmazonProducts(keyword);
-        if (realProducts && realProducts.length > 0) {
-          amazonHtml = '<div style="max-width:860px;margin:32px auto;padding:0 24px">'
-            + '<h2 style="font-size:20px;font-weight:800;margin-bottom:16px;color:#0F172A;">Top Picks on Amazon</h2>'
-            + buildProductCards(realProducts)
-            + '</div>';
-        }
-      }
-    } catch(e) {
-      console.log("Amazon cards skipped:", e.message);
-    }
     res.setHeader("Access-Control-Allow-Origin", "*");
     if (req.method === "OPTIONS") return res.status(204).end();
 
@@ -226,6 +212,19 @@ module.exports = async function handler(req, res) {
     const hasDB = !!(process.env.SUPABASE_URL && process.env.SUPABASE_ANON_KEY);
     const apiKey = process.env.CLAUDE_API_KEY;
     if (!apiKey) return res.status(500).send(errPage("Server configuration error: missing API key."));
+
+    try {
+      const kw = rawSlug.replace(/-alternatives$/, "").replace(/-vs-.*$/, "").replace(/-/g, " ").trim();
+      if (kw) {
+        const realProducts = await fetchAmazonProducts(kw);
+        if (realProducts && realProducts.length > 0) {
+          amazonHtml = '<div style="max-width:860px;margin:32px auto;padding:0 24px;font-family:Inter,system-ui,sans-serif">'
+            + '<h2 style="font-size:20px;font-weight:800;margin-bottom:16px;color:#0F172A;border-left:4px solid #2563EB;padding-left:12px;">Top Picks on Amazon</h2>'
+            + buildProductCards(realProducts)
+            + '</div>';
+        }
+      }
+    } catch(e) { console.log("Amazon fetch skipped:", e.message); }
 
     const cached = mGet(rawSlug);
     if (cached) { res.setHeader("Content-Type", "text/html; charset=utf-8"); return res.status(200).send(cached + amazonHtml); }
