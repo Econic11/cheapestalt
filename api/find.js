@@ -203,6 +203,20 @@ async function dbSave(hasDB, row, isCompare) {
 module.exports = async function handler(req, res) {
   try {
     let amazonHtml = "";
+    try {
+      const keyword = rawSlug.replace(/-alternatives$/, "").replace(/-vs-.*$/, "").replace(/-/g, " ");
+      if (keyword) {
+        const realProducts = await fetchAmazonProducts(keyword);
+        if (realProducts && realProducts.length > 0) {
+          amazonHtml = '<div style="max-width:860px;margin:32px auto;padding:0 24px">'
+            + '<h2 style="font-size:20px;font-weight:800;margin-bottom:16px;color:#0F172A;">Top Picks on Amazon</h2>'
+            + buildProductCards(realProducts)
+            + '</div>';
+        }
+      }
+    } catch(e) {
+      console.log("Amazon cards skipped:", e.message);
+    }
     res.setHeader("Access-Control-Allow-Origin", "*");
     if (req.method === "OPTIONS") return res.status(204).end();
 
@@ -269,21 +283,6 @@ module.exports = async function handler(req, res) {
     }
 
     else { return res.status(400).send(errPage("Unknown page type.")); }
-
-    try {
-      const keyword = parsed && parsed.product ? parsed.product : "";
-      if (keyword) {
-        const realProducts = await fetchAmazonProducts(keyword);
-        if (realProducts && realProducts.length > 0) {
-          amazonHtml = '<div style="max-width:860px;margin:32px auto;padding:0 24px">'
-            + '<h2 style="font-size:20px;font-weight:800;margin-bottom:16px;color:#0F172A;">Top Picks on Amazon</h2>'
-            + buildProductCards(realProducts)
-            + '</div>';
-        }
-      }
-    } catch(e) {
-      console.log("Amazon cards skipped:", e.message);
-    }
 
     res.setHeader("Content-Type", "text/html; charset=utf-8");
     return res.status(200).send(html + amazonHtml);
