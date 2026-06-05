@@ -760,7 +760,7 @@
     // -- Original product — price shown --------------------------------------
     h += `
       <div class="orig-card">
-        <div class="orig-icon">${original.icon || 'ðŸ“¦'}</div>
+        ${original.image ? `<img src=”${original.image}” alt=”${esc(original.name)}” style=”width:64px;height:64px;object-fit:contain;border-radius:10px;flex-shrink:0;background:#fff;border:1px solid #E2E8F0;”/>` : `<div class=”orig-icon”>${original.icon || '📦'}</div>`}
         <div class="orig-info">
           <div class="orig-label">Original product</div>
           <div class="orig-name">${esc(original.name)}</div>
@@ -811,7 +811,7 @@
       h += `
         <div class="alt-card${isRec ? ' rec' : ''}">
           <div class="alt-card-inner">
-            <div class="alt-icon">${a.icon || 'ðŸ›’'}</div>
+            ${a.image ? `<img src="${a.image}" alt="${esc(a.name)}" style="width:48px;height:48px;object-fit:contain;border-radius:8px;flex-shrink:0;background:#fff;border:1px solid #E2E8F0;"/>` : `<div class="alt-icon">${a.icon || ‘🛒’}</div>`}
             <div class="alt-body">
               <div class="alt-type-badge badge-${type}">${typeLabels[type]}</div>
               ${a.image ? '<img src="' + a.image + '" alt="" style="width:100%;max-height:130px;object-fit:contain;border-radius:8px;margin:6px 0 4px;"/>' : ''}
@@ -939,9 +939,9 @@
     html += '<thead><tr><th>Feature</th><th>' + esc(productA.name) + '</th><th>' + esc(productB.name) + '</th></tr></thead>';
     html += '<tbody>' + rows + '</tbody></table></div>';
     html += '<div class="cmp-cols">';
-    html += '<div class="cmp-col"><h3>' + esc(productA.name) + '</h3>' + prosA + consA;
+    html += '<div class="cmp-col">' + (productA.image ? '<img src="' + productA.image + '" alt="' + esc(productA.name) + '" style="width:56px;height:56px;object-fit:contain;border-radius:8px;margin-bottom:10px;background:#fff;border:1px solid #E2E8F0;display:block;"/>' : '') + '<h3>' + esc(productA.name) + '</h3>' + prosA + consA;
     html += '<div style="margin-top:14px"><button class="dbtn dbtn-az" onclick="window.open(\'' + amzLink(productA.name) + '\',\'_blank\')">View deal on Amazon \u2192</button></div></div>';
-    html += '<div class="cmp-col"><h3>' + esc(productB.name) + '</h3>' + prosB + consB;
+    html += '<div class="cmp-col">' + (productB.image ? '<img src="' + productB.image + '" alt="' + esc(productB.name) + '" style="width:56px;height:56px;object-fit:contain;border-radius:8px;margin-bottom:10px;background:#fff;border:1px solid #E2E8F0;display:block;"/>' : '') + '<h3>' + esc(productB.name) + '</h3>' + prosB + consB;
     html += '<div style="margin-top:14px"><button class="dbtn dbtn-az" onclick="window.open(\'' + amzLink(productB.name) + '\',\'_blank\')">View deal on Amazon \u2192</button></div></div>';
     html += '</div>';
     html += verdictHtml;

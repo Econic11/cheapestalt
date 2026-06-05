@@ -4,6 +4,7 @@
 
 "use strict";
 const https = require("https");
+let amz; try { amz = require("./_amazon"); } catch(e) { amz = null; }
 const MODEL = "claude-haiku-4-5-20251001";
 const TAG   = "cheapestalt-20";
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY;
@@ -205,10 +206,14 @@ function renderHTML(data, slug) {
       true) +
     sec2("2 — Pros & Cons",
       '<div class="cmp-cols">' +
-      '<div class="cmp-col"><h3>' + esc(A.name) + '</h3>' +
+      '<div class="cmp-col">' +
+        (A.image ? '<img src="' + A.image + '" alt="' + esc(A.name) + '" style="width:56px;height:56px;object-fit:contain;border-radius:8px;margin-bottom:10px;background:#fff;border:1px solid #E2E8F0;display:block;"/>' : '') +
+        '<h3>' + esc(A.name) + '</h3>' +
         '<div class="cmp-price">$' + Number(A.price || 0).toLocaleString() + '</div>' +
         mkList(A.pros, "pro") + mkList(A.cons, "con") + btnAz2(A.name) + '</div>' +
-      '<div class="cmp-col"><h3>' + esc(B.name) + '</h3>' +
+      '<div class="cmp-col">' +
+        (B.image ? '<img src="' + B.image + '" alt="' + esc(B.name) + '" style="width:56px;height:56px;object-fit:contain;border-radius:8px;margin-bottom:10px;background:#fff;border:1px solid #E2E8F0;display:block;"/>' : '') +
+        '<h3>' + esc(B.name) + '</h3>' +
         '<div class="cmp-price">$' + Number(B.price || 0).toLocaleString() + '</div>' +
         mkList(B.pros, "pro") + mkList(B.cons, "con") + btnAz2(B.name) + '</div>' +
       '</div>', true) +
@@ -401,8 +406,8 @@ td.win{color:#2563EB;font-weight:700}
     if (intro) html += '<div class="intro-box">'+esc(intro)+'</div>';
     html += '<div class="tbl-wrap"><table><thead><tr><th>Feature</th><th>'+esc(productA.name)+'</th><th>'+esc(productB.name)+'</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
     html += '<div class="cmp-cols">';
-    html += '<div class="cmp-col"><h3>'+esc(productA.name)+'</h3>'+prosA+consA+'<div style="margin-top:14px"><button class="dbtn dbtn-az" onclick="window.open(\''+amzLink(productA.name)+'\',\'_blank\')">View on Amazon &#8594;</button></div></div>';
-    html += '<div class="cmp-col"><h3>'+esc(productB.name)+'</h3>'+prosB+consB+'<div style="margin-top:14px"><button class="dbtn dbtn-az" onclick="window.open(\''+amzLink(productB.name)+'\',\'_blank\')">View on Amazon &#8594;</button></div></div>';
+    html += '<div class="cmp-col">'+(productA.image?'<img src="'+productA.image+'" alt="'+esc(productA.name)+'" style="width:56px;height:56px;object-fit:contain;border-radius:8px;margin-bottom:10px;background:#fff;border:1px solid #E2E8F0;display:block;"/>':'')+'<h3>'+esc(productA.name)+'</h3>'+prosA+consA+'<div style="margin-top:14px"><button class="dbtn dbtn-az" onclick="window.open(\''+amzLink(productA.name)+'\',\'_blank\')">View on Amazon &#8594;</button></div></div>';
+    html += '<div class="cmp-col">'+(productB.image?'<img src="'+productB.image+'" alt="'+esc(productB.name)+'" style="width:56px;height:56px;object-fit:contain;border-radius:8px;margin-bottom:10px;background:#fff;border:1px solid #E2E8F0;display:block;"/>':'')+'<h3>'+esc(productB.name)+'</h3>'+prosB+consB+'<div style="margin-top:14px"><button class="dbtn dbtn-az" onclick="window.open(\''+amzLink(productB.name)+'\',\'_blank\')">View on Amazon &#8594;</button></div></div>';
     html += '</div>'+verdictHtml;
     html += '<div class="cmp-btns"><button class="dbtn dbtn-az" style="flex:1" onclick="window.open(\''+amzLink(productA.name)+'\',\'_blank\')">Check '+esc(productA.name)+' on Amazon &#8594;</button><button class="dbtn dbtn-az" style="flex:1" onclick="window.open(\''+amzLink(productB.name)+'\',\'_blank\')">Check '+esc(productB.name)+' on Amazon &#8594;</button></div>';
     html += '</div>';
@@ -514,6 +519,18 @@ module.exports = async function handler(req, res) {
   data.generatedAt = new Date().toISOString();
   data.fromCache   = false;
   data.fromDatabase = false;
+
+  // 4b. Fetch product images from Amazon
+  try {
+    if (amz) {
+      const [imgA, imgB] = await Promise.all([
+        amz.searchProducts(data.productA.name, 1).catch(() => []),
+        amz.searchProducts(data.productB.name, 1).catch(() => [])
+      ]);
+      if (imgA && imgA[0]) data.productA.image = imgA[0].image || null;
+      if (imgB && imgB[0]) data.productB.image = imgB[0].image || null;
+    }
+  } catch(e) { console.log("Compare image fetch skipped:", e.message); }
 
   // 5. Pre-render HTML for instant SEO delivery
   const html = renderHTML(data, slug);

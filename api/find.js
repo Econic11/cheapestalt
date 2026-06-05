@@ -108,9 +108,10 @@ function errPage(msg) {
   return '<!DOCTYPE html><html><head><meta charset="UTF-8"/><title>Error</title></head><body style="font-family:sans-serif;text-align:center;padding:80px"><h1>Oops</h1><p>' + esc(msg) + '</p><a href="/">Go home</a></body></html>';
 }
 
-function buildAltHTML(d, product, angle, rawSlug) {
+function buildAltHTML(d, product, angle, rawSlug, amzProducts) {
   const o = d.original || {};
   const alt = d.alternatives || [];
+  const origImg = (amzProducts && amzProducts[0] && amzProducts[0].image) || null;
   const labelMap = { best: "Best", cheap: "Cheapest", general: "Top" };
   const lbl = labelMap[angle] || "Top";
   const title = lbl + " Alternatives to " + (o.name || product) + " - Save Money in 2026";
@@ -142,7 +143,7 @@ function buildAltHTML(d, product, angle, rawSlug) {
     '<h1>' + esc(title) + '</h1>' +
     '<p class="lead">Compare cheaper alternatives to ' + esc(o.name||product) + ' on Amazon.</p>' +
     '<div style="border:2px solid #BFDBFE;border-radius:14px;padding:20px 24px;margin-bottom:28px;display:flex;gap:16px;align-items:center">' +
-    '<div style="font-size:44px">' + esc(o.icon||"📦") + '</div>' +
+    (origImg ? '<img src="' + origImg + '" alt="' + esc(o.name||product) + '" style="width:64px;height:64px;object-fit:contain;border-radius:10px;flex-shrink:0;background:#fff;border:1px solid #E2E8F0;"/>' : '<div style="font-size:44px">' + esc(o.icon||"📦") + '</div>') +
     '<div><div style="font-size:11px;font-weight:700;color:#2563EB;text-transform:uppercase;margin-bottom:4px">Original product</div>' +
     '<div style="font-size:17px;font-weight:700;margin-bottom:6px">' + esc(o.name||product) + '</div>' +
     '<div style="font-size:24px;font-weight:800;margin-bottom:10px">$' + Number(o.price||0).toLocaleString() + '</div>' +
@@ -155,7 +156,7 @@ function buildAltHTML(d, product, angle, rawSlug) {
     '</body></html>';
 }
 
-function buildCmpHTML(d, rawSlug) {
+function buildCmpHTML(d, rawSlug, imgA, imgB) {
   const A = d.productA, B = d.productB;
   if (!A || !B) return null;
   const title = A.name + " vs " + B.name + " - Which is Better in 2026?";
@@ -177,8 +178,8 @@ function buildCmpHTML(d, rawSlug) {
     '<main class="wrap">' +
     '<h1>' + esc(title) + '</h1>' +
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:28px">' +
-    '<div style="background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:12px;padding:20px"><h3 style="font-size:15px;font-weight:700;margin-bottom:8px">' + esc(A.name) + '</h3><div style="font-size:22px;font-weight:800;color:#2563EB;margin-bottom:12px">$' + Number(A.price||0).toLocaleString() + '</div>' + (A.pros||[]).map(p=>'<div style="font-size:13px;color:#16A34A;padding:2px 0">✓ '+esc(p)+'</div>').join("") + (A.cons||[]).map(c=>'<div style="font-size:13px;color:#DC2626;padding:2px 0">✗ '+esc(c)+'</div>').join("") + '</div>' +
-    '<div style="background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:12px;padding:20px"><h3 style="font-size:15px;font-weight:700;margin-bottom:8px">' + esc(B.name) + '</h3><div style="font-size:22px;font-weight:800;color:#2563EB;margin-bottom:12px">$' + Number(B.price||0).toLocaleString() + '</div>' + (B.pros||[]).map(p=>'<div style="font-size:13px;color:#16A34A;padding:2px 0">✓ '+esc(p)+'</div>').join("") + (B.cons||[]).map(c=>'<div style="font-size:13px;color:#DC2626;padding:2px 0">✗ '+esc(c)+'</div>').join("") + '</div>' +
+    '<div style="background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:12px;padding:20px">' + (imgA ? '<img src="' + imgA + '" alt="' + esc(A.name) + '" style="width:56px;height:56px;object-fit:contain;border-radius:8px;margin-bottom:10px;background:#fff;border:1px solid #E2E8F0;display:block;"/>' : '') + '<h3 style="font-size:15px;font-weight:700;margin-bottom:8px">' + esc(A.name) + '</h3><div style="font-size:22px;font-weight:800;color:#2563EB;margin-bottom:12px">$' + Number(A.price||0).toLocaleString() + '</div>' + (A.pros||[]).map(p=>'<div style="font-size:13px;color:#16A34A;padding:2px 0">✓ '+esc(p)+'</div>').join("") + (A.cons||[]).map(c=>'<div style="font-size:13px;color:#DC2626;padding:2px 0">✗ '+esc(c)+'</div>').join("") + '</div>' +
+    '<div style="background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:12px;padding:20px">' + (imgB ? '<img src="' + imgB + '" alt="' + esc(B.name) + '" style="width:56px;height:56px;object-fit:contain;border-radius:8px;margin-bottom:10px;background:#fff;border:1px solid #E2E8F0;display:block;"/>' : '') + '<h3 style="font-size:15px;font-weight:700;margin-bottom:8px">' + esc(B.name) + '</h3><div style="font-size:22px;font-weight:800;color:#2563EB;margin-bottom:12px">$' + Number(B.price||0).toLocaleString() + '</div>' + (B.pros||[]).map(p=>'<div style="font-size:13px;color:#16A34A;padding:2px 0">✓ '+esc(p)+'</div>').join("") + (B.cons||[]).map(c=>'<div style="font-size:13px;color:#DC2626;padding:2px 0">✗ '+esc(c)+'</div>').join("") + '</div>' +
     '</div>' +
     '<div style="overflow-x:auto;margin-bottom:28px"><table style="width:100%;border-collapse:collapse"><thead><tr style="background:#F8FAFC"><th style="padding:10px 14px;text-align:left;font-size:12px;text-transform:uppercase;border-bottom:1.5px solid #E2E8F0">Feature</th><th style="padding:10px 14px;text-align:left;font-size:12px;text-transform:uppercase;border-bottom:1.5px solid #E2E8F0">' + esc(A.name) + '</th><th style="padding:10px 14px;text-align:left;font-size:12px;text-transform:uppercase;border-bottom:1.5px solid #E2E8F0">' + esc(B.name) + '</th></tr></thead><tbody>' + tRows + '</tbody></table></div>' +
     (d.verdict ? '<div style="background:#FFFBEB;border:1.5px solid #FDE68A;border-radius:10px;padding:16px;margin-bottom:28px;font-size:14px;line-height:1.7"><strong>Verdict: </strong>' + esc(d.verdict) + '</div>' : '') +
@@ -261,7 +262,7 @@ module.exports = async function handler(req, res) {
       try { data = xJSON(rawText); } catch(e) { return res.status(502).send(errPage("Please try again.")); }
       if (!data || !data.original) return res.status(502).send(errPage("Please try again."));
       if (!Array.isArray(data.alternatives)) data.alternatives = [];
-      html = buildAltHTML(data, parsed.product, parsed.angle, rawSlug);
+      html = buildAltHTML(data, parsed.product, parsed.angle, rawSlug, realProducts);
       mSet(rawSlug, html);
       await dbSave(hasDB, { slug: rawSlug, type: "alternative", keyword: parsed.product, title: parsed.product + " Alternatives", html, content: data, created_at: now, last_generated: now }, false);
     }
@@ -275,7 +276,16 @@ module.exports = async function handler(req, res) {
       if (!rawText) return res.status(502).send(errPage("Empty AI response."));
       try { data = xJSON(rawText); } catch(e) { return res.status(502).send(errPage("Please try again.")); }
       if (!data || !data.productA || !data.productB) return res.status(502).send(errPage("Please try again."));
-      html = buildCmpHTML(data, rawSlug);
+      let cmpImgA = null, cmpImgB = null;
+      try {
+        const [rA, rB] = await Promise.all([
+          fetchAmazonProducts(data.productA && data.productA.name || parsed.a),
+          fetchAmazonProducts(data.productB && data.productB.name || parsed.b)
+        ]);
+        if (rA && rA[0]) cmpImgA = rA[0].image || null;
+        if (rB && rB[0]) cmpImgB = rB[0].image || null;
+      } catch(e) { console.log("Compare image fetch skipped:", e.message); }
+      html = buildCmpHTML(data, rawSlug, cmpImgA, cmpImgB);
       if (!html) return res.status(502).send(errPage("Please try again."));
       mSet(rawSlug, html);
       await dbSave(hasDB, { slug: rawSlug, type: "comparison", product_a: parsed.a, product_b: parsed.b, title: parsed.a + " vs " + parsed.b, html, content: data, created_at: now, last_generated: now }, true);

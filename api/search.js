@@ -484,11 +484,14 @@ module.exports = async function handler(req, res) {
     save:  a.save || ("Save " + Math.round((1 - a.price / data.original.price) * 100) + "%"),
   }));
 
-  // 4b. Enrich each alternative with its own Amazon product data (image, price, rating, direct link)
+  // 4b. Enrich original + alternatives with Amazon data (image, price, rating, direct link)
   try {
-    const realResults = await Promise.all(
-      data.alternatives.map(alt => amz.searchProducts(alt.name, 1).catch(() => []))
-    );
+    const [origResults, ...altResults] = await Promise.all([
+      amz.searchProducts(data.original.name, 1).catch(() => []),
+      ...data.alternatives.map(alt => amz.searchProducts(alt.name, 1).catch(() => []))
+    ]);
+    if (origResults && origResults[0]) data.original.image = origResults[0].image || null;
+    const realResults = altResults;
     data.alternatives = data.alternatives.map((alt, i) => {
       const real = realResults[i] && realResults[i][0];
       if (!real) return alt;
