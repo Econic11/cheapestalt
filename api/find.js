@@ -47,7 +47,6 @@ function unslug(s) { return s.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpper
 function esc(s) { return String(s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
 function amz(n) { return "https://www.amazon.com/s?k=" + encodeURIComponent(n) + "&tag=" + TAG; }
 
-// Amazon Creators API — fetch real products with direct links
 async function fetchAmazonProducts(keyword) {
   try {
     const amzModule = require("./_amazon");
@@ -58,7 +57,6 @@ async function fetchAmazonProducts(keyword) {
   }
 }
 
-// Build real product cards HTML
 function buildProductCards(products) {
   try {
     const amzModule = require("./_amazon");
@@ -271,15 +269,17 @@ module.exports = async function handler(req, res) {
 
     else { return res.status(400).send(errPage("Unknown page type.")); }
 
-    // Fetch real Amazon products and inject into page
     let amazonHtml = "";
     try {
-      const realProducts = await fetchAmazonProducts(parsed.product || q || "");
-      if (realProducts && realProducts.length > 0) {
-        amazonHtml = '<div style="max-width:860px;margin:32px auto;padding:0 24px">'
-          + '<h2 style="font-size:20px;font-weight:800;margin-bottom:16px;color:#0F172A;">Top Picks on Amazon</h2>'
-          + buildProductCards(realProducts)
-          + '</div>';
+      const keyword = parsed && parsed.product ? parsed.product : "";
+      if (keyword) {
+        const realProducts = await fetchAmazonProducts(keyword);
+        if (realProducts && realProducts.length > 0) {
+          amazonHtml = '<div style="max-width:860px;margin:32px auto;padding:0 24px">'
+            + '<h2 style="font-size:20px;font-weight:800;margin-bottom:16px;color:#0F172A;">Top Picks on Amazon</h2>'
+            + buildProductCards(realProducts)
+            + '</div>';
+        }
       }
     } catch(e) {
       console.log("Amazon cards skipped:", e.message);
