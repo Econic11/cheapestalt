@@ -484,24 +484,24 @@ module.exports = async function handler(req, res) {
     save:  a.save || ("Save " + Math.round((1 - a.price / data.original.price) * 100) + "%"),
   }));
 
-  // 4b. Enrich with real Amazon products (direct product links + real prices + images)
+  // 4b. Enrich each alternative with its own Amazon product data (image, price, rating, direct link)
   try {
-    const realProducts = await amz.searchProducts(data.original.name, 4);
-    if (realProducts && realProducts.length > 0) {
-      data.alternatives = data.alternatives.map((alt, i) => {
-        const real = realProducts[i];
-        if (!real) return alt;
-        return Object.assign({}, alt, {
-          asin:      real.asin,
-          image:     real.image || alt.image,
-          realPrice: real.price,
-          rating:    real.rating,
-          reviews:   real.reviews,
-          links:     { amazon: real.url },
-        });
+    const realResults = await Promise.all(
+      data.alternatives.map(alt => amz.searchProducts(alt.name, 1).catch(() => []))
+    );
+    data.alternatives = data.alternatives.map((alt, i) => {
+      const real = realResults[i] && realResults[i][0];
+      if (!real) return alt;
+      return Object.assign({}, alt, {
+        asin:      real.asin,
+        image:     real.image || alt.image,
+        realPrice: real.price,
+        rating:    real.rating,
+        reviews:   real.reviews,
+        links:     { amazon: real.url },
       });
-      data.amazonProducts = realProducts;
-    }
+    });
+    data.amazonProducts = realResults.map(r => r && r[0]).filter(Boolean);
   } catch(e) {
     console.log("Amazon API fallback:", e.message);
   }
