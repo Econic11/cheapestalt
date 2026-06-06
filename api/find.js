@@ -143,7 +143,7 @@ function buildAltHTML(d, product, angle, rawSlug, amzProducts) {
     '<h1>' + esc(title) + '</h1>' +
     '<p class="lead">Compare cheaper alternatives to ' + esc(o.name||product) + ' on Amazon.</p>' +
     '<div style="border:2px solid #BFDBFE;border-radius:14px;padding:20px 24px;margin-bottom:28px;display:flex;gap:16px;align-items:center">' +
-    (origImg ? '<img src="' + origImg + '" alt="' + esc(o.name||product) + '" style="width:56px;height:56px;object-fit:contain;border-radius:10px;flex-shrink:0;background:#fff;border:1px solid #E2E8F0;"/>' : '') +
+    (origImg ? '<div style="font-size:44px;flex-shrink:0"><img src="' + origImg + '" alt="' + esc(o.name||product) + '" style="width:44px;height:44px;object-fit:contain;border-radius:8px;display:block;" onerror="this.parentElement.style.display=\'none\'"></div>' : '') +
     '<div><div style="font-size:11px;font-weight:700;color:#2563EB;text-transform:uppercase;margin-bottom:4px">Original product</div>' +
     '<div style="font-size:17px;font-weight:700;margin-bottom:6px">' + esc(o.name||product) + '</div>' +
     '<div style="font-size:24px;font-weight:800;margin-bottom:10px">$' + Number(o.price||0).toLocaleString() + '</div>' +

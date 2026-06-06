@@ -173,7 +173,7 @@ h1{font-size:30px;font-weight:800;letter-spacing:-0.6px;line-height:1.2;margin-b
   <h1>${esc(title)}</h1>
   <p class="lead">Compare the best cheaper alternatives to ${esc(o.name)} on Amazon — with real value analysis and direct deal links.</p>
   <div class=”orig”>
-    ${o.image ? `<img src=”${esc(o.image)}” alt=”${esc(o.name)}” style=”width:56px;height:56px;object-fit:contain;border-radius:10px;flex-shrink:0;background:#fff;border:1px solid #E2E8F0;” onerror=”this.style.display='none'”/>` : ''}
+    ${o.image ? `<div class=”orig-icon”><img src=”${esc(o.image)}” alt=”${esc(o.name)}” style=”width:44px;height:44px;object-fit:contain;border-radius:8px;display:block;” onerror=”this.parentElement.style.display='none'”/></div>` : ''}
     <div class="orig-info">
       <div class="orig-label">Original product</div>
       <div class="orig-name">${esc(o.name)}</div>
@@ -275,7 +275,7 @@ function renderVariantHTML(data, slug, angle, qBase, pSlug) {
   // Original product card
   const origCard =
     '<div class=”orig-card”>' +
-    (o.image ? '<img src=”' + esc(o.image) + '” alt=”' + esc(oName) + '” style=”width:56px;height:56px;object-fit:contain;border-radius:10px;flex-shrink:0;background:#fff;border:1px solid #E2E8F0;” onerror=”this.style.display=\'none\'”>' : '') +
+    (o.image ? '<div class=”orig-ico”><img src=”' + esc(o.image) + '” alt=”' + esc(oName) + '” style=”width:44px;height:44px;object-fit:contain;border-radius:8px;display:block;” onerror=”this.parentElement.style.display=\'none\'”></div>' : '') +
     '<div style="flex:1;min-width:160px">' +
       '<div class="orig-lbl">Original product</div>' +
       '<div class="orig-name">' + esc(oName) + '</div>' +
@@ -297,7 +297,7 @@ function renderVariantHTML(data, slug, angle, qBase, pSlug) {
 
     return ‘<div class="alt-card">’ +
       ‘<div class="alt-top">’ +
-        (a.image ? ‘<img src="’ + esc(a.image) + ‘" alt="’ + esc(a.name) + ‘" style="width:48px;height:48px;object-fit:contain;border-radius:8px;flex-shrink:0;background:#fff;border:1px solid #E2E8F0;" onerror="this.style.display=\’none\’">’ : ‘’) +
+        (a.image ? ‘<div class="alt-ico"><img src="’ + esc(a.image) + ‘" alt="’ + esc(a.name) + ‘" style="width:40px;height:40px;object-fit:contain;border-radius:6px;display:block;margin:auto;" onerror="this.parentElement.style.display=\’none\’"></div>’ : ‘’) +
         '<div style="flex:1">' +
           '<span class="alt-bdg" style="background:' + bgs[idx] + ';color:' + colors[idx] + ';border:1px solid ' + brds[idx] + '">' + types[idx] + '</span>' +
           '<div class="alt-name">' + esc(a.name) + '</div>' +
