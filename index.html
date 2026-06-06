@@ -760,7 +760,7 @@
     // -- Original product — price shown --------------------------------------
     h += `
       <div class="orig-card">
-        ${original.image ? `<img src=”${original.image}” alt=”${esc(original.name)}” style=”width:64px;height:64px;object-fit:contain;border-radius:10px;flex-shrink:0;background:#fff;border:1px solid #E2E8F0;”/>` : `<div class=”orig-icon”>${original.icon || '📦'}</div>`}
+        ${original.image ? `<img src=”${original.image}” alt=”${esc(original.name)}” style=”width:56px;height:56px;object-fit:contain;border-radius:10px;flex-shrink:0;background:#fff;border:1px solid #E2E8F0;”/>` : ''}
         <div class="orig-info">
           <div class="orig-label">Original product</div>
           <div class="orig-name">${esc(original.name)}</div>
@@ -811,10 +811,9 @@
       h += `
         <div class="alt-card${isRec ? ' rec' : ''}">
           <div class="alt-card-inner">
-            ${a.image ? `<img src="${a.image}" alt="${esc(a.name)}" style="width:48px;height:48px;object-fit:contain;border-radius:8px;flex-shrink:0;background:#fff;border:1px solid #E2E8F0;"/>` : `<div class="alt-icon">${a.icon || ‘🛒’}</div>`}
+            ${a.image ? `<img src="${a.image}" alt="${esc(a.name)}" style="width:48px;height:48px;object-fit:contain;border-radius:8px;flex-shrink:0;background:#fff;border:1px solid #E2E8F0;"/>` : ‘’}
             <div class="alt-body">
               <div class="alt-type-badge badge-${type}">${typeLabels[type]}</div>
-              ${a.image ? '<img src="' + a.image + '" alt="" style="width:100%;max-height:130px;object-fit:contain;border-radius:8px;margin:6px 0 4px;"/>' : ''}
               <div class="alt-name">${esc(a.name)}</div>
               ${a.rating ? '<div style="font-size:12px;color:#F59E0B;margin:3px 0;">&#9733; ' + a.rating + (a.reviews ? ' &middot; ' + a.reviews + ' reviews' : '') + '</div>' : ''}
               ${a.realPrice ? '<div style="font-size:14px;font-weight:700;color:#16A34A;margin:2px 0 4px;">' + a.realPrice + '</div>' : ''}

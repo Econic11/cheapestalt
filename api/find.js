@@ -143,7 +143,7 @@ function buildAltHTML(d, product, angle, rawSlug, amzProducts) {
     '<h1>' + esc(title) + '</h1>' +
     '<p class="lead">Compare cheaper alternatives to ' + esc(o.name||product) + ' on Amazon.</p>' +
     '<div style="border:2px solid #BFDBFE;border-radius:14px;padding:20px 24px;margin-bottom:28px;display:flex;gap:16px;align-items:center">' +
-    (origImg ? '<img src="' + origImg + '" alt="' + esc(o.name||product) + '" style="width:64px;height:64px;object-fit:contain;border-radius:10px;flex-shrink:0;background:#fff;border:1px solid #E2E8F0;"/>' : '<div style="font-size:44px">' + esc(o.icon||"📦") + '</div>') +
+    (origImg ? '<img src="' + origImg + '" alt="' + esc(o.name||product) + '" style="width:56px;height:56px;object-fit:contain;border-radius:10px;flex-shrink:0;background:#fff;border:1px solid #E2E8F0;"/>' : '') +
     '<div><div style="font-size:11px;font-weight:700;color:#2563EB;text-transform:uppercase;margin-bottom:4px">Original product</div>' +
     '<div style="font-size:17px;font-weight:700;margin-bottom:6px">' + esc(o.name||product) + '</div>' +
     '<div style="font-size:24px;font-weight:800;margin-bottom:10px">$' + Number(o.price||0).toLocaleString() + '</div>' +
@@ -214,10 +214,11 @@ module.exports = async function handler(req, res) {
     const apiKey = process.env.CLAUDE_API_KEY;
     if (!apiKey) return res.status(500).send(errPage("Server configuration error: missing API key."));
 
+    let realProducts = [];
     try {
       const kw = rawSlug.replace(/-alternatives$/, "").replace(/-vs-.*$/, "").replace(/-/g, " ").trim();
       if (kw) {
-        const realProducts = await fetchAmazonProducts(kw);
+        realProducts = await fetchAmazonProducts(kw);
         if (realProducts && realProducts.length > 0) {
           amazonHtml = '<div style="max-width:860px;margin:32px auto;padding:0 24px;font-family:Inter,system-ui,sans-serif">'
             + '<h2 style="font-size:20px;font-weight:800;margin-bottom:16px;color:#0F172A;border-left:4px solid #2563EB;padding-left:12px;">Top Picks on Amazon</h2>'

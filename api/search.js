@@ -168,8 +168,8 @@ h1{font-size:30px;font-weight:800;letter-spacing:-0.6px;line-height:1.2;margin-b
 <main class="wrap">
   <h1>${esc(title)}</h1>
   <p class="lead">Compare the best cheaper alternatives to ${esc(o.name)} on Amazon — with real value analysis and direct deal links.</p>
-  <div class="orig">
-    <div class="orig-icon">${o.icon || "ðŸ“¦"}</div>
+  <div class=”orig”>
+    ${o.image ? `<img src=”${esc(o.image)}” alt=”${esc(o.name)}” style=”width:56px;height:56px;object-fit:contain;border-radius:10px;flex-shrink:0;background:#fff;border:1px solid #E2E8F0;”/>` : ''}
     <div class="orig-info">
       <div class="orig-label">Original product</div>
       <div class="orig-name">${esc(o.name)}</div>
@@ -270,8 +270,8 @@ function renderVariantHTML(data, slug, angle, qBase, pSlug) {
 
   // Original product card
   const origCard =
-    '<div class="orig-card">' +
-    '<div class="orig-ico">' + esc(o.icon||"ðŸ“¦") + '</div>' +
+    '<div class=”orig-card”>' +
+    (o.image ? '<img src=”' + esc(o.image) + '” alt=”' + esc(oName) + '” style=”width:56px;height:56px;object-fit:contain;border-radius:10px;flex-shrink:0;background:#fff;border:1px solid #E2E8F0;”/>' : '') +
     '<div style="flex:1;min-width:160px">' +
       '<div class="orig-lbl">Original product</div>' +
       '<div class="orig-name">' + esc(oName) + '</div>' +
@@ -291,9 +291,9 @@ function renderVariantHTML(data, slug, angle, qBase, pSlug) {
       ? "Top-rated option with strong customer reviews."
       : "Solid value alternative to " + oName + " — recommended for most buyers.");
 
-    return '<div class="alt-card">' +
-      '<div class="alt-top">' +
-        '<div class="alt-ico">' + esc(a.icon||"ðŸ›’") + '</div>' +
+    return ‘<div class="alt-card">’ +
+      ‘<div class="alt-top">’ +
+        (a.image ? ‘<img src="’ + esc(a.image) + ‘" alt="’ + esc(a.name) + ‘" style="width:48px;height:48px;object-fit:contain;border-radius:8px;flex-shrink:0;background:#fff;border:1px solid #E2E8F0;"/>’ : ‘’) +
         '<div style="flex:1">' +
           '<span class="alt-bdg" style="background:' + bgs[idx] + ';color:' + colors[idx] + ';border:1px solid ' + brds[idx] + '">' + types[idx] + '</span>' +
           '<div class="alt-name">' + esc(a.name) + '</div>' +
