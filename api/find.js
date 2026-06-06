@@ -30,7 +30,7 @@ function sbReq(method, path, body) {
 }
 
 const db = {
-  getAlt: s => sbReq("GET", "pages?slug=eq." + encodeURIComponent(s) + "&select=slug,html&limit=1", null),
+  getAlt: s => sbReq("GET", "pages?slug=eq." + encodeURIComponent(s) + "&select=slug,html,content&limit=1", null),
   saveAlt: r => sbReq("POST", "pages", r),
   updAlt: (s, r) => sbReq("PATCH", "pages?slug=eq." + encodeURIComponent(s), r),
   getCmp: s => sbReq("GET", "comparisons?slug=eq." + encodeURIComponent(s) + "&select=slug,html,content&limit=1", null),
@@ -46,6 +46,10 @@ function mkSlug(s) { return s.toLowerCase().replace(/[^a-z0-9\s-]/g, "").replace
 function unslug(s) { return s.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase()); }
 function esc(s) { return String(s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
 function amz(n) { return "https://www.amazon.com/s?k=" + encodeURIComponent(n) + "&tag=" + TAG; }
+function asinImg(asin) {
+  if (!asin || !/^B[0-9A-Z]{9}$/.test(asin)) return null;
+  return "https://images-na.ssl-images-amazon.com/images/P/" + asin + ".01._SL200_.jpg";
+}
 
 async function fetchAmazonProducts(keyword) {
   try {
@@ -111,7 +115,7 @@ function errPage(msg) {
 function buildAltHTML(d, product, angle, rawSlug, amzProducts) {
   const o = d.original || {};
   const alt = d.alternatives || [];
-  const origImg = (amzProducts && amzProducts[0] && amzProducts[0].image) || null;
+  const origImg = (amzProducts && amzProducts[0] && amzProducts[0].image) || asinImg(o.asin) || null;
   const labelMap = { best: "Best", cheap: "Cheapest", general: "Top" };
   const lbl = labelMap[angle] || "Top";
   const title = lbl + " Alternatives to " + (o.name || product) + " - Save Money in 2026";
@@ -121,13 +125,17 @@ function buildAltHTML(d, product, angle, rawSlug, amzProducts) {
   const altCards = alt.map((a, i) => {
     const col = colors[Math.min(i,3)];
     const pct = a.save || ("Save " + Math.round(Math.max(0,(1-(a.price||0)/(o.price||1))*100)) + "%");
+    const aImg = a.image || asinImg(a.asin);
     return '<div style="border:1.5px solid #E2E8F0;border-radius:12px;padding:18px 20px;margin-bottom:12px;background:#fff">' +
+      '<div style="display:flex;gap:12px;align-items:flex-start">' +
+      (aImg ? '<img src="' + esc(aImg) + '" alt="' + esc(a.name) + '" style="width:44px;height:44px;object-fit:contain;border-radius:8px;flex-shrink:0;background:#F8FAFC;border:1px solid #E2E8F0;" onerror="this.style.display=\'none\'"/>' : '') +
+      '<div style="flex:1">' +
       '<span style="background:#F8FAFC;color:' + col + ';font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px">' + types[Math.min(i,3)] + '</span>' +
       '<div style="font-size:15px;font-weight:700;margin:8px 0 4px">' + esc(a.name) + '</div>' +
       '<div style="font-size:18px;font-weight:800;color:' + col + '">' + pct + '</div>' +
       (a.reason ? '<div style="font-size:13px;color:#475569;margin:6px 0 10px">' + esc(a.reason) + '</div>' : '') +
       '<a href="' + amz(a.name) + '" target="_blank" rel="noopener" style="display:inline-block;background:#FF9900;color:#0F172A;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none">View on Amazon</a>' +
-      '</div>';
+      '</div></div></div>';
   }).join("");
 
   return '<!DOCTYPE html><html lang="en"><head>' +
@@ -234,7 +242,26 @@ module.exports = async function handler(req, res) {
     if (hasDB) {
       const { data: rows } = await db.getAlt(rawSlug);
       const row = Array.isArray(rows) ? rows[0] : rows;
-      if (row && row.html) { mSet(rawSlug, row.html); res.setHeader("Content-Type", "text/html; charset=utf-8"); return res.status(200).send(row.html + amazonHtml); }
+      if (row && row.html && row.html.includes('<img ')) {
+        mSet(rawSlug, row.html);
+        res.setHeader("Content-Type", "text/html; charset=utf-8");
+        return res.status(200).send(row.html + amazonHtml);
+      }
+      if (row && row.content && row.content.original) {
+        const content = typeof row.content === "object" ? row.content : JSON.parse(row.content);
+        const p2 = parseSlug(rawSlug);
+        const angle2 = (p2 && p2.angle) || "general";
+        const product2 = (p2 && p2.product) || rawSlug.replace(/-alternatives$/, "").replace(/-/g, " ");
+        if (content.original && !content.original.image) content.original.image = asinImg(content.original.asin);
+        if (Array.isArray(content.alternatives)) {
+          content.alternatives = content.alternatives.map(a => a.image ? a : Object.assign({}, a, { image: asinImg(a.asin) }));
+        }
+        const freshHtml = buildAltHTML(content, product2, angle2, rawSlug, realProducts);
+        mSet(rawSlug, freshHtml);
+        db.updAlt(rawSlug, { html: freshHtml, last_generated: new Date().toISOString() }).catch(() => {});
+        res.setHeader("Content-Type", "text/html; charset=utf-8");
+        return res.status(200).send(freshHtml + amazonHtml);
+      }
     }
 
     const parsed = parseSlug(rawSlug);

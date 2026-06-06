@@ -109,12 +109,15 @@ function renderHTML(data, slug) {
     const bg = bgcols[Math.min(i, 3)], brd = brdcols[Math.min(i, 3)];
     const pct = a.save || ("Save " + Math.round((1 - a.price / o.price) * 100) + "%");
     return '<div style="background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:14px;padding:18px 20px;margin-bottom:12px">' +
+      '<div style="display:flex;gap:12px;align-items:flex-start">' +
+      (a.image ? '<img src="' + esc(a.image) + '" alt="' + esc(a.name) + '" style="width:44px;height:44px;object-fit:contain;border-radius:8px;flex-shrink:0;background:#fff;border:1px solid #E2E8F0;" onerror="this.style.display=\'none\'"/>' : '') +
+      '<div style="flex:1">' +
       '<span style="background:' + bg + ';color:' + col + ';border:1px solid ' + brd + ';font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px">' + t + '</span>' +
       '<div style="font-size:15px;font-weight:700;margin:8px 0 4px">' + esc(a.name) + '</div>' +
       '<div style="font-size:18px;font-weight:800;color:' + col + '">' + pct + '</div>' +
       (a.reason ? '<div style="font-size:13px;color:#475569;margin:6px 0 10px">' + esc(a.reason) + '</div>' : '') +
       '<a href="' + amzUrl(a.name) + '" target="_blank" rel="noopener" style="display:inline-block;background:#FF9900;color:#0F172A;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none">View deal on Amazon &#8594;</a>' +
-      '</div>';
+      '</div></div></div>';
   }).join("");
 
   const title = "Cheaper Alternatives to " + o.name + " — Save Money in 2026";
@@ -453,6 +456,10 @@ module.exports = async function handler(req, res) {
       let result;
       try { result = (row.content && typeof row.content === "object") ? row.content : (row.content ? JSON.parse(row.content) : {}); }
       catch { result = {}; }
+      if (result.original && !result.original.image) result.original.image = asinImg(result.original.asin);
+      if (Array.isArray(result.alternatives)) {
+        result.alternatives = result.alternatives.map(a => a.image ? a : Object.assign({}, a, { image: asinImg(a.asin) }));
+      }
       mSet(slug, result);
       return res.status(200).json(Object.assign({}, result, { fromCache: false, fromDatabase: true }));
     }
