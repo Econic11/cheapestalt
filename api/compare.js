@@ -235,8 +235,8 @@ function renderHTML(data, slug) {
 
 // -- Prompt ----------------------------------------------------------------------
 const SYS = 'Return ONLY valid JSON. No markdown. No apostrophes. ' +
-  'Schema: {"productA":{"name":"str","price":0,"rating":0.0,"reviews":0,"icon":"emoji","pros":["str"],"cons":["str"]},' +
-  '"productB":{"name":"str","price":0,"rating":0.0,"reviews":0,"icon":"emoji","pros":["str"],"cons":["str"]},' +
+  'Schema: {"productA":{"name":"str","price":0,"rating":0.0,"reviews":0,"pros":["str"],"cons":["str"]},' +
+  '"productB":{"name":"str","price":0,"rating":0.0,"reviews":0,"pros":["str"],"cons":["str"]},' +
   '"comparison":[{"feature":"str","a":"str","b":"str","winner":"a"}],' +
   '"intro":"str","verdict":"str","winner":"str","winnerReason":"str",' +
   '"faqs":[{"q":"str","a":"str"},{"q":"str","a":"str"},{"q":"str","a":"str"},{"q":"str","a":"str"}]}. ' +
