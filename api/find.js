@@ -209,6 +209,13 @@ async function dbSave(hasDB, row, isCompare) {
   } catch(e) { console.error("DB save error:", e.message); }
 }
 
+function injectBefore(html, inject, marker) {
+  if (!inject) return html;
+  const idx = html.lastIndexOf(marker);
+  if (idx === -1) return html + inject;
+  return html.slice(0, idx) + inject + html.slice(idx);
+}
+
 module.exports = async function handler(req, res) {
   try {
     let amazonHtml = "";
@@ -237,7 +244,7 @@ module.exports = async function handler(req, res) {
     } catch(e) { console.log("Amazon fetch skipped:", e.message); }
 
     const cached = mGet(rawSlug);
-    if (cached) { res.setHeader("Content-Type", "text/html; charset=utf-8"); return res.status(200).send(cached + amazonHtml); }
+    if (cached) { res.setHeader("Content-Type", "text/html; charset=utf-8"); return res.status(200).send(injectBefore(cached, amazonHtml, '</main>')); }
 
     if (hasDB) {
       const { data: rows } = await db.getAlt(rawSlug);
@@ -255,7 +262,7 @@ module.exports = async function handler(req, res) {
         mSet(rawSlug, freshHtml);
         db.updAlt(rawSlug, { html: freshHtml, last_generated: new Date().toISOString() }).catch(() => {});
         res.setHeader("Content-Type", "text/html; charset=utf-8");
-        return res.status(200).send(freshHtml + amazonHtml);
+        return res.status(200).send(injectBefore(freshHtml, amazonHtml, '</main>'));
       }
     }
 
@@ -268,7 +275,7 @@ module.exports = async function handler(req, res) {
       if (row && row.html && !row.html.includes('href="/compare/')) {
         mSet(rawSlug, row.html);
         res.setHeader("Content-Type", "text/html; charset=utf-8");
-        return res.status(200).send(row.html + amazonHtml);
+        return res.status(200).send(injectBefore(row.html, amazonHtml, '</main>'));
       }
     }
 
@@ -317,7 +324,7 @@ module.exports = async function handler(req, res) {
     else { return res.status(400).send(errPage("Unknown page type.")); }
 
     res.setHeader("Content-Type", "text/html; charset=utf-8");
-    return res.status(200).send(html + amazonHtml);
+    return res.status(200).send(injectBefore(html, amazonHtml, '</main>'));
 
   } catch(e) {
     console.error("FIND CRASH:", e.message, e.stack);
