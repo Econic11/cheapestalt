@@ -160,8 +160,8 @@ function buildAltHTML(d, product, angle, rawSlug, amzProducts, amazonSection) {
     altCards +
     '<div class="disc">Affiliate disclosure: Links are Amazon affiliate links. We earn a small commission at no extra cost to you.</div>' +
     '</main>' +
-    (amazonSection || '') +
-    '<footer class="ftr">© 2026 CheapestAlt</footer>' +
+    (amazonSection ? '<div style="max-width:860px;margin:0 auto;padding:0 24px 32px;">' + amazonSection + '</div>' : '') +
+    '<footer class="ftr" style="margin-top:0;">© 2026 CheapestAlt</footer>' +
     '</body></html>';
 }
 
@@ -194,8 +194,8 @@ function buildCmpHTML(d, rawSlug, imgA, imgB, amazonSection) {
     (d.verdict ? '<div style="background:#FFFBEB;border:1.5px solid #FDE68A;border-radius:10px;padding:16px;margin-bottom:28px;font-size:14px;line-height:1.7"><strong>Verdict: </strong>' + esc(d.verdict) + '</div>' : '') +
     '<div style="background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:10px;padding:12px 16px;font-size:12px;color:#475569">Affiliate disclosure: Links are Amazon affiliate links. We earn a small commission at no extra cost to you.</div>' +
     '</main>' +
-    (amazonSection || '') +
-    '<footer class="ftr">© 2026 CheapestAlt</footer>' +
+    (amazonSection ? '<div style="max-width:860px;margin:0 auto;padding:0 24px 32px;">' + amazonSection + '</div>' : '') +
+    '<footer class="ftr" style="margin-top:0;">© 2026 CheapestAlt</footer>' +
     '</body></html>';
 }
 
@@ -214,7 +214,11 @@ async function dbSave(hasDB, row, isCompare) {
 function injectBefore(html, inject, marker) {
   if (!inject) return html;
   const idx = html.lastIndexOf(marker);
-  if (idx === -1) return html + inject;
+  if (idx === -1) {
+    const bodyClose = html.lastIndexOf('</body>');
+    if (bodyClose !== -1) return html.slice(0, bodyClose) + inject + html.slice(bodyClose);
+    return html + inject;
+  }
   return html.slice(0, idx) + inject + html.slice(idx);
 }
 
