@@ -104,9 +104,9 @@ function xJSON(text) {
   return JSON.parse(s);
 }
 
-const ALT_SYS = 'Return ONLY valid JSON. No markdown. No apostrophes. Exact schema: {"original":{"name":"str","price":99,"icon":"emoji"},"alternatives":[{"name":"str","price":49,"icon":"emoji","save":"Save 50%","reason":"one short sentence"},{"name":"str","price":39,"icon":"emoji","save":"Save 60%","reason":"one short sentence"},{"name":"str","price":29,"icon":"emoji","save":"Save 70%","reason":"one short sentence"},{"name":"str","price":19,"icon":"emoji","save":"Save 80%","reason":"one short sentence"}]}. Rules: real Amazon products, USD prices, 4 alternatives cheaper than original, no apostrophes.';
+const ALT_SYS = 'Return ONLY valid JSON. No markdown. No apostrophes. Exact schema: {"original":{"name":"str","price":99},"alternatives":[{"name":"str","price":49,"save":"Save 50%","reason":"one short sentence"},{"name":"str","price":39,"save":"Save 60%","reason":"one short sentence"},{"name":"str","price":29,"save":"Save 70%","reason":"one short sentence"},{"name":"str","price":19,"save":"Save 80%","reason":"one short sentence"}]}. Rules: real Amazon products, USD prices, 4 alternatives cheaper than original, no apostrophes.';
 
-const CMP_SYS = 'Return ONLY valid JSON. No markdown. No apostrophes. Schema: {"productA":{"name":"str","price":0,"icon":"emoji","pros":["str","str","str"],"cons":["str","str"]},"productB":{"name":"str","price":0,"icon":"emoji","pros":["str","str","str"],"cons":["str","str"]},"comparison":[{"feature":"str","a":"str","b":"str","winner":"a"},{"feature":"str","a":"str","b":"str","winner":"b"},{"feature":"str","a":"str","b":"str","winner":"a"},{"feature":"str","a":"str","b":"str","winner":"tie"},{"feature":"str","a":"str","b":"str","winner":"b"},{"feature":"str","a":"str","b":"str","winner":"a"}],"intro":"str","verdict":"str","winner":"str","winnerReason":"str","faqs":[{"q":"str","a":"str"},{"q":"str","a":"str"},{"q":"str","a":"str"}]}. Rules: 6 comparison rows, winner = a or b or tie only, 3 pros 2 cons each, no apostrophes.';
+const CMP_SYS = 'Return ONLY valid JSON. No markdown. No apostrophes. Schema: {"productA":{"name":"str","price":0,"pros":["str","str","str"],"cons":["str","str"]},"productB":{"name":"str","price":0,"pros":["str","str","str"],"cons":["str","str"]},"comparison":[{"feature":"str","a":"str","b":"str","winner":"a"},{"feature":"str","a":"str","b":"str","winner":"b"},{"feature":"str","a":"str","b":"str","winner":"a"},{"feature":"str","a":"str","b":"str","winner":"tie"},{"feature":"str","a":"str","b":"str","winner":"b"},{"feature":"str","a":"str","b":"str","winner":"a"}],"intro":"str","verdict":"str","winner":"str","winnerReason":"str","faqs":[{"q":"str","a":"str"},{"q":"str","a":"str"},{"q":"str","a":"str"}]}. Rules: 6 comparison rows, winner = a or b or tie only, 3 pros 2 cons each, no apostrophes.';
 
 function errPage(msg) {
   return '<!DOCTYPE html><html><head><meta charset="UTF-8"/><title>Error</title></head><body style="font-family:sans-serif;text-align:center;padding:80px"><h1>Oops</h1><p>' + esc(msg) + '</p><a href="/">Go home</a></body></html>';
@@ -151,7 +151,7 @@ function buildAltHTML(d, product, angle, rawSlug, amzProducts) {
     '<h1>' + esc(title) + '</h1>' +
     '<p class="lead">Compare cheaper alternatives to ' + esc(o.name||product) + ' on Amazon.</p>' +
     '<div style="border:2px solid #BFDBFE;border-radius:14px;padding:20px 24px;margin-bottom:28px;display:flex;gap:16px;align-items:center">' +
-    (origImg ? '<div style="font-size:44px;flex-shrink:0"><img src="' + origImg + '" alt="' + esc(o.name||product) + '" style="width:44px;height:44px;object-fit:contain;border-radius:8px;display:block;" onerror="this.parentElement.style.display=\'none\'"></div>' : '') +
+    (origImg ? '<img src="' + origImg + '" alt="' + esc(o.name||product) + '" style="width:44px;height:44px;object-fit:contain;border-radius:8px;display:block;flex-shrink:0;" onerror="this.style.display=\'none\'"/>' : '') +
     '<div><div style="font-size:11px;font-weight:700;color:#2563EB;text-transform:uppercase;margin-bottom:4px">Original product</div>' +
     '<div style="font-size:17px;font-weight:700;margin-bottom:6px">' + esc(o.name||product) + '</div>' +
     '<div style="font-size:24px;font-weight:800;margin-bottom:10px">$' + Number(o.price||0).toLocaleString() + '</div>' +
@@ -242,11 +242,6 @@ module.exports = async function handler(req, res) {
     if (hasDB) {
       const { data: rows } = await db.getAlt(rawSlug);
       const row = Array.isArray(rows) ? rows[0] : rows;
-      if (row && row.html && row.html.includes('<img ')) {
-        mSet(rawSlug, row.html);
-        res.setHeader("Content-Type", "text/html; charset=utf-8");
-        return res.status(200).send(row.html + amazonHtml);
-      }
       if (row && row.content && row.content.original) {
         const content = typeof row.content === "object" ? row.content : JSON.parse(row.content);
         const p2 = parseSlug(rawSlug);
