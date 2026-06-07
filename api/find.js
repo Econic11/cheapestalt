@@ -112,7 +112,7 @@ function errPage(msg) {
   return '<!DOCTYPE html><html><head><meta charset="UTF-8"/><title>Error</title></head><body style="font-family:sans-serif;text-align:center;padding:80px"><h1>Oops</h1><p>' + esc(msg) + '</p><a href="/">Go home</a></body></html>';
 }
 
-function buildAltHTML(d, product, angle, rawSlug, amzProducts) {
+function buildAltHTML(d, product, angle, rawSlug, amzProducts, amazonSection) {
   const o = d.original || {};
   const alt = d.alternatives || [];
   const origImg = (amzProducts && amzProducts[0] && amzProducts[0].image) || asinImg(o.asin) || null;
@@ -160,11 +160,12 @@ function buildAltHTML(d, product, angle, rawSlug, amzProducts) {
     altCards +
     '<div class="disc">Affiliate disclosure: Links are Amazon affiliate links. We earn a small commission at no extra cost to you.</div>' +
     '</main>' +
+    (amazonSection || '') +
     '<footer class="ftr">© 2026 CheapestAlt</footer>' +
     '</body></html>';
 }
 
-function buildCmpHTML(d, rawSlug, imgA, imgB) {
+function buildCmpHTML(d, rawSlug, imgA, imgB, amazonSection) {
   const A = d.productA, B = d.productB;
   if (!A || !B) return null;
   const title = A.name + " vs " + B.name + " - Which is Better in 2026?";
@@ -193,6 +194,7 @@ function buildCmpHTML(d, rawSlug, imgA, imgB) {
     (d.verdict ? '<div style="background:#FFFBEB;border:1.5px solid #FDE68A;border-radius:10px;padding:16px;margin-bottom:28px;font-size:14px;line-height:1.7"><strong>Verdict: </strong>' + esc(d.verdict) + '</div>' : '') +
     '<div style="background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:10px;padding:12px 16px;font-size:12px;color:#475569">Affiliate disclosure: Links are Amazon affiliate links. We earn a small commission at no extra cost to you.</div>' +
     '</main>' +
+    (amazonSection || '') +
     '<footer class="ftr">© 2026 CheapestAlt</footer>' +
     '</body></html>';
 }
@@ -244,7 +246,7 @@ module.exports = async function handler(req, res) {
     } catch(e) { console.log("Amazon fetch skipped:", e.message); }
 
     const cached = mGet(rawSlug);
-    if (cached) { res.setHeader("Content-Type", "text/html; charset=utf-8"); return res.status(200).send(injectBefore(cached, amazonHtml, '<footer')); }
+    if (cached) { res.setHeader("Content-Type", "text/html; charset=utf-8"); return res.status(200).send(cached); }
 
     if (hasDB) {
       const { data: rows } = await db.getAlt(rawSlug);
@@ -258,11 +260,11 @@ module.exports = async function handler(req, res) {
         if (Array.isArray(content.alternatives)) {
           content.alternatives = content.alternatives.map(a => a.image ? a : Object.assign({}, a, { image: asinImg(a.asin) }));
         }
-        const freshHtml = buildAltHTML(content, product2, angle2, rawSlug, realProducts);
+        const freshHtml = buildAltHTML(content, product2, angle2, rawSlug, realProducts, amazonHtml);
         mSet(rawSlug, freshHtml);
         db.updAlt(rawSlug, { html: freshHtml, last_generated: new Date().toISOString() }).catch(() => {});
         res.setHeader("Content-Type", "text/html; charset=utf-8");
-        return res.status(200).send(injectBefore(freshHtml, amazonHtml, '<footer'));
+        return res.status(200).send(freshHtml);
       }
     }
 
@@ -274,18 +276,19 @@ module.exports = async function handler(req, res) {
       const row = Array.isArray(rows) ? rows[0] : rows;
       if (row && row.content && row.content.productA && row.content.productB) {
         const cContent = typeof row.content === "object" ? row.content : JSON.parse(row.content);
-        const freshCmpHtml = buildCmpHTML(cContent, rawSlug, null, null);
+        const freshCmpHtml = buildCmpHTML(cContent, rawSlug, null, null, amazonHtml);
         if (freshCmpHtml) {
           mSet(rawSlug, freshCmpHtml);
           db.updCmp(rawSlug, { html: freshCmpHtml, last_generated: new Date().toISOString() }).catch(() => {});
           res.setHeader("Content-Type", "text/html; charset=utf-8");
-          return res.status(200).send(injectBefore(freshCmpHtml, amazonHtml, '<footer'));
+          return res.status(200).send(freshCmpHtml);
         }
       }
       if (row && row.html && !row.html.includes('href="/compare/')) {
-        mSet(rawSlug, row.html);
+        const injectedCmpHtml = injectBefore(row.html, amazonHtml, '<footer');
+        mSet(rawSlug, injectedCmpHtml);
         res.setHeader("Content-Type", "text/html; charset=utf-8");
-        return res.status(200).send(injectBefore(row.html, amazonHtml, '<footer'));
+        return res.status(200).send(injectedCmpHtml);
       }
     }
 
@@ -302,7 +305,7 @@ module.exports = async function handler(req, res) {
       try { data = xJSON(rawText); } catch(e) { return res.status(502).send(errPage("Please try again.")); }
       if (!data || !data.original) return res.status(502).send(errPage("Please try again."));
       if (!Array.isArray(data.alternatives)) data.alternatives = [];
-      html = buildAltHTML(data, parsed.product, parsed.angle, rawSlug, realProducts);
+      html = buildAltHTML(data, parsed.product, parsed.angle, rawSlug, realProducts, amazonHtml);
       mSet(rawSlug, html);
       await dbSave(hasDB, { slug: rawSlug, type: "alternative", keyword: parsed.product, title: parsed.product + " Alternatives", html, content: data, created_at: now, last_generated: now }, false);
     }
@@ -325,7 +328,7 @@ module.exports = async function handler(req, res) {
         if (rA && rA[0]) cmpImgA = rA[0].image || null;
         if (rB && rB[0]) cmpImgB = rB[0].image || null;
       } catch(e) { console.log("Compare image fetch skipped:", e.message); }
-      html = buildCmpHTML(data, rawSlug, cmpImgA, cmpImgB);
+      html = buildCmpHTML(data, rawSlug, cmpImgA, cmpImgB, amazonHtml);
       if (!html) return res.status(502).send(errPage("Please try again."));
       mSet(rawSlug, html);
       await dbSave(hasDB, { slug: rawSlug, type: "comparison", product_a: parsed.a, product_b: parsed.b, title: parsed.a + " vs " + parsed.b, html, content: data, created_at: now, last_generated: now }, true);
@@ -334,7 +337,7 @@ module.exports = async function handler(req, res) {
     else { return res.status(400).send(errPage("Unknown page type.")); }
 
     res.setHeader("Content-Type", "text/html; charset=utf-8");
-    return res.status(200).send(injectBefore(html, amazonHtml, '<footer'));
+    return res.status(200).send(html);
 
   } catch(e) {
     console.error("FIND CRASH:", e.message, e.stack);
