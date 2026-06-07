@@ -249,8 +249,9 @@ module.exports = async function handler(req, res) {
       }
     } catch(e) { console.log("Amazon fetch skipped:", e.message); }
 
-    const cached = mGet(rawSlug);
-    if (cached) { res.setHeader("Content-Type", "text/html; charset=utf-8"); return res.status(200).send(cached); }
+    // Memory cache disabled so Amazon products always load fresh
+    // const cached = mGet(rawSlug);
+    // if (cached) { res.setHeader("Content-Type", "text/html; charset=utf-8"); return res.status(200).send(cached); }
 
     if (hasDB) {
       const { data: rows } = await db.getAlt(rawSlug);
