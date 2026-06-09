@@ -273,7 +273,7 @@
       <div class="srch-wrap">
         <div class="srch-box">
           <span class="srch-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
-          <input class="srch-input" id="si" type="text" placeholder=”Search any product e.g. AirPods Pro, Samsung TV...” onkeydown="if(event.key==='Enter')go()"/>
+          <input class="srch-input" id="si" type="text" placeholder="Search any product e.g. AirPods Pro, Samsung TV..." onkeydown="if(event.key==='Enter')go()"/>
           <div class="srch-divider"></div>
           <button class="srch-btn" id="srch-btn" onclick="go()">
             <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -435,7 +435,7 @@
     <div class="static-wrap">
       <div class="static-badge">Contact</div>
       <h1>Get in touch</h1>
-      <p class="static-lead">We read every message. Expect a reply within 24â€“48 hours.</p>
+      <p class="static-lead">We read every message. Expect a reply within 24â€"48 hours.</p>
       <div class="static-card"><h3>Email support</h3><p>For general questions, feedback, bug reports, or partnership inquiries:</p><a href="mailto:Support@cheapestalt.com" class="static-btn">Support@cheapestalt.com</a></div>
       <div class="static-card"><h3>Found a bug?</h3><p>If a search returned wrong results or a link is broken — please email us with the product name you searched and what you expected to see.</p></div>
       <div class="static-card"><h3>Partnership inquiries</h3><p>Interested in partnering with CheapestAlt? Email <a href="mailto:Support@cheapestalt.com" class="static-link">Support@cheapestalt.com</a> with the subject line "Partnership".</p></div>
@@ -760,7 +760,7 @@
     // -- Original product — price shown --------------------------------------
     h += `
       <div class="orig-card">
-        ${original.image ? `<div class=”orig-icon”><img src=”${original.image}” alt=”${esc(original.name)}” style=”width:48px;height:48px;object-fit:contain;border-radius:8px;display:block;” onerror=”this.parentElement.style.display='none'”/></div>` : ''}
+        ${original.image ? `<div class="orig-icon"><img src="${original.image}" alt="${esc(original.name)}" style="width:48px;height:48px;object-fit:contain;border-radius:8px;display:block;" onerror="this.parentElement.style.display='none'"/></div>` : ''}
         <div class="orig-info">
           <div class="orig-label">Original product</div>
           <div class="orig-name">${esc(original.name)}</div>
@@ -811,7 +811,7 @@
       h += `
         <div class="alt-card${isRec ? ' rec' : ''}">
           <div class="alt-card-inner">
-            ${a.image ? `<div class="alt-icon"><img src="${a.image}" alt="${esc(a.name)}" style="width:40px;height:40px;object-fit:contain;border-radius:6px;display:block;margin:auto;" onerror="this.parentElement.style.display=’none’"/></div>` : ‘’}
+            ${a.image ? `<div class="alt-icon"><img src="${a.image}" alt="${esc(a.name)}" style="width:40px;height:40px;object-fit:contain;border-radius:6px;display:block;margin:auto;" onerror="this.parentElement.style.display='none'"/></div>` : ''}
             <div class="alt-body">
               <div class="alt-type-badge badge-${type}">${typeLabels[type]}</div>
               <div class="alt-name">${esc(a.name)}</div>
