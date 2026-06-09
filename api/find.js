@@ -144,9 +144,9 @@ function buildAltHTML(d, product, angle, rawSlug, amzProducts, amazonSection) {
     '<meta name="description" content="' + esc(desc) + '"/>' +
     '<link rel="canonical" href="https://cheapestalt.com/find?slug=' + esc(rawSlug) + '"/>' +
     '<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"/>' +
-    '<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Inter,sans-serif;background:#fff;color:#0F172A}.hdr{background:#fff;border-bottom:1.5px solid #E2E8F0;padding:0 28px;height:58px;display:flex;align-items:center;justify-content:space-between}.logo{font-size:18px;font-weight:800;text-decoration:none;color:#0F172A}.logo em{color:#2563EB;font-style:normal}.nav a{background:#2563EB;color:#fff;padding:7px 16px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;margin-left:6px}.wrap{max-width:860px;margin:0 auto;padding:44px 24px 80px}h1{font-size:28px;font-weight:800;margin-bottom:12px}.lead{font-size:15px;color:#475569;margin-bottom:28px}.disc{background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:10px;padding:12px 16px;font-size:12px;color:#475569;margin-top:24px}.ftr{background:#F8FAFC;border-top:1.5px solid #E2E8F0;padding:24px 28px;margin-top:40px;font-size:13px;color:#475569;text-align:center}</style>' +
+    '<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Inter,sans-serif;background:#fff;color:#0F172A}.hdr{background:#fff;border-bottom:1.5px solid #E2E8F0;padding:0 28px;height:58px;display:flex;align-items:center;justify-content:space-between}.logo{font-size:18px;font-weight:800;text-decoration:none;color:#0F172A}.logo em{color:#2563EB;font-style:normal}.nav a{background:#2563EB;color:#fff;padding:7px 16px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;margin-left:6px}.wrap{max-width:860px;margin:0 auto;padding:44px 24px 80px}h1{font-size:28px;font-weight:800;margin-bottom:12px}.lead{font-size:15px;color:#475569;margin-bottom:28px}.disc{background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:10px;padding:12px 16px;font-size:12px;color:#475569;margin-top:24px}.ftr{background:#F8FAFC;border-top:1.5px solid #E2E8F0;padding:24px 28px;font-size:13px;color:#475569;text-align:center}@media(max-width:640px){.hdr{flex-direction:column;height:auto;padding:12px 16px;gap:10px;align-items:center;text-align:center}.nav a{font-size:12px;padding:6px 10px;white-space:nowrap}}</style>' +
     '</head><body>' +
-    '<header class="hdr"><a href="/" class="logo">Cheapest<em>Alt</em></a><nav><a href="/">Find Alternatives</a></nav></header>' +
+    '<header class="hdr"><a href="/" class="logo">Cheapest<em>Alt</em></a><nav class="nav"><a href="/">Find Alternatives</a></nav></header>' +
     '<main class="wrap">' +
     '<h1>' + esc(title) + '</h1>' +
     '<p class="lead">Compare cheaper alternatives to ' + esc(o.name||product) + ' on Amazon.</p>' +
@@ -160,8 +160,8 @@ function buildAltHTML(d, product, angle, rawSlug, amzProducts, amazonSection) {
     altCards +
     '<div class="disc">Affiliate disclosure: Links are Amazon affiliate links. We earn a small commission at no extra cost to you.</div>' +
     '</main>' +
-    (amazonSection ? '<div style="max-width:860px;margin:0 auto;padding:0 24px 32px;">' + amazonSection + '</div>' : '') +
-    '<footer class="ftr" style="margin-top:0;">© 2026 CheapestAlt</footer>' +
+    (amazonSection ? '<div style="background:#F8FAFC;border-top:1.5px solid #E2E8F0;padding:32px 24px"><div style="max-width:860px;margin:0 auto"><h2 style="font-size:20px;font-weight:800;margin-bottom:16px;color:#0F172A;border-left:4px solid #2563EB;padding-left:12px;">Top Picks on Amazon</h2>' + amazonSection + '</div></div>' : '') +
+    '<footer class="ftr">© 2026 CheapestAlt</footer>' +
     '</body></html>';
 }
 
@@ -181,21 +181,31 @@ function buildCmpHTML(d, rawSlug, imgA, imgB, amazonSection) {
     '<title>' + esc(title) + ' | CheapestAlt</title>' +
     '<meta name="description" content="' + esc(desc) + '"/>' +
     '<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"/>' +
-    '<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Inter,sans-serif;background:#fff;color:#0F172A}.hdr{background:#fff;border-bottom:1.5px solid #E2E8F0;padding:0 28px;height:58px;display:flex;align-items:center;justify-content:space-between}.logo{font-size:18px;font-weight:800;text-decoration:none;color:#0F172A}.logo em{color:#2563EB;font-style:normal}.nav a{background:#2563EB;color:#fff;padding:7px 16px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none}.wrap{max-width:860px;margin:0 auto;padding:44px 24px 80px}h1{font-size:26px;font-weight:800;margin-bottom:20px}.ftr{background:#F8FAFC;border-top:1.5px solid #E2E8F0;padding:24px;margin-top:40px;font-size:13px;color:#475569;text-align:center}</style>' +
+    '<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Inter,sans-serif;background:#fff;color:#0F172A}.hdr{background:#fff;border-bottom:1.5px solid #E2E8F0;padding:0 28px;height:58px;display:flex;align-items:center;justify-content:space-between}.logo{font-size:18px;font-weight:800;text-decoration:none;color:#0F172A}.logo em{color:#2563EB;font-style:normal}.nav a{background:#2563EB;color:#fff;padding:7px 16px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none}.wrap{max-width:860px;margin:0 auto;padding:44px 24px 80px}h1{font-size:26px;font-weight:800;margin-bottom:20px}.ftr{background:#F8FAFC;border-top:1.5px solid #E2E8F0;padding:24px;font-size:13px;color:#475569;text-align:center}@media(max-width:640px){.hdr{flex-direction:column;height:auto;padding:12px 16px;gap:10px;align-items:center;text-align:center}.nav a{font-size:12px;padding:6px 10px;white-space:nowrap}}</style>' +
     '</head><body>' +
-    '<header class="hdr"><a href="/" class="logo">Cheapest<em>Alt</em></a><nav><a href="/">Find Alternatives</a></nav></header>' +
+    '<header class="hdr"><a href="/" class="logo">Cheapest<em>Alt</em></a><nav class="nav"><a href="/">Find Alternatives</a></nav></header>' +
     '<main class="wrap">' +
     '<h1>' + esc(title) + '</h1>' +
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:28px">' +
-    '<div style="background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:12px;padding:20px">' + (imgA ? '<img src="' + imgA + '" alt="' + esc(A.name) + '" style="width:56px;height:56px;object-fit:contain;border-radius:8px;margin-bottom:10px;background:#fff;border:1px solid #E2E8F0;display:block;"/>' : '') + '<h3 style="font-size:15px;font-weight:700;margin-bottom:8px">' + esc(A.name) + '</h3><div style="font-size:22px;font-weight:800;color:#2563EB;margin-bottom:12px">$' + Number(A.price||0).toLocaleString() + '</div>' + (A.pros||[]).map(p=>'<div style="font-size:13px;color:#16A34A;padding:2px 0">✓ '+esc(p)+'</div>').join("") + (A.cons||[]).map(c=>'<div style="font-size:13px;color:#DC2626;padding:2px 0">✗ '+esc(c)+'</div>').join("") + '</div>' +
-    '<div style="background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:12px;padding:20px">' + (imgB ? '<img src="' + imgB + '" alt="' + esc(B.name) + '" style="width:56px;height:56px;object-fit:contain;border-radius:8px;margin-bottom:10px;background:#fff;border:1px solid #E2E8F0;display:block;"/>' : '') + '<h3 style="font-size:15px;font-weight:700;margin-bottom:8px">' + esc(B.name) + '</h3><div style="font-size:22px;font-weight:800;color:#2563EB;margin-bottom:12px">$' + Number(B.price||0).toLocaleString() + '</div>' + (B.pros||[]).map(p=>'<div style="font-size:13px;color:#16A34A;padding:2px 0">✓ '+esc(p)+'</div>').join("") + (B.cons||[]).map(c=>'<div style="font-size:13px;color:#DC2626;padding:2px 0">✗ '+esc(c)+'</div>').join("") + '</div>' +
+    '<div style="background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:12px;padding:20px">' +
+    (imgA ? '<img src="' + imgA + '" alt="' + esc(A.name) + '" style="width:56px;height:56px;object-fit:contain;border-radius:8px;margin-bottom:10px;background:#fff;border:1px solid #E2E8F0;display:block;"/>' : '') +
+    '<h3 style="font-size:15px;font-weight:700;margin-bottom:8px">' + esc(A.name) + '</h3>' +
+    '<div style="font-size:22px;font-weight:800;color:#2563EB;margin-bottom:12px">$' + Number(A.price||0).toLocaleString() + '</div>' +
+    (A.pros||[]).map(p=>'<div style="font-size:13px;color:#16A34A;padding:2px 0">✓ '+esc(p)+'</div>').join("") +
+    (A.cons||[]).map(c=>'<div style="font-size:13px;color:#DC2626;padding:2px 0">✗ '+esc(c)+'</div>').join("") + '</div>' +
+    '<div style="background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:12px;padding:20px">' +
+    (imgB ? '<img src="' + imgB + '" alt="' + esc(B.name) + '" style="width:56px;height:56px;object-fit:contain;border-radius:8px;margin-bottom:10px;background:#fff;border:1px solid #E2E8F0;display:block;"/>' : '') +
+    '<h3 style="font-size:15px;font-weight:700;margin-bottom:8px">' + esc(B.name) + '</h3>' +
+    '<div style="font-size:22px;font-weight:800;color:#2563EB;margin-bottom:12px">$' + Number(B.price||0).toLocaleString() + '</div>' +
+    (B.pros||[]).map(p=>'<div style="font-size:13px;color:#16A34A;padding:2px 0">✓ '+esc(p)+'</div>').join("") +
+    (B.cons||[]).map(c=>'<div style="font-size:13px;color:#DC2626;padding:2px 0">✗ '+esc(c)+'</div>').join("") + '</div>' +
     '</div>' +
     '<div style="overflow-x:auto;margin-bottom:28px"><table style="width:100%;border-collapse:collapse"><thead><tr style="background:#F8FAFC"><th style="padding:10px 14px;text-align:left;font-size:12px;text-transform:uppercase;border-bottom:1.5px solid #E2E8F0">Feature</th><th style="padding:10px 14px;text-align:left;font-size:12px;text-transform:uppercase;border-bottom:1.5px solid #E2E8F0">' + esc(A.name) + '</th><th style="padding:10px 14px;text-align:left;font-size:12px;text-transform:uppercase;border-bottom:1.5px solid #E2E8F0">' + esc(B.name) + '</th></tr></thead><tbody>' + tRows + '</tbody></table></div>' +
     (d.verdict ? '<div style="background:#FFFBEB;border:1.5px solid #FDE68A;border-radius:10px;padding:16px;margin-bottom:28px;font-size:14px;line-height:1.7"><strong>Verdict: </strong>' + esc(d.verdict) + '</div>' : '') +
     '<div style="background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:10px;padding:12px 16px;font-size:12px;color:#475569">Affiliate disclosure: Links are Amazon affiliate links. We earn a small commission at no extra cost to you.</div>' +
     '</main>' +
-    (amazonSection ? '<div style="max-width:860px;margin:0 auto;padding:0 24px 32px;">' + amazonSection + '</div>' : '') +
-    '<footer class="ftr" style="margin-top:0;">© 2026 CheapestAlt</footer>' +
+    (amazonSection ? '<div style="background:#F8FAFC;border-top:1.5px solid #E2E8F0;padding:32px 24px"><div style="max-width:860px;margin:0 auto"><h2 style="font-size:20px;font-weight:800;margin-bottom:16px;color:#0F172A;border-left:4px solid #2563EB;padding-left:12px;">Top Picks on Amazon</h2>' + amazonSection + '</div></div>' : '') +
+    '<footer class="ftr">© 2026 CheapestAlt</footer>' +
     '</body></html>';
 }
 
@@ -235,24 +245,21 @@ module.exports = async function handler(req, res) {
     const apiKey = process.env.CLAUDE_API_KEY;
     if (!apiKey) return res.status(500).send(errPage("Server configuration error: missing API key."));
 
-    // Memory cache — fast path, skips all external API calls
-    const cached = mGet(rawSlug);
-    if (cached && cached.includes('Top Picks on Amazon')) { res.setHeader("Content-Type", "text/html; charset=utf-8"); return res.status(200).send(cached); }
-
-    // Cache miss — fetch fresh Amazon products for page build
+    // Fetch Amazon products first
     let realProducts = [];
     try {
       const kw = rawSlug.replace(/-alternatives$/, "").replace(/-vs-.*$/, "").replace(/-/g, " ").trim();
       if (kw) {
         realProducts = await fetchAmazonProducts(kw);
         if (realProducts && realProducts.length > 0) {
-          amazonHtml = '<div style="max-width:860px;margin:32px auto;padding:0 24px;font-family:Inter,system-ui,sans-serif">'
-            + '<h2 style="font-size:20px;font-weight:800;margin-bottom:16px;color:#0F172A;border-left:4px solid #2563EB;padding-left:12px;">Top Picks on Amazon</h2>'
-            + buildProductCards(realProducts)
-            + '</div>';
+          amazonHtml = buildProductCards(realProducts);
         }
       }
     } catch(e) { console.log("Amazon fetch skipped:", e.message); }
+
+    // Memory cache
+    const cached = mGet(rawSlug);
+    if (cached) { res.setHeader("Content-Type", "text/html; charset=utf-8"); return res.status(200).send(cached); }
 
     if (hasDB) {
       const { data: rows } = await db.getAlt(rawSlug);
