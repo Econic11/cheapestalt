@@ -235,6 +235,11 @@ module.exports = async function handler(req, res) {
     const apiKey = process.env.CLAUDE_API_KEY;
     if (!apiKey) return res.status(500).send(errPage("Server configuration error: missing API key."));
 
+    // Memory cache — fast path, skips all external API calls
+    const cached = mGet(rawSlug);
+    if (cached) { res.setHeader("Content-Type", "text/html; charset=utf-8"); return res.status(200).send(cached); }
+
+    // Cache miss — fetch fresh Amazon products for page build
     let realProducts = [];
     try {
       const kw = rawSlug.replace(/-alternatives$/, "").replace(/-vs-.*$/, "").replace(/-/g, " ").trim();
@@ -248,10 +253,6 @@ module.exports = async function handler(req, res) {
         }
       }
     } catch(e) { console.log("Amazon fetch skipped:", e.message); }
-
-    // Memory cache disabled so Amazon products always load fresh
-    // const cached = mGet(rawSlug);
-    // if (cached) { res.setHeader("Content-Type", "text/html; charset=utf-8"); return res.status(200).send(cached); }
 
     if (hasDB) {
       const { data: rows } = await db.getAlt(rawSlug);
