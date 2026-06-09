@@ -237,7 +237,7 @@ module.exports = async function handler(req, res) {
 
     // Memory cache — fast path, skips all external API calls
     const cached = mGet(rawSlug);
-    if (cached) { res.setHeader("Content-Type", "text/html; charset=utf-8"); return res.status(200).send(cached); }
+    if (cached && cached.includes('Top Picks on Amazon')) { res.setHeader("Content-Type", "text/html; charset=utf-8"); return res.status(200).send(cached); }
 
     // Cache miss — fetch fresh Amazon products for page build
     let realProducts = [];
