@@ -3,7 +3,7 @@
 // Storage: Supabase permanent + in-memory cache
 
 "use strict";
-const amz = require("../lib/amazon");
+const amz = require("./_amazon");
 const https = require("https");
 const MODEL = "claude-haiku-4-5-20251001";
 const TAG   = "cheapestalt-20";
