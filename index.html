@@ -637,9 +637,37 @@
   let isSearching = false;
   let isComparing = false;
 
-  // Amazon affiliate link only
+  // ── Partner referral cookie helpers ────────────────────────────────
+  function setCookie(name, val, days) {
+    var d = new Date();
+    d.setTime(d.getTime() + days * 864e5);
+    document.cookie = name + '=' + encodeURIComponent(val) + ';expires=' + d.toUTCString() + ';path=/;SameSite=Lax';
+  }
+  function getCookie(name) {
+    var m = document.cookie.match('(?:^|; )' + name + '=([^;]*)');
+    return m ? decodeURIComponent(m[1]) : null;
+  }
+  // Returns active affiliate tag: partner's tag if cookie set, otherwise default
+  function getAffTag() {
+    return getCookie('ca_ref') || 'cheapestalt-20';
+  }
+  // Patches any already-rendered Amazon links in a container to use active tag
+  function patchLinks(el) {
+    var tag = getAffTag();
+    if (tag === 'cheapestalt-20') return;
+    el.querySelectorAll('[onclick]').forEach(function(node) {
+      var oc = node.getAttribute('onclick');
+      if (oc && oc.indexOf('amazon.com') !== -1)
+        node.setAttribute('onclick', oc.replace(/tag=cheapestalt-20/g, 'tag=' + tag));
+    });
+    el.querySelectorAll('a[href*="amazon.com"]').forEach(function(a) {
+      a.href = a.href.replace(/tag=cheapestalt-20/g, 'tag=' + tag);
+    });
+  }
+
+  // Amazon affiliate link — uses active tag (partner's or default)
   function amzLink(name) {
-    return `https://www.amazon.com/s?k=${encodeURIComponent(name)}&tag=cheapestalt-20`;
+    return `https://www.amazon.com/s?k=${encodeURIComponent(name)}&tag=${getAffTag()}`;
   }
 
   function esc(s) {
@@ -856,6 +884,7 @@
       </div>
     </div>`;
     document.getElementById('ra').innerHTML = h;
+    patchLinks(document.getElementById('ra'));
   }
 
   // -- COMPARE ----------------------------------------------------------------
@@ -964,6 +993,7 @@
     html += '</div></div></div>';
 
     cr.innerHTML = html;
+    patchLinks(cr);
   }
 
   function tog(el) { el.classList.toggle('open'); }
@@ -971,12 +1001,12 @@
   // Restore page on load
   restorePageFromURL();
 
-  // Detect ?ref= referral param and store it as a 30-day cookie via the server
+  // Detect ?ref= referral param and store partner tag as a 30-day cookie
   (function() {
     try {
       var ref = new URLSearchParams(window.location.search).get('ref');
       if (ref && /^[a-zA-Z0-9_-]{1,50}$/.test(ref)) {
-        fetch('/api/set-ref?ref=' + encodeURIComponent(ref)).catch(function(){});
+        setCookie('ca_ref', ref, 30);
       }
     } catch(e) {}
   })();
