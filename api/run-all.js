@@ -3,7 +3,7 @@
 // Calls run-trending logic DIRECTLY (no HTTP self-call — that causes Vercel deadlock)
 // Triggered by: cron-job.org OR GET /api/run-all?secret=cheapestalt-stories-2026
 
-const trendingHandler = require("./run-trending");
+const trendingHandler = require("../lib/run-trending");
 
 module.exports = async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");

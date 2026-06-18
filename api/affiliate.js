@@ -46,7 +46,8 @@ function xJSON(text){
 }
 
 function buildProdBody(data,affLink){
-  const btn='<a href="'+esc(affLink)+'" target="_blank" rel="noopener sponsored" style="display:inline-block;background:#1A56DB;color:#fff;padding:14px 28px;border-radius:10px;font-weight:700;text-decoration:none;font-size:16px;">Check Price on Amazon &#x2192;</a>';
+  const goLink="/api/go?to="+encodeURIComponent(affLink);
+  const btn='<a href="'+esc(goLink)+'" target="_blank" rel="noopener sponsored" style="display:inline-block;background:#1A56DB;color:#fff;padding:14px 28px;border-radius:10px;font-weight:700;text-decoration:none;font-size:16px;">Check Price on Amazon &#x2192;</a>';
   const H2=t=>'<h2 style="font-size:24px;font-weight:700;color:#111827;margin:0 0 20px;">'+t+'</h2>';
   const pros=(Array.isArray(data.pros)?data.pros:[]).map(p=>'<li style="display:flex;gap:10px;margin-bottom:10px;"><span style="color:#16A34A;font-size:18px;">&#10003;</span><span>'+esc(p)+'</span></li>').join('');
   const cons=(Array.isArray(data.cons)?data.cons:[]).map(c=>'<li style="display:flex;gap:10px;margin-bottom:10px;"><span style="color:#DC2626;font-size:18px;">&#10007;</span><span>'+esc(c)+'</span></li>').join('');

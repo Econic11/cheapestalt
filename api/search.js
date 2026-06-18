@@ -3,6 +3,7 @@
 // Storage: Supabase permanent + in-memory cache
 
 "use strict";
+const amz = require("./_amazon");
 const https = require("https");
 const MODEL = "claude-haiku-4-5-20251001";
 const TAG   = "cheapestalt-20";
@@ -48,7 +49,16 @@ function mSet(k, v) { if (mem.size > 300) mem.delete(mem.keys().next().value); m
 // -- Helpers ---------------------------------------------------------------------
 function mkSlug(s) { return s.toLowerCase().replace(/[^a-z0-9\s-]/g,"").replace(/\s+/g,"-").replace(/-+/g,"-").trim(); }
 function amzUrl(n) { return "https://www.amazon.com/s?k=" + encodeURIComponent(n) + "&tag=" + TAG; }
+function amzDirect(item) {
+  const asin = item && item.asin;
+  if (asin && /^B[0-9A-Z]{9}$/.test(asin)) return "https://www.amazon.com/dp/" + asin + "?tag=" + TAG;
+  return amzUrl(item.name);
+}
 function esc(s) { return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function asinImg(asin) {
+  if (!asin || !/^B[0-9A-Z]{9}$/.test(asin)) return null;
+  return "https://images-na.ssl-images-amazon.com/images/P/" + asin + ".01._SL200_.jpg";
+}
 
 // -- Claude call -----------------------------------------------------------------
 function claude(apiKey, system, user, maxTok) {
@@ -99,12 +109,15 @@ function renderHTML(data, slug) {
     const bg = bgcols[Math.min(i, 3)], brd = brdcols[Math.min(i, 3)];
     const pct = a.save || ("Save " + Math.round((1 - a.price / o.price) * 100) + "%");
     return '<div style="background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:14px;padding:18px 20px;margin-bottom:12px">' +
+      '<div style="display:flex;gap:12px;align-items:flex-start">' +
+      (a.image ? '<img src="' + esc(a.image) + '" alt="' + esc(a.name) + '" style="width:44px;height:44px;object-fit:contain;border-radius:8px;flex-shrink:0;background:#fff;border:1px solid #E2E8F0;" onerror="this.style.display=\'none\'"/>' : '') +
+      '<div style="flex:1">' +
       '<span style="background:' + bg + ';color:' + col + ';border:1px solid ' + brd + ';font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px">' + t + '</span>' +
       '<div style="font-size:15px;font-weight:700;margin:8px 0 4px">' + esc(a.name) + '</div>' +
       '<div style="font-size:18px;font-weight:800;color:' + col + '">' + pct + '</div>' +
       (a.reason ? '<div style="font-size:13px;color:#475569;margin:6px 0 10px">' + esc(a.reason) + '</div>' : '') +
       '<a href="' + amzUrl(a.name) + '" target="_blank" rel="noopener" style="display:inline-block;background:#FF9900;color:#0F172A;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none">View deal on Amazon &#8594;</a>' +
-      '</div>';
+      '</div></div></div>';
   }).join("");
 
   const title = "Cheaper Alternatives to " + o.name + " — Save Money in 2026";
@@ -134,7 +147,7 @@ function renderHTML(data, slug) {
 h1{font-size:30px;font-weight:800;letter-spacing:-0.6px;line-height:1.2;margin-bottom:12px}
 .lead{font-size:15px;color:#475569;margin-bottom:32px;line-height:1.7}
 .orig{background:#fff;border:2px solid #BFDBFE;border-radius:14px;padding:20px 24px;margin-bottom:28px;display:flex;gap:20px;align-items:center}
-.orig-icon{font-size:44px}
+.orig-icon{flex-shrink:0}
 .orig-info{flex:1}
 .orig-label{font-size:11px;font-weight:700;color:#2563EB;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px}
 .orig-name{font-size:17px;font-weight:700;margin-bottom:6px}
@@ -163,7 +176,7 @@ h1{font-size:30px;font-weight:800;letter-spacing:-0.6px;line-height:1.2;margin-b
   <h1>${esc(title)}</h1>
   <p class="lead">Compare the best cheaper alternatives to ${esc(o.name)} on Amazon — with real value analysis and direct deal links.</p>
   <div class="orig">
-    <div class="orig-icon">${o.icon || "ðŸ“¦"}</div>
+    ${o.image ? `<div class="orig-icon"><img src="${esc(o.image)}" alt="${esc(o.name)}" style="width:44px;height:44px;object-fit:contain;border-radius:8px;display:block;" onerror="this.parentElement.style.display='none'"/></div>` : ''}
     <div class="orig-info">
       <div class="orig-label">Original product</div>
       <div class="orig-name">${esc(o.name)}</div>
@@ -228,7 +241,7 @@ function renderVariantHTML(data, slug, angle, qBase, pSlug) {
 
   const FAV = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232563EB'/%3E%3Ctext x='16' y='22' font-family='Inter' font-size='13' font-weight='800' fill='white' text-anchor='middle'%3ECA%3C/text%3E%3C/svg%3E";
   const GA  = "G-6MR7X29W2X";
-  const CSS = `*{box-sizing:border-box;margin:0;padding:0}body{font-family:Inter,system-ui,sans-serif;color:#0F172A;background:#fff;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column;min-height:100vh}main{flex:1}.wrap{max-width:880px;margin:0 auto;padding:44px 24px 80px}.hdr{background:#fff;border-bottom:1.5px solid #E2E8F0;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 28px;height:58px;position:sticky;top:0;z-index:200}.logo{font-size:18px;font-weight:800;color:#0F172A;text-decoration:none;letter-spacing:-0.4px;justify-self:start}.logo em{color:#2563EB;font-style:normal}.nav{display:flex;gap:6px;justify-self:center}.nav a{background:#2563EB;padding:7px 16px;border-radius:8px;font-size:13.5px;font-weight:600;color:#fff;text-decoration:none;white-space:nowrap}.nav a:hover{background:#1D4ED8}.tag{font-size:12px;color:#0F172A;border:1.5px solid #E2E8F0;border-radius:20px;padding:4px 12px;font-weight:500;background:#F8FAFC;justify-self:end;white-space:nowrap}h1{font-size:28px;font-weight:800;letter-spacing:-0.6px;line-height:1.2;margin-bottom:12px}h2{font-size:18px;font-weight:700;margin:28px 0 12px}.lead{font-size:15px;color:#475569;margin-bottom:28px;line-height:1.7}.badge{display:inline-block;background:#EFF6FF;color:#2563EB;font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px;border:1px solid #BFDBFE;margin-bottom:16px}.sec{border:1.5px solid #E2E8F0;border-radius:12px;margin-bottom:12px;overflow:hidden}.sec-h{background:#F8FAFC;padding:12px 18px;font-size:14px;font-weight:700;cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none}.sec-h:hover{background:#F1F5F9}.sec-b{display:none;padding:16px 18px;border-top:1px solid #E2E8F0}.sec.open .sec-b{display:block}.sec-ico{font-size:11px;transition:transform .2s;flex-shrink:0}.sec.open .sec-ico{transform:rotate(180deg)}.orig-card{background:#fff;border:2px solid #BFDBFE;border-radius:14px;padding:20px 24px;margin-bottom:24px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}.orig-ico{font-size:44px;flex-shrink:0}.orig-lbl{font-size:11px;font-weight:700;color:#2563EB;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px}.orig-name{font-size:17px;font-weight:700;margin-bottom:6px}.orig-price{font-size:24px;font-weight:800;margin-bottom:10px}.alt-card{border:1.5px solid #E2E8F0;border-radius:12px;padding:18px 20px;margin-bottom:12px;background:#fff}.alt-top{display:flex;gap:14px;align-items:flex-start;margin-bottom:12px}.alt-ico{font-size:32px;flex-shrink:0;width:42px;text-align:center}.alt-bdg{display:inline-block;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;margin-bottom:6px}.alt-name{font-size:15px;font-weight:700;margin-bottom:4px}.alt-save{font-size:19px;font-weight:800;margin-bottom:6px}.alt-reason{font-size:13px;color:#475569;line-height:1.6;margin-bottom:10px}.pc-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}.pc-col{background:#F8FAFC;border-radius:8px;padding:10px 12px}.pc-col-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px}.pc{display:flex;gap:6px;font-size:13px;padding:2px 0;align-items:flex-start}.pc-dot{width:15px;height:15px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;margin-top:2px}.verdict-card{background:#FFFBEB;border:1.5px solid #FDE68A;border-radius:10px;padding:12px 16px;font-size:13px;line-height:1.7;color:#78350F;margin:10px 0}.rec-box{background:#0F172A;border-radius:12px;padding:18px 22px;color:#E2E8F0;font-size:14px;line-height:1.75}.rec-title{font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px}.faq-q{font-size:14px;font-weight:700;margin-bottom:5px;color:#0F172A}.faq-a{font-size:13px;color:#475569;line-height:1.6;margin-bottom:14px}.btn-az{display:inline-block;background:#FF9900;color:#0F172A;padding:10px 18px;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none;margin-top:10px}.btn-az:hover{background:#E88A00}.rel{display:flex;gap:8px;flex-wrap:wrap}.rel a{background:#F8FAFC;border:1.5px solid #E2E8F0;padding:7px 14px;border-radius:20px;font-size:13px;font-weight:600;color:#0F172A;text-decoration:none}.rel a:hover{border-color:#2563EB;color:#2563EB}.disc{background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:10px;padding:12px 16px;font-size:12px;color:#475569;margin-top:24px}.ftr{background:#F8FAFC;border-top:1.5px solid #E2E8F0;padding:24px 28px}.ftr-in{max-width:880px;margin:0 auto;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:13px;color:#0F172A;align-items:center}.ftr-in a{color:#0F172A;text-decoration:none;font-weight:500}.ftr-in a:hover{color:#2563EB}.ftr-links{display:flex;gap:16px;flex-wrap:wrap}@media(max-width:640px){.hdr{display:flex;flex-direction:column;height:auto;padding:12px 16px;gap:10px;align-items:center;text-align:center}.logo{justify-self:unset}.tag{display:none}.nav{justify-content:center;flex-wrap:wrap;gap:6px;width:100%}.nav a{font-size:12px;padding:6px 10px;white-space:nowrap}.pc-grid{grid-template-columns:1fr}.wrap{padding:28px 16px 60px}h1{font-size:22px}}`;
+  const CSS = `*{box-sizing:border-box;margin:0;padding:0}body{font-family:Inter,system-ui,sans-serif;color:#0F172A;background:#fff;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column;min-height:100vh}main{flex:1}.wrap{max-width:880px;margin:0 auto;padding:44px 24px 80px}.hdr{background:#fff;border-bottom:1.5px solid #E2E8F0;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 28px;height:58px;position:sticky;top:0;z-index:200}.logo{font-size:18px;font-weight:800;color:#0F172A;text-decoration:none;letter-spacing:-0.4px;justify-self:start}.logo em{color:#2563EB;font-style:normal}.nav{display:flex;gap:6px;justify-self:center}.nav a{background:#2563EB;padding:7px 16px;border-radius:8px;font-size:13.5px;font-weight:600;color:#fff;text-decoration:none;white-space:nowrap}.nav a:hover{background:#1D4ED8}.tag{font-size:12px;color:#0F172A;border:1.5px solid #E2E8F0;border-radius:20px;padding:4px 12px;font-weight:500;background:#F8FAFC;justify-self:end;white-space:nowrap}h1{font-size:28px;font-weight:800;letter-spacing:-0.6px;line-height:1.2;margin-bottom:12px}h2{font-size:18px;font-weight:700;margin:28px 0 12px}.lead{font-size:15px;color:#475569;margin-bottom:28px;line-height:1.7}.badge{display:inline-block;background:#EFF6FF;color:#2563EB;font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px;border:1px solid #BFDBFE;margin-bottom:16px}.sec{border:1.5px solid #E2E8F0;border-radius:12px;margin-bottom:12px;overflow:hidden}.sec-h{background:#F8FAFC;padding:12px 18px;font-size:14px;font-weight:700;cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none}.sec-h:hover{background:#F1F5F9}.sec-b{display:none;padding:16px 18px;border-top:1px solid #E2E8F0}.sec.open .sec-b{display:block}.sec-ico{font-size:11px;transition:transform .2s;flex-shrink:0}.sec.open .sec-ico{transform:rotate(180deg)}.orig-card{background:#fff;border:2px solid #BFDBFE;border-radius:14px;padding:20px 24px;margin-bottom:24px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}.orig-ico{flex-shrink:0}.orig-lbl{font-size:11px;font-weight:700;color:#2563EB;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px}.orig-name{font-size:17px;font-weight:700;margin-bottom:6px}.orig-price{font-size:24px;font-weight:800;margin-bottom:10px}.alt-card{border:1.5px solid #E2E8F0;border-radius:12px;padding:18px 20px;margin-bottom:12px;background:#fff}.alt-top{display:flex;gap:14px;align-items:flex-start;margin-bottom:12px}.alt-ico{flex-shrink:0;width:42px;text-align:center}.alt-bdg{display:inline-block;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;margin-bottom:6px}.alt-name{font-size:15px;font-weight:700;margin-bottom:4px}.alt-save{font-size:19px;font-weight:800;margin-bottom:6px}.alt-reason{font-size:13px;color:#475569;line-height:1.6;margin-bottom:10px}.pc-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}.pc-col{background:#F8FAFC;border-radius:8px;padding:10px 12px}.pc-col-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px}.pc{display:flex;gap:6px;font-size:13px;padding:2px 0;align-items:flex-start}.pc-dot{width:15px;height:15px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;margin-top:2px}.verdict-card{background:#FFFBEB;border:1.5px solid #FDE68A;border-radius:10px;padding:12px 16px;font-size:13px;line-height:1.7;color:#78350F;margin:10px 0}.rec-box{background:#0F172A;border-radius:12px;padding:18px 22px;color:#E2E8F0;font-size:14px;line-height:1.75}.rec-title{font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px}.faq-q{font-size:14px;font-weight:700;margin-bottom:5px;color:#0F172A}.faq-a{font-size:13px;color:#475569;line-height:1.6;margin-bottom:14px}.btn-az{display:inline-block;background:#FF9900;color:#0F172A;padding:10px 18px;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none;margin-top:10px}.btn-az:hover{background:#E88A00}.rel{display:flex;gap:8px;flex-wrap:wrap}.rel a{background:#F8FAFC;border:1.5px solid #E2E8F0;padding:7px 14px;border-radius:20px;font-size:13px;font-weight:600;color:#0F172A;text-decoration:none}.rel a:hover{border-color:#2563EB;color:#2563EB}.disc{background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:10px;padding:12px 16px;font-size:12px;color:#475569;margin-top:24px}.ftr{background:#F8FAFC;border-top:1.5px solid #E2E8F0;padding:24px 28px}.ftr-in{max-width:880px;margin:0 auto;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:13px;color:#0F172A;align-items:center}.ftr-in a{color:#0F172A;text-decoration:none;font-weight:500}.ftr-in a:hover{color:#2563EB}.ftr-links{display:flex;gap:16px;flex-wrap:wrap}@media(max-width:640px){.hdr{display:flex;flex-direction:column;height:auto;padding:12px 16px;gap:10px;align-items:center;text-align:center}.logo{justify-self:unset}.tag{display:none}.nav{justify-content:center;flex-wrap:wrap;gap:6px;width:100%}.nav a{font-size:12px;padding:6px 10px;white-space:nowrap}.pc-grid{grid-template-columns:1fr}.wrap{padding:28px 16px 60px}h1{font-size:22px}}`;
 
   // Badge styles per card position
   const types  = ["Cheap Option","Best Deal","Best Value Pick","Our Recommendation"];
@@ -265,7 +278,7 @@ function renderVariantHTML(data, slug, angle, qBase, pSlug) {
   // Original product card
   const origCard =
     '<div class="orig-card">' +
-    '<div class="orig-ico">' + esc(o.icon||"ðŸ“¦") + '</div>' +
+    (o.image ? '<div class="orig-ico"><img src="' + esc(o.image) + '" alt="' + esc(oName) + '" style="width:44px;height:44px;object-fit:contain;border-radius:8px;display:block;" onerror="this.parentElement.style.display=\'none\'"></div>' : '') +
     '<div style="flex:1;min-width:160px">' +
       '<div class="orig-lbl">Original product</div>' +
       '<div class="orig-name">' + esc(oName) + '</div>' +
@@ -287,7 +300,7 @@ function renderVariantHTML(data, slug, angle, qBase, pSlug) {
 
     return '<div class="alt-card">' +
       '<div class="alt-top">' +
-        '<div class="alt-ico">' + esc(a.icon||"ðŸ›’") + '</div>' +
+        (a.image ? '<div class="alt-ico"><img src="' + esc(a.image) + '" alt="' + esc(a.name) + '" style="width:40px;height:40px;object-fit:contain;border-radius:6px;display:block;margin:auto;" onerror="this.parentElement.style.display=\'none\'"></div>' : '') +
         '<div style="flex:1">' +
           '<span class="alt-bdg" style="background:' + bgs[idx] + ';color:' + colors[idx] + ';border:1px solid ' + brds[idx] + '">' + types[idx] + '</span>' +
           '<div class="alt-name">' + esc(a.name) + '</div>' +
@@ -407,10 +420,10 @@ function renderVariantHTML(data, slug, angle, qBase, pSlug) {
 
 // -- Prompt ----------------------------------------------------------------------
 const SYS = 'Return ONLY valid JSON. No markdown. No apostrophes. ' +
-  'Schema: {"original":{"name":"str","price":99,"rating":4.5,"reviews":1000,"icon":"emoji"},' +
-  '"alternatives":[{"name":"str","price":49,"rating":4.2,"reviews":500,"icon":"emoji","save":"Save X%","reason":"str"}],' +
+  'Schema: {"original":{"name":"str","asin":"B0XXXXXXXXX","price":99,"rating":4.5,"reviews":1000},' +
+  '"alternatives":[{"name":"str","asin":"B0XXXXXXXXX","price":49,"rating":4.2,"reviews":500,"save":"Save X%","reason":"str"}],' +
   '"faqs":[{"q":"str","a":"str"},{"q":"str","a":"str"},{"q":"str","a":"str"},{"q":"str","a":"str"}]}. ' +
-  'Rules: 4 cheaper Amazon alternatives, estimate real current Amazon USD price for every product (never use 0), sort by most savings, 4 FAQs specific to this product and its alternatives, no apostrophes.';
+  'Rules: 4 cheaper Amazon alternatives, include the real Amazon ASIN for every product (format B followed by 9 uppercase letters/digits — leave empty string if unknown), estimate real current Amazon USD price for every product (never use 0), sort by most savings, 4 FAQs specific to this product and its alternatives, no apostrophes.';
 
 // -- Main handler ----------------------------------------------------------------
 module.exports = async function handler(req, res) {
@@ -443,6 +456,10 @@ module.exports = async function handler(req, res) {
       let result;
       try { result = (row.content && typeof row.content === "object") ? row.content : (row.content ? JSON.parse(row.content) : {}); }
       catch { result = {}; }
+      if (result.original && !result.original.image) result.original.image = asinImg(result.original.asin);
+      if (Array.isArray(result.alternatives)) {
+        result.alternatives = result.alternatives.map(a => a.image ? a : Object.assign({}, a, { image: asinImg(a.asin) }));
+      }
       mSet(slug, result);
       return res.status(200).json(Object.assign({}, result, { fromCache: false, fromDatabase: true }));
     }
@@ -472,11 +489,39 @@ module.exports = async function handler(req, res) {
 
   // 4. Enrich
   const pSlug = mkSlug(data.original.name) || slug;
-  data.original.links = { amazon: amzUrl(data.original.name) };
+  data.original.links = { amazon: amzDirect(data.original) };
+  data.original.image = asinImg(data.original.asin);
   data.alternatives   = data.alternatives.map(a => Object.assign({}, a, {
-    links: { amazon: amzUrl(a.name) },
+    links: { amazon: amzDirect(a) },
     save:  a.save || ("Save " + Math.round((1 - a.price / data.original.price) * 100) + "%"),
+    image: asinImg(a.asin),
   }));
+
+  // 4b. Enrich original + alternatives with Amazon data (image, price, rating, direct link)
+  try {
+    const [origResults, ...altResults] = await Promise.all([
+      amz.searchProducts(data.original.name, 1).catch(() => []),
+      ...data.alternatives.map(alt => amz.searchProducts(alt.name, 1).catch(() => []))
+    ]);
+    if (origResults && origResults[0]) data.original.image = origResults[0].image || null;
+    const realResults = altResults;
+    data.alternatives = data.alternatives.map((alt, i) => {
+      const real = realResults[i] && realResults[i][0];
+      if (!real) return alt;
+      return Object.assign({}, alt, {
+        asin:      real.asin,
+        image:     real.image || alt.image,
+        realPrice: real.price,
+        rating:    real.rating,
+        reviews:   real.reviews,
+        links:     { amazon: real.url },
+      });
+    });
+    data.amazonProducts = realResults.map(r => r && r[0]).filter(Boolean);
+  } catch(e) {
+    console.log("Amazon API fallback:", e.message);
+  }
+
   data.query       = q;
   data.slug        = slug;
   data.seoSlug     = pSlug + "-alternatives";

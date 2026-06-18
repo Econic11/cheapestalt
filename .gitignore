@@ -1,0 +1,18 @@
+node_modules
+.next
+out
+dev.db
+.env
+*.log
+.claude/
+
+# Next.js / partner project files — do not commit to this repo
+app/
+components/
+next.config.mjs
+next-env.d.ts
+tailwind.config.ts
+postcss.config.js
+tsconfig.json
+prisma/
+package-lock.json

@@ -4,6 +4,7 @@
 
 "use strict";
 const https = require("https");
+let amz; try { amz = require("./_amazon"); } catch(e) { amz = null; }
 const MODEL = "claude-haiku-4-5-20251001";
 const TAG   = "cheapestalt-20";
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY;
@@ -138,7 +139,7 @@ const FTR2 = '<footer class="ftr"><div class="ftr-in"><span>&copy; 2026 Cheapest
   '<a href="/#how-it-works">How it works</a><a href="/#disclosure">Affiliate Disclosure</a>' +
   '<a href="mailto:Support@cheapestalt.com">Contact</a></div></div></footer>';
 
-function shell2(title, desc, slug, body) {
+function shell2(title, desc, slug, body, amazonSection) {
   return '<!DOCTYPE html><html lang="en"><head>\n' +
     '<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>\n' +
     '<title>' + esc(title) + ' | CheapestAlt</title>\n' +
@@ -153,7 +154,9 @@ function shell2(title, desc, slug, body) {
     '<link rel="preconnect" href="https://fonts.googleapis.com"/>\n' +
     '<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>\n' +
     '<style>' + CSS2 + '</style></head><body>\n' +
-    HDR2 + '\n<main class="wrap">' + body + '</main>\n' + FTR2 + '\n' +
+    HDR2 + '\n<main class="wrap">' + body + '</main>\n' +
+    (amazonSection || '') +
+    FTR2 + '\n' +
     '<script>function tog(el){el.classList.toggle("open")}</script>\n' +
     '</body></html>';
 }
@@ -174,7 +177,7 @@ function btnAz2(name) {
   return '<a href="' + amzUrl(name) + '" target="_blank" rel="noopener" class="btn-az">View deal on Amazon &#8594;</a>';
 }
 
-function renderHTML(data, slug) {
+function renderHTML(data, slug, amazonSection) {
   const A = data.productA, B = data.productB;
   if (!A || !B) return '';
   const title = A.name + " vs " + B.name + " — Which is Better Value in 2026?";
@@ -205,10 +208,14 @@ function renderHTML(data, slug) {
       true) +
     sec2("2 — Pros & Cons",
       '<div class="cmp-cols">' +
-      '<div class="cmp-col"><h3>' + esc(A.name) + '</h3>' +
+      '<div class="cmp-col">' +
+        (A.image ? '<img src="' + A.image + '" alt="' + esc(A.name) + '" style="width:56px;height:56px;object-fit:contain;border-radius:8px;margin-bottom:10px;background:#fff;border:1px solid #E2E8F0;display:block;"/>' : '') +
+        '<h3>' + esc(A.name) + '</h3>' +
         '<div class="cmp-price">$' + Number(A.price || 0).toLocaleString() + '</div>' +
         mkList(A.pros, "pro") + mkList(A.cons, "con") + btnAz2(A.name) + '</div>' +
-      '<div class="cmp-col"><h3>' + esc(B.name) + '</h3>' +
+      '<div class="cmp-col">' +
+        (B.image ? '<img src="' + B.image + '" alt="' + esc(B.name) + '" style="width:56px;height:56px;object-fit:contain;border-radius:8px;margin-bottom:10px;background:#fff;border:1px solid #E2E8F0;display:block;"/>' : '') +
+        '<h3>' + esc(B.name) + '</h3>' +
         '<div class="cmp-price">$' + Number(B.price || 0).toLocaleString() + '</div>' +
         mkList(B.pros, "pro") + mkList(B.cons, "con") + btnAz2(B.name) + '</div>' +
       '</div>', true) +
@@ -224,14 +231,14 @@ function renderHTML(data, slug) {
       '<a href="/">Search more &#8594;</a></div>') +
     '<div class="disc"><strong>Affiliate disclosure:</strong> Links are Amazon affiliate links (tag: ' + TAG + '). We earn a small commission at no extra cost to you.</div>';
 
-  return shell2(title, desc, slug, body);
+  return shell2(title, desc, slug, body, amazonSection);
 }
 
 
 // -- Prompt ----------------------------------------------------------------------
 const SYS = 'Return ONLY valid JSON. No markdown. No apostrophes. ' +
-  'Schema: {"productA":{"name":"str","price":0,"rating":0.0,"reviews":0,"icon":"emoji","pros":["str"],"cons":["str"]},' +
-  '"productB":{"name":"str","price":0,"rating":0.0,"reviews":0,"icon":"emoji","pros":["str"],"cons":["str"]},' +
+  'Schema: {"productA":{"name":"str","price":0,"rating":0.0,"reviews":0,"pros":["str"],"cons":["str"]},' +
+  '"productB":{"name":"str","price":0,"rating":0.0,"reviews":0,"pros":["str"],"cons":["str"]},' +
   '"comparison":[{"feature":"str","a":"str","b":"str","winner":"a"}],' +
   '"intro":"str","verdict":"str","winner":"str","winnerReason":"str",' +
   '"faqs":[{"q":"str","a":"str"},{"q":"str","a":"str"},{"q":"str","a":"str"},{"q":"str","a":"str"}]}. ' +
@@ -401,8 +408,8 @@ td.win{color:#2563EB;font-weight:700}
     if (intro) html += '<div class="intro-box">'+esc(intro)+'</div>';
     html += '<div class="tbl-wrap"><table><thead><tr><th>Feature</th><th>'+esc(productA.name)+'</th><th>'+esc(productB.name)+'</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
     html += '<div class="cmp-cols">';
-    html += '<div class="cmp-col"><h3>'+esc(productA.name)+'</h3>'+prosA+consA+'<div style="margin-top:14px"><button class="dbtn dbtn-az" onclick="window.open(\''+amzLink(productA.name)+'\',\'_blank\')">View on Amazon &#8594;</button></div></div>';
-    html += '<div class="cmp-col"><h3>'+esc(productB.name)+'</h3>'+prosB+consB+'<div style="margin-top:14px"><button class="dbtn dbtn-az" onclick="window.open(\''+amzLink(productB.name)+'\',\'_blank\')">View on Amazon &#8594;</button></div></div>';
+    html += '<div class="cmp-col">'+(productA.image?'<img src="'+productA.image+'" alt="'+esc(productA.name)+'" style="width:56px;height:56px;object-fit:contain;border-radius:8px;margin-bottom:10px;background:#fff;border:1px solid #E2E8F0;display:block;"/>':'')+'<h3>'+esc(productA.name)+'</h3>'+prosA+consA+'<div style="margin-top:14px"><button class="dbtn dbtn-az" onclick="window.open(\''+amzLink(productA.name)+'\',\'_blank\')">View on Amazon &#8594;</button></div></div>';
+    html += '<div class="cmp-col">'+(productB.image?'<img src="'+productB.image+'" alt="'+esc(productB.name)+'" style="width:56px;height:56px;object-fit:contain;border-radius:8px;margin-bottom:10px;background:#fff;border:1px solid #E2E8F0;display:block;"/>':'')+'<h3>'+esc(productB.name)+'</h3>'+prosB+consB+'<div style="margin-top:14px"><button class="dbtn dbtn-az" onclick="window.open(\''+amzLink(productB.name)+'\',\'_blank\')">View on Amazon &#8594;</button></div></div>';
     html += '</div>'+verdictHtml;
     html += '<div class="cmp-btns"><button class="dbtn dbtn-az" style="flex:1" onclick="window.open(\''+amzLink(productA.name)+'\',\'_blank\')">Check '+esc(productA.name)+' on Amazon &#8594;</button><button class="dbtn dbtn-az" style="flex:1" onclick="window.open(\''+amzLink(productB.name)+'\',\'_blank\')">Check '+esc(productB.name)+' on Amazon &#8594;</button></div>';
     html += '</div>';
@@ -439,7 +446,20 @@ module.exports = async function handler(req, res) {
       let data;
       try { data = typeof row.content === "string" ? JSON.parse(row.content) : row.content; } catch { data = {}; }
       data.slug = slug;
-      const html = renderHTML(data, slug);
+      let amazonSection = "";
+      try {
+        if (amz) {
+          const kw = ((data.productA && data.productA.name) || "") + " " + ((data.productB && data.productB.name) || "");
+          const products = await amz.searchProducts(kw.trim(), 4);
+          if (products && products.length > 0) {
+            amazonSection = '<div style="max-width:880px;margin:32px auto;padding:0 24px;font-family:Inter,system-ui,sans-serif">'
+              + '<h2 style="font-size:20px;font-weight:800;margin-bottom:16px;color:#0F172A;border-left:4px solid #2563EB;padding-left:12px;">Top Picks on Amazon</h2>'
+              + amz.productGrid(products)
+              + '</div>';
+          }
+        }
+      } catch(e) { console.log("Compare article Amazon fetch skipped:", e.message); }
+      const html = renderHTML(data, slug, amazonSection);
       if (!html) { res.setHeader("Location", "/compare"); return res.status(302).end(); }
       return res.status(200).send(html);
     }
@@ -514,6 +534,18 @@ module.exports = async function handler(req, res) {
   data.generatedAt = new Date().toISOString();
   data.fromCache   = false;
   data.fromDatabase = false;
+
+  // 4b. Fetch product images from Amazon
+  try {
+    if (amz) {
+      const [imgA, imgB] = await Promise.all([
+        amz.searchProducts(data.productA.name, 1).catch(() => []),
+        amz.searchProducts(data.productB.name, 1).catch(() => [])
+      ]);
+      if (imgA && imgA[0]) data.productA.image = imgA[0].image || null;
+      if (imgB && imgB[0]) data.productB.image = imgB[0].image || null;
+    }
+  } catch(e) { console.log("Compare image fetch skipped:", e.message); }
 
   // 5. Pre-render HTML for instant SEO delivery
   const html = renderHTML(data, slug);

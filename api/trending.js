@@ -168,8 +168,10 @@ function buildProductArticle(product,related){
   const pageUrl=PROD_SITE+"/products/"+product.slug;
   const today=new Date().toISOString().split("T")[0];
   const title=product.seo_title||product.amazon_title,subtitle=product.seo_subtitle||"",metaD=product.meta_description||"",affLink=product.affiliate_link||"#",body=product.article_body||"<p>Content coming soon.</p>";
+  // Route through /api/go so the partner's Amazon tag is injected at click time
+  const goLink="/api/go?to="+encodeURIComponent(affLink);
   const cS="display:inline-block;background:#1A56DB;color:#fff;border-radius:10px;padding:14px 28px;font-weight:700;font-size:16px;text-decoration:none;transition:background .2s,transform .15s;";
-  const cBtn=label=>'<a href="'+esc(affLink)+'" target="_blank" rel="noopener sponsored" style="'+cS+'" onmouseover="this.style.background=\'#0F3A9B\';this.style.transform=\'scale(1.02)\'" onmouseout="this.style.background=\'#1A56DB\';this.style.transform=\'none\'">'+esc(label)+' &#x2192;</a>';
+  const cBtn=label=>'<a href="'+esc(goLink)+'" target="_blank" rel="noopener sponsored" style="'+cS+'" onmouseover="this.style.background=\'#0F3A9B\';this.style.transform=\'scale(1.02)\'" onmouseout="this.style.background=\'#1A56DB\';this.style.transform=\'none\'">'+esc(label)+' &#x2192;</a>';
   const relCards=related.length>0?related.map(r=>'<a href="/products/'+esc(r.slug)+'" style="display:block;background:#fff;border:1.5px solid #E5E7EB;border-radius:12px;padding:20px;text-decoration:none;transition:border-color .15s,transform .15s;" onmouseover="this.style.borderColor=\'#1A56DB\';this.style.transform=\'translateY(-2px)\'" onmouseout="this.style.borderColor=\'#E5E7EB\';this.style.transform=\'none\'"><div style="font-family:Syne,system-ui,sans-serif;font-size:14px;font-weight:700;color:#111827;line-height:1.4;margin-bottom:8px;">'+esc(r.seo_title||r.amazon_title)+'</div><div style="font-size:12px;color:#1A56DB;font-weight:600;">Read Review &#x2192;</div></a>').join(''):'<p style="color:#9CA3AF;font-size:14px;">More product reviews coming soon.</p>';
   const pLD=JSON.stringify({"@context":"https://schema.org","@type":"Product","name":title,"description":metaD,"brand":{"@type":"Organization","name":"CheapestAlt"},"offers":{"@type":"Offer","url":affLink,"priceCurrency":"USD","availability":"https://schema.org/InStock"}});
   const aLD=JSON.stringify({"@context":"https://schema.org","@type":"Article","headline":title,"description":metaD,"url":pageUrl,"datePublished":today,"dateModified":today,"author":{"@type":"Organization","name":"CheapestAlt","url":PROD_SITE},"publisher":{"@type":"Organization","name":"CheapestAlt","url":PROD_SITE,"logo":{"@type":"ImageObject","url":PROD_SITE+"/logo.png"}}});
@@ -207,8 +209,7 @@ function buildProductArticle(product,related){
     +'<p style="font-size:12px;color:#9CA3AF;text-align:center;margin-bottom:40px;line-height:1.6;">CheapestAlt participates in the Amazon Associates Program. We may earn a small commission on qualifying purchases at no additional cost to you.</p>\n'
     +'</main>\n'
     +PROD_FTR
-    +'<span id="rdr" data-u="'+esc(affLink)+'" style="display:none;"></span>\n'
-    +'<script>setTimeout(function(){var u=document.getElementById("rdr");if(u){window.location.href=u.getAttribute("data-u");}},2000);</script>\n'
+    +'<script>setTimeout(function(){window.location.href="/api/go?to="+encodeURIComponent("'+affLink.replace(/\\/g,"\\\\").replace(/"/g,'\\"')+'");},2000);</script>\n'
     +'</body></html>';
 }
 function notFoundProd(){
